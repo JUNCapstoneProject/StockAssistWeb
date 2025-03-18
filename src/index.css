@@ -1,0 +1,7 @@
+body{
+  margin: 0;
+  background: linear-gradient(to right, #eff6ff, #faf5ff); /* 배경색 */
+}
+div{
+  box-sizing: border-box;
+}

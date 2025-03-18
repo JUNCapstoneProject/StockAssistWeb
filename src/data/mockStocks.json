@@ -1,0 +1,27 @@
+[
+    {
+      "id": 1,
+      "name": "테슬라",
+      "analysis": "매수 추천",
+      "image": "/images/tesla.png"
+    },
+    {
+      "id": 2,
+      "name": "애플",
+      "analysis": "보류 추천",
+      "image": "/images/tesla.png"
+    },
+    {
+      "id": 3,
+      "name": "삼성전자",
+      "analysis": "매수 추천",
+      "image": "/images/tesla.png"
+    },
+    {
+      "id": 4,
+      "name": "엔비디아",
+      "analysis": "매도 추천",    
+      "image": "/images/tesla.png"
+    }
+  ]
+  

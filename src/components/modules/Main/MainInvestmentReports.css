@@ -1,0 +1,21 @@
+.investment-reports {
+    text-align: center;
+    padding: 40px;
+  }
+  .report-list {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .more-btn {
+    margin-top: 20px;
+    padding: 10px 20px;
+    border: none;
+    background: #5c67f2;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+  }

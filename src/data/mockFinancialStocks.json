@@ -1,0 +1,27 @@
+[
+    {
+      "id": 1,
+      "name": "아마존",
+      "analysis": "매도 추천",
+      "image": "/images/tesla.png"
+    },
+    {
+      "id": 2,
+      "name": "애플",
+      "analysis": "매수 추천",
+      "image": "/images/tesla.png"
+    },
+    {
+      "id": 3,
+      "name": "구글",
+      "analysis": "매도 추천",
+      "image": "/images/tesla.png"
+    },
+    {
+      "id": 4,
+      "name": "브로드컴",
+      "analysis": "매수 추천",    
+      "image": "/images/tesla.png"
+    }
+  ]
+  
