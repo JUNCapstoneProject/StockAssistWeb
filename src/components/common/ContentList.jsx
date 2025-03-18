@@ -6,11 +6,11 @@ const ContentList = ({ data }) => {
     <Container>
       <TopSection>
         {data.slice(0, 3).map((item, index) => (
-          <ContentCard key={index} featured>
+          <ContentCard key={index} $featured>
             <CardHeader>
               <CategoryInfo>
                 <Category>{item.category}</Category>
-                <StatusBadge status={item.status}>{item.status}</StatusBadge>
+                <StatusBadge $status={item.status}>{item.status}</StatusBadge>
               </CategoryInfo>
               <Title>{item.title}</Title>
             </CardHeader>
@@ -28,7 +28,7 @@ const ContentList = ({ data }) => {
             <CardHeader>
               <CategoryInfo>
                 <Category>{item.category}</Category>
-                <StatusBadge status={item.status}>{item.status}</StatusBadge>
+                <StatusBadge $status={item.status}>{item.status}</StatusBadge>
               </CategoryInfo>
               <Title>{item.title}</Title>
             </CardHeader>
@@ -67,8 +67,8 @@ const ContentCard = styled.div`
   border-radius: 12px;
   padding: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  flex: ${props => (props.featured ? '1' : 'none')};
-  min-width: ${props => (props.featured ? '30%' : '100%')};
+  flex: ${({ $featured }) => ($featured ? '1' : 'none')};
+  min-width: ${({ $featured }) => ($featured ? '30%' : '100%')};
 `;
 
 const CardHeader = styled.div`
@@ -91,10 +91,10 @@ const StatusBadge = styled.span`
   padding: 4px 12px;
   border-radius: 16px;
   font-size: 12px;
-  background-color: ${props =>
-    props.status === '긍정' ? '#4CAF50' :
-    props.status === '부정' ? '#FF5252' :
-    props.status === '중립' ? '#757575' : '#757575'};
+  background-color: ${({ $status }) =>
+    $status === '긍정' ? '#4CAF50' :
+    $status === '부정' ? '#FF5252' :
+    $status === '중립' ? '#757575' : '#757575'};
   color: white;
 `;
 

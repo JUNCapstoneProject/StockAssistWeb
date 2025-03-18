@@ -13,13 +13,13 @@ const AiTab = ({ onTabChange }) => {
     <TabContainer>
       <TabWrapper>
         <TabItem 
-          active={activeTab === '뉴스'} 
+          $active={activeTab === '뉴스'} 
           onClick={() => handleTabChange('뉴스')}
         >
           뉴스
         </TabItem>
         <TabItem 
-          active={activeTab === '재무제표'} 
+          $active={activeTab === '재무제표'} 
           onClick={() => handleTabChange('재무제표')}
         >
           재무제표
@@ -49,14 +49,14 @@ const TabItem = styled.div`
   text-align: center;
   padding: 14px 20px;
   cursor: pointer;
-  color: ${props => props.active ? '#000' : '#666'};
-  font-weight: ${props => props.active ? '600' : '400'};
-  background: ${props => props.active ? '#ffffff' : 'transparent'};
+  color: ${({ $active }) => ($active ? '#000' : '#666')};
+  font-weight: ${({ $active }) => ($active ? '600' : '400')};
+  background: ${({ $active }) => ($active ? '#ffffff' : 'transparent')};
   border-radius: 8px;
   transition: all 0.3s ease;
 
   &:hover {
-    background: ${props => props.active ? '#ffffff' : '#dfe6ee'};
+    background: ${({ $active }) => ($active ? '#ffffff' : '#dfe6ee')};
   }
 `;
 
