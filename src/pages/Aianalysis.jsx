@@ -4,12 +4,14 @@ import ContentList from "../components/common/ContentList";
 import newsJson from "../data/news.json";
 import { useState } from "react";
 import FinancialStatement from "../components/modules/Aianalysis/FinancialStatement";
+import MacroEconomy from "../components/modules/Aianalysis/MacroEconomy";
 const AiAnalysis = () => {
   const [currentTab, setCurrentTab] = useState('뉴스');
 
   return (
     <div>
       <AiHeader />
+      <MacroEconomy />
       <AiTab onTabChange={setCurrentTab} />
       {currentTab === '뉴스' && <ContentList data={newsJson.newsData} />}
       {currentTab === '재무제표' && <FinancialStatement />} 
