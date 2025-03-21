@@ -56,7 +56,7 @@ const MacroEconomy = () => {
         <ExpandButton>{isExpanded ? '접기 ∧' : '더보기 ∨'}</ExpandButton>
       </Header>
       
-      <Content $isExpanded={isExpanded}>
+      <Content $expanded={isExpanded}>
         <Grid>
           {macroData.map((item, index) => (
             <MacroItem key={index}>
@@ -65,7 +65,7 @@ const MacroEconomy = () => {
                 <Tag>{item.tag}</Tag>
               </ItemHeader>
               <Value>{item.value}</Value>
-              <Change $isPositive={item.change.includes('+')}>
+              <Change $positive={item.change.includes('+')}>
                 {item.change}
               </Change>
               <Description>{item.description}</Description>
@@ -77,15 +77,18 @@ const MacroEconomy = () => {
   );
 };
 
+// ✅ 스타일 컴포넌트 (withConfig로 prop 전달 차단)
 const Container = styled.div`
-   border: 1px solid #e0e0e0;
+  border: 1px solid #e0e0e0;
   border-radius: 8px;
   background: white;
   margin: 10px auto;
   min-height: 100px;
   max-width: 900px;
 `;
-const Header = styled.div`  display: flex;
+
+const Header = styled.div`
+  display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 15px 20px;
@@ -102,8 +105,10 @@ const ExpandButton = styled.span`
   font-size: 14px;
 `;
 
-const Content = styled.div`
-  max-height: ${({ $isExpanded }) => ($isExpanded ? '1000px' : '150px')};
+const Content = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== '$expanded',
+})`
+  max-height: ${({ $expanded }) => ($expanded ? '1000px' : '150px')};
   overflow: hidden;
   transition: max-height 0.3s ease-in-out;
 `;
@@ -147,8 +152,10 @@ const Value = styled.div`
   margin-bottom: 5px;
 `;
 
-const Change = styled.div`
-  color: ${({ $isPositive }) => ($isPositive ? '#2ecc71' : '#e74c3c')};
+const Change = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== '$positive',
+})`
+  color: ${({ $positive }) => ($positive ? '#2ecc71' : '#e74c3c')};
   font-size: 14px;
 `;
 
@@ -159,4 +166,3 @@ const Description = styled.div`
 `;
 
 export default MacroEconomy;
-

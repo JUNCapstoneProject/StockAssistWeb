@@ -19,7 +19,7 @@ const StockNews = () => {
         <NewsItem key={index}>
           <NewsHeader>
             <NewsTitle>{news.title}</NewsTitle>
-            <NewsTag type={news.type}>{news.type}</NewsTag>
+            <NewsTag $type={news.type}>{news.type}</NewsTag>
           </NewsHeader>
           <NewsContent>{news.content}</NewsContent>
           <NewsFooter>
@@ -59,15 +59,18 @@ const NewsTitle = styled.h3`
   font-weight: 600;
 `;
 
-const NewsTag = styled.span`
+// ✅ 리팩토링: DOM에 전달되지 않도록 처리
+const NewsTag = styled.span.withConfig({
+  shouldForwardProp: (prop) => prop !== '$type',
+})`
   padding: 4px 12px;
   border-radius: 16px;
   font-size: 14px;
   font-weight: 500;
-  background-color: ${props => 
-    props.type === '긍정' ? '#22c55e' : 
-    props.type === '부정' ? '#ef4444' : 
-    props.type === '중립' ? '#6b7280' : '#6b7280'};
+  background-color: ${({ $type }) => 
+    $type === '긍정' ? '#22c55e' :
+    $type === '부정' ? '#ef4444' :
+    $type === '중립' ? '#6b7280' : '#6b7280'};
   color: white;
 `;
 

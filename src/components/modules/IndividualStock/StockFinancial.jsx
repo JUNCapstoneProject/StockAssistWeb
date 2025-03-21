@@ -8,7 +8,7 @@ const StockFinancials = () => {
         <Label>총자산</Label>
         <Value>
           <Amount>$128.11B</Amount>
-          <Change positive>+14.2% ↑</Change>
+          <Change $positive>+14.2% ↑</Change>
         </Value>
       </FinancialItem>
 
@@ -16,7 +16,7 @@ const StockFinancials = () => {
         <Label>총부채</Label>
         <Value>
           <Amount>$41.37B</Amount>
-          <Change positive>+6.9% ↑</Change>
+          <Change $positive>+6.9% ↑</Change>
         </Value>
       </FinancialItem>
 
@@ -24,7 +24,7 @@ const StockFinancials = () => {
         <Label>자본금</Label>
         <Value>
           <Amount>$86.74B</Amount>
-          <Change positive>+17.3% ↑</Change>
+          <Change $positive>+17.3% ↑</Change>
         </Value>
       </FinancialItem>
 
@@ -32,7 +32,7 @@ const StockFinancials = () => {
         <Label>부채비율</Label>
         <Value>
           <Amount>32.3%</Amount>
-          <Change negative>-4.8% ↓</Change>
+          <Change $positive={false}>-4.8% ↓</Change>
         </Value>
       </FinancialItem>
     </Container>
@@ -80,9 +80,12 @@ const Amount = styled.span`
   color: #333;
 `;
 
-const Change = styled.span`
+// ✅ DOM 전달 차단: $positive + withConfig
+const Change = styled.span.withConfig({
+  shouldForwardProp: (prop) => prop !== '$positive',
+})`
   font-size: 14px;
-  color: ${props => props.positive ? '#22c55e' : '#ef4444'};
+  color: ${({ $positive }) => $positive ? '#22c55e' : '#ef4444'};
 `;
 
 export default StockFinancials;

@@ -75,8 +75,8 @@ const MyStock = () => {
               <td>{stock.broker}</td>
               <td>${stock.currentPrice.toFixed(2)}</td>
               <td>
-                <PriceChange isPositive={stock.priceChange >= 0}>
-                  {stock.priceChange >= 0 ? '+' : ''} 
+                <PriceChange $positive={stock.priceChange >= 0}>
+                  {stock.priceChange >= 0 ? '+' : ''}
                   ${Math.abs(stock.priceChange).toFixed(2)}
                 </PriceChange>
               </td>
@@ -84,7 +84,7 @@ const MyStock = () => {
               <td>${stock.purchaseAmount.toFixed(2)}</td>
               <td>${stock.currentAmount.toFixed(2)}</td>
               <td>
-                <ReturnRate isPositive={stock.returnRate >= 0}>
+                <ReturnRate $positive={stock.returnRate >= 0}>
                   {stock.returnRate >= 0 ? '+' : ''}
                   {stock.returnRate}%
                 </ReturnRate>
@@ -115,14 +115,14 @@ const StockContainer = styled.div`
 const StockTable = styled.table`
   width: 100%;
   border-collapse: collapse;
-  
+
   th, td {
     padding: 8px;
     text-align: left;
     border-bottom: 1px solid #eee;
     font-size: 14px;
   }
-  
+
   th {
     background-color: white;
     font-weight: 600;
@@ -144,12 +144,16 @@ const StockSymbol = styled.div`
   font-size: 12px;
 `;
 
-const PriceChange = styled.span`
-  color: ${props => props.isPositive ? '#2ecc71' : '#e74c3c'};
+const PriceChange = styled.span.withConfig({
+  shouldForwardProp: (prop) => prop !== '$positive',
+})`
+  color: ${({ $positive }) => $positive ? '#2ecc71' : '#e74c3c'};
 `;
 
-const ReturnRate = styled.span`
-  color: ${props => props.isPositive ? '#2ecc71' : '#e74c3c'};
+const ReturnRate = styled.span.withConfig({
+  shouldForwardProp: (prop) => prop !== '$positive',
+})`
+  color: ${({ $positive }) => $positive ? '#2ecc71' : '#e74c3c'};
   font-weight: 500;
 `;
 

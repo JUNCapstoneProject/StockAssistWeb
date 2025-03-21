@@ -46,7 +46,7 @@ const FinancialStatement = () => {
               </StockPrice>
             </StockInfo>
             <StatusBadge $status={stock.status}>{stock.status}</StatusBadge>
-            </StockHeader>
+          </StockHeader>
 
           <TabWrapper>
             <TabItem $active={activeTab === '손익계산서'} onClick={() => setActiveTab('손익계산서')}>손익계산서</TabItem>
@@ -70,7 +70,8 @@ const FinancialStatement = () => {
   );
 };
 
-// ✅ 스타일 컴포넌트 수정
+// 📦 스타일 컴포넌트들 (withConfig 포함)
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -105,19 +106,25 @@ const StockPrice = styled.span`
   font-size: 16px;
 `;
 
-const PriceChange = styled.span`
+const PriceChange = styled.span.withConfig({
+  shouldForwardProp: (prop) => prop !== '$change',
+})`
   color: ${({ $change }) => ($change >= 0 ? 'green' : 'red')};
   margin-left: 5px;
 `;
 
-const StatusBadge = styled.span`
+const StatusBadge = styled.span.withConfig({
+  shouldForwardProp: (prop) => prop !== '$status',
+})`
   padding: 6px 12px;
   border-radius: 16px;
   font-size: 12px;
   color: white;
-  background-color: ${({ $status }) => ($status === '긍정' ? '#4CAF50' : $status === '부정' ? '#FF5252' : '#757575')};
+  background-color: ${({ $status }) =>
+    $status === '긍정' ? '#4CAF50' :
+    $status === '부정' ? '#FF5252' :
+    '#757575'};
 `;
-
 
 const TabWrapper = styled.div`
   display: flex;
@@ -125,7 +132,9 @@ const TabWrapper = styled.div`
   margin-top: 10px;
 `;
 
-const TabItem = styled.div`
+const TabItem = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== '$active',
+})`
   padding: 10px 15px;
   cursor: pointer;
   font-weight: ${({ $active }) => ($active ? '600' : '400')};
@@ -137,20 +146,25 @@ const Table = styled.div`
   margin-top: 15px;
 `;
 
-const Row = styled.div`  display: flex;
+const Row = styled.div`
+  display: flex;
   justify-content: space-between;
   padding: 10px 0;
   border-bottom: 1px solid #ddd;
 `;
 
-const Column = styled.div`
+const Column = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== '$change',
+})`
   flex: 1;
   text-align: right;
+
   &:first-child {
     text-align: left;
   }
-  color: ${({ $change }) => ($change !== undefined ? ($change >= 0 ? 'green' : 'red') : 'black')};
+
+  color: ${({ $change }) =>
+    $change !== undefined ? ($change >= 0 ? 'green' : 'red') : 'black'};
 `;
 
 export default FinancialStatement;
-
