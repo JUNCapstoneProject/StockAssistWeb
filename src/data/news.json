@@ -6,7 +6,8 @@
       "title": "테슬라, 자율주행 기술 업데이트로 주가 상승",
       "description": "테슬라가 최신 자율주행 소프트웨어 업데이트를 발표하며 주가가 3% 상승했습니다.",
       "source": "블룸버그",
-      "date": "2024.03.08"
+      "date": "2024.03.08",
+      "link": "https://www.bloomberg.com/news/articles/tesla-autopilot-update"
     },
     {
       "category": "애플",
@@ -14,7 +15,8 @@
       "title": "애플, 새로운 AI 기능 탑재한 iOS 18 공개 예정",
       "description": "애플이 WWDC에서 AI 기능이 강화된 iOS 18을 공개할 예정이라고 블룸버그가 보도했습니다.",
       "source": "월스트리트저널",
-      "date": "2024.03.07"
+      "date": "2024.03.07",
+      "link": "https://www.bloomberg.com/news/articles/tesla-autopilot-update"
     },
     {
       "category": "엔비디아",
@@ -22,7 +24,8 @@
       "title": "엔비디아, 새로운 AI 칩 출시로 시장 점유율 확대",
       "description": "엔비디아가 차세대 AI 칩을 출시하며 데이터센터 시장에서의 점유율을 더욱 확대할 전망입니다.",  
       "source": "로이터",
-      "date": "2024.03.06"
+      "date": "2024.03.06",
+      "link": "https://www.bloomberg.com/news/articles/tesla-autopilot-update"
     },
     {
       "category": "구글",
@@ -30,7 +33,8 @@
       "title": "구글, 새로운 AI 모델 출시로 클라우드 사업 경쟁력 강화", 
       "description": "구글이 새로운 AI 모델 Gemini Pro 2.0을 출시하며 클라우드 사업의 경쟁력을 강화할 전망입니다.",
       "source": "타임스퀘어",
-      "date": "2024.03.05"
+      "date": "2024.03.05",
+      "link": "https://www.bloomberg.com/news/articles/tesla-autopilot-update"
     },
     {
       "category": "마이크로소프트",
@@ -38,7 +42,8 @@
       "title": "마이크로소프트, 새로운 AI 기능 탑재한 Windows 11 업데이트 예정",
       "description": "마이크로소프트가 새로운 AI 기능을 탑재한 Windows 11 업데이트를 예정하고 있습니다.",
       "source": "뉴욕타임스",
-      "date": "2024.03.04"
+      "date": "2024.03.04",
+      "link": "https://www.bloomberg.com/news/articles/tesla-autopilot-update"
     }
   ]
 }
