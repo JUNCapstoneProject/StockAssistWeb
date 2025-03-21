@@ -8,15 +8,15 @@ const MyAccount = () => {
       <Header>
         <Title>나의 잔고</Title>
         <RefreshButton>
-            <img src={refresh} alt="refresh" /> 새로고침
+          <img src={refresh} alt="refresh" /> 새로고침
         </RefreshButton>
       </Header>
-      
+
       <AccountGrid>
         <AccountItem>
           <Label>총 자산</Label>
           <Value>$12,458.32</Value>
-          <Change positive>
+          <Change $positive>
             +2.4% ($293.45)
           </Change>
         </AccountItem>
@@ -29,7 +29,9 @@ const MyAccount = () => {
         <AccountItem>
           <Label>평가 손익</Label>
           <Value className="profit">+$1,258.32</Value>
-          <ProfitRate><Highlight>수익률 +11.2%</Highlight></ProfitRate>
+          <ProfitRate>
+            <Highlight>수익률 +11.2%</Highlight>
+          </ProfitRate>
         </AccountItem>
 
         <AccountItem>
@@ -72,7 +74,7 @@ const RefreshButton = styled.button`
   background: none;
   color: #666;
   cursor: pointer;
-  
+
   &:hover {
     color: #333;
   }
@@ -82,11 +84,11 @@ const AccountGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
-  
+
   @media (max-width: 768px) {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   @media (max-width: 480px) {
     grid-template-columns: 1fr;
   }
@@ -106,15 +108,18 @@ const Label = styled.span`
 const Value = styled.span`
   font-size: 24px;
   font-weight: 600;
-  
+
   &.profit {
     color: #2ecc71;
   }
 `;
 
-const Change = styled.span`
+// ✅ DOM에 전달되지 않도록 `$positive` + withConfig 사용
+const Change = styled.span.withConfig({
+  shouldForwardProp: (prop) => prop !== '$positive',
+})`
   font-size: 14px;
-  color: ${props => props.positive ? '#2ecc71' : '#e74c3c'};
+  color: ${({ $positive }) => $positive ? '#2ecc71' : '#e74c3c'};
 `;
 
 const ProfitRate = styled.span`
