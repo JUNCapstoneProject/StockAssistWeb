@@ -31,7 +31,7 @@ const Navbar = () => {
           {/* 네비게이션 링크 */}
           <div className="nav-links">
             <a href="/">홈</a>
-            <a href="/ai-investment">AI 투자 분석</a>
+            <a href="/ai-analysis">AI 투자 분석</a>
             <a href="/report">리포트</a>
             <a href="/portfolio">나의 포트폴리오</a>
           </div>

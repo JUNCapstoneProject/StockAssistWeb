@@ -6,7 +6,11 @@ const ContentList = ({ data }) => {
     <Container>
       <TopSection>
         {data.slice(0, 3).map((item, index) => (
-          <ContentCard key={index} $featured>
+          <ContentCard
+            key={index}
+            $featured
+            onClick={() => window.open(item.link, '_blank')}
+          >
             <CardHeader>
               <CategoryInfo>
                 <Category>{item.category}</Category>
@@ -24,7 +28,10 @@ const ContentList = ({ data }) => {
       </TopSection>
       <BottomSection>
         {data.slice(3).map((item, index) => (
-          <ContentCard key={index}>
+          <ContentCard
+            key={index}
+            onClick={() => window.open(item.link, '_blank')}
+          >
             <CardHeader>
               <CategoryInfo>
                 <Category>{item.category}</Category>
@@ -69,6 +76,12 @@ const ContentCard = styled.div`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   flex: ${({ $featured }) => ($featured ? '1' : 'none')};
   min-width: ${({ $featured }) => ($featured ? '30%' : '100%')};
+  cursor: pointer;
+  transition: transform 0.15s ease;
+  
+  &:hover {
+    transform: translateY(-4px);
+  }
 `;
 
 const CardHeader = styled.div`
