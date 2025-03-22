@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoginStatus, logout } from "../../redux/features/auth/authSlice";
-import { selectIsLoggedIn } from "../../redux/features/auth/authSelectors";
-import { checkLoginStatusAPI, logoutAPI } from "../../redux/features/auth/authAPI";
+import {
+  selectIsLoggedIn,
+  selectIsLoginChecked,
+} from "../../redux/features/auth/authSelectors";
+import {
+  checkLoginStatusAPI,
+  logoutAPI,
+} from "../../redux/features/auth/authAPI";
 import LoginModal from "../common/LoginModal";
 import SignupModal from "../common/SignupModal";
 import "./navbar.css";
@@ -10,6 +16,7 @@ import "./navbar.css";
 const Navbar = () => {
   const dispatch = useDispatch();
   const isLoggedIn = useSelector(selectIsLoggedIn);
+  const isLoginChecked = useSelector(selectIsLoginChecked);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -77,16 +84,24 @@ const Navbar = () => {
 
           <img src="/images/my.svg" alt="My Icon" className="my-icon" />
 
-          {isLoggedIn ? (
-            <button className="login-button" onClick={handleLogout}>로그아웃</button>
+          {/* 로그인 상태 확인 전까지는 아무 것도 보여주지 않기 */}
+          {!isLoginChecked ? null : isLoggedIn ? (
+            <button className="login-button" onClick={handleLogout}>
+              로그아웃
+            </button>
           ) : (
-            <button className="login-button" onClick={() => setIsLoginModalOpen(true)}>로그인</button>
+            <button
+              className="login-button"
+              onClick={() => setIsLoginModalOpen(true)}
+            >
+              로그인
+            </button>
           )}
         </div>
       </nav>
 
-      <LoginModal 
-        isOpen={isLoginModalOpen} 
+      <LoginModal
+        isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
         onSignupClick={() => {
           setIsLoginModalOpen(false);
@@ -94,8 +109,8 @@ const Navbar = () => {
         }}
         onLoginSuccess={() => dispatch(setLoginStatus(true))}
       />
-      <SignupModal 
-        isOpen={isSignupModalOpen} 
+      <SignupModal
+        isOpen={isSignupModalOpen}
         onClose={() => setIsSignupModalOpen(false)}
         onLoginClick={() => {
           setIsSignupModalOpen(false);
