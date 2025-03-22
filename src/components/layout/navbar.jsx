@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { setLoginStatus, logout } from "../../redux/features/auth/authSlice";
 import {
   selectIsLoggedIn,
@@ -15,6 +16,7 @@ import "./navbar.css";
 
 const Navbar = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const isLoggedIn = useSelector(selectIsLoggedIn);
   const isLoginChecked = useSelector(selectIsLoginChecked);
 
