@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import axiosInstance from "../../api/axiosInstance"; // ✅ 변경된 부분
 import "./LoginModal.css";
 import { useDispatch } from "react-redux";
 import { setLoginStatus } from "../../redux/features/auth/authSlice";
@@ -19,21 +19,24 @@ const LoginModal = ({ isOpen, onClose, onSignupClick }) => {
     e.preventDefault();
 
     try {
-      const response = await axios.post(
-        "http://localhost:8080/api/login",
+      const response = await axiosInstance.post(
+        "/api/login",
         { email, password },
-        { withCredentials: true }
+        { withCredentials: true } // ✅ 쿠키로 refreshToken 받기 위해 유지
       );
 
-      if (response.data.success) {
-        dispatch(setLoginStatus(true));  // ✅ Redux로 로그인 상태 변경
+      const { success, accessToken, error } = response.data;
+
+      if (success && accessToken) {
+        localStorage.setItem("accessToken", accessToken);
+        dispatch(setLoginStatus(true));
         alert("로그인 성공!");
         onClose();
       } else {
-        alert("로그인 실패: " + response.data.error);
+        alert("로그인 실패: " + (error || "알 수 없는 오류"));
       }
     } catch (error) {
-      console.error(error);
+      console.error("로그인 요청 중 에러 발생:", error);
       alert("로그인 요청 중 에러가 발생했습니다.");
     }
   };

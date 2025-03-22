@@ -22,7 +22,7 @@ const Navbar = () => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
 
-  // 로그인 상태 확인 (최초 1회)
+  // ✅ 로그인 상태 확인 (최초 1회)
   useEffect(() => {
     const checkLogin = async () => {
       try {
@@ -39,7 +39,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      const success = await logoutAPI();
+      const success = await logoutAPI(); // ✅ 내부에서 토큰 제거
       if (success) {
         dispatch(logout());
         alert("로그아웃되었습니다.");
@@ -49,6 +49,11 @@ const Navbar = () => {
       alert("로그아웃 중 오류가 발생했습니다.");
     }
   };
+
+  // ✅ 로그인 체크 전 로딩 처리 (선택)
+  if (!isLoginChecked) {
+    return null; // 또는 <div className="loading">로딩 중...</div>
+  }
 
   return (
     <>
@@ -84,8 +89,7 @@ const Navbar = () => {
 
           <img src="/images/my.svg" alt="My Icon" className="my-icon" />
 
-          {/* 로그인 상태 확인 전까지는 아무 것도 보여주지 않기 */}
-          {!isLoginChecked ? null : isLoggedIn ? (
+          {isLoggedIn ? (
             <button className="login-button" onClick={handleLogout}>
               로그아웃
             </button>
