@@ -1,53 +1,44 @@
 import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setLoginStatus, logout } from "../../redux/features/auth/authSlice";
+import { selectIsLoggedIn } from "../../redux/features/auth/authSelectors";
+import { checkLoginStatusAPI, logoutAPI } from "../../redux/features/auth/authAPI";
 import LoginModal from "../common/LoginModal";
 import SignupModal from "../common/SignupModal";
 import "./navbar.css";
-import axios from "axios";
 
 const Navbar = () => {
+  const dispatch = useDispatch();
+  const isLoggedIn = useSelector(selectIsLoggedIn);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // 컴포넌트 마운트 시 로그인 상태 확인
+  // 로그인 상태 확인 (최초 1회)
   useEffect(() => {
-    const checkLoginStatus = async () => {
+    const checkLogin = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/api/auth/check", {
-          withCredentials: true
-        });
-        setIsLoggedIn(response.data.loggedIn);
-      } catch (error) {
-        console.error("인증 상태 확인 중 오류 발생:", error);
-        setIsLoggedIn(false);
+        const result = await checkLoginStatusAPI();
+        dispatch(setLoginStatus(result));
+      } catch (err) {
+        dispatch(setLoginStatus(false));
+        console.error("로그인 상태 확인 실패", err);
       }
     };
 
-    checkLoginStatus();
-  }, []);
-
-  const openLoginModal = () => {
-    setIsSignupModalOpen(false);
-    setIsLoginModalOpen(true);
-  };
-
-  const openSignupModal = () => {
-    setIsLoginModalOpen(false);
-    setIsSignupModalOpen(true);
-  };
+    checkLogin();
+  }, [dispatch]);
 
   const handleLogout = async () => {
     try {
-      const response = await axios.post("http://localhost:8080/api/logout", {}, 
-        { withCredentials: true }
-      );
-      if (response.data.success) {
-        setIsLoggedIn(false);
+      const success = await logoutAPI();
+      if (success) {
+        dispatch(logout());
         alert("로그아웃되었습니다.");
       }
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
       alert("로그아웃 중 오류가 발생했습니다.");
     }
   };
@@ -55,14 +46,11 @@ const Navbar = () => {
   return (
     <>
       <nav className="navbar">
-        {/* 로고 섹션 */}
         <div className="nav-left">
           <a href="/" className="logo">
             <img src="/vite.svg" alt="Logoname" className="logo-image" />
             <span className="logo-text">Logoname</span>
           </a>
-
-          {/* 네비게이션 링크 */}
           <div className="nav-links">
             <a href="/">홈</a>
             <a href="/ai-analysis">AI 투자 분석</a>
@@ -71,7 +59,6 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* 검색창과 로그인 버튼 */}
         <div className="nav-right">
           <div className="search-container">
             <input
@@ -90,21 +77,10 @@ const Navbar = () => {
 
           <img src="/images/my.svg" alt="My Icon" className="my-icon" />
 
-          {/* 로그인 버튼 클릭 시 로그인 모달 열기 */}
           {isLoggedIn ? (
-            <button 
-              className="login-button" 
-              onClick={handleLogout}
-            >
-              로그아웃
-            </button>
+            <button className="login-button" onClick={handleLogout}>로그아웃</button>
           ) : (
-            <button 
-              className="login-button" 
-              onClick={() => setIsLoginModalOpen(true)}
-            >
-              로그인
-            </button>
+            <button className="login-button" onClick={() => setIsLoginModalOpen(true)}>로그인</button>
           )}
         </div>
       </nav>
@@ -112,13 +88,19 @@ const Navbar = () => {
       <LoginModal 
         isOpen={isLoginModalOpen} 
         onClose={() => setIsLoginModalOpen(false)}
-        onSignupClick={openSignupModal}
-        onLoginSuccess={() => setIsLoggedIn(true)}
+        onSignupClick={() => {
+          setIsLoginModalOpen(false);
+          setIsSignupModalOpen(true);
+        }}
+        onLoginSuccess={() => dispatch(setLoginStatus(true))}
       />
       <SignupModal 
         isOpen={isSignupModalOpen} 
         onClose={() => setIsSignupModalOpen(false)}
-        onLoginClick={openLoginModal}
+        onLoginClick={() => {
+          setIsSignupModalOpen(false);
+          setIsLoginModalOpen(true);
+        }}
       />
     </>
   );
