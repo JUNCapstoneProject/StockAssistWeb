@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import axios from "axios";
 import "./LoginModal.css";
+import { useDispatch } from "react-redux";
+import { setLoginStatus } from "../../redux/features/auth/authSlice";
 
-const LoginModal = ({ isOpen, onClose, onSignupClick, onLoginSuccess }) => {
+const LoginModal = ({ isOpen, onClose, onSignupClick }) => {
+  const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -19,13 +22,13 @@ const LoginModal = ({ isOpen, onClose, onSignupClick, onLoginSuccess }) => {
       const response = await axios.post(
         "http://localhost:8080/api/login",
         { email, password },
-        { withCredentials: true } // 쿠키 설정 허용
+        { withCredentials: true }
       );
 
       if (response.data.success) {
-        onLoginSuccess();  // 로그인 성공 시 상태 업데이트
+        dispatch(setLoginStatus(true));  // ✅ Redux로 로그인 상태 변경
         alert("로그인 성공!");
-        onClose(); // 모달 닫기
+        onClose();
       } else {
         alert("로그인 실패: " + response.data.error);
       }
