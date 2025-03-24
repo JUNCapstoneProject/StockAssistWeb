@@ -22,25 +22,33 @@ function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const checkLogin = async () => {
-      try {
-        // ✅ 1. localStorage의 accessToken을 Redux로 복구
+    // 페이지 새로고침 여부를 확인하는 플래그
+    const navigationEntries = performance.getEntriesByType("navigation");
+    const isPageRefresh = navigationEntries[0]?.type === "reload";
+
+    // 새로고침일 때만 로그인 상태 체크
+    if (isPageRefresh) {
+      (async () => {
         const token = localStorage.getItem("accessToken");
         if (token) {
           dispatch(setAccessToken(token));
+          try {
+            const loggedIn = await checkLoginStatusAPI();
+            dispatch(setLoginStatus(loggedIn));
+          } catch (err) {
+            dispatch(setLoginStatus(false));
+            console.error("앱 시작 시 로그인 상태 확인 실패:", err);
+          }
+        } else {
+          dispatch(setLoginStatus(false));
         }
-
-        // ✅ 2. 실제 서버에 로그인 상태 확인 요청
-        const loggedIn = await checkLoginStatusAPI();
-        dispatch(setLoginStatus(loggedIn));
-      } catch (err) {
-        dispatch(setLoginStatus(false));
-        console.error("앱 시작 시 로그인 상태 확인 실패:", err);
-      }
-    };
-
-    checkLogin();
-  }, [dispatch]);
+      })();
+    } else {
+      // 단순 라우트 변경일 경우 localStorage의 토큰만 확인
+      const token = localStorage.getItem("accessToken");
+      dispatch(setLoginStatus(!!token));
+    }
+  }, [dispatch]); // 컴포넌트 마운트 시 1회만 실행
 
   return (
     <Router>

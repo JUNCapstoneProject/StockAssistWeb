@@ -73,7 +73,7 @@ axiosInstance.interceptors.response.use(
           // ❌ refreshToken도 만료됨 → 강제 로그아웃 처리
           console.error("❌ refreshToken도 만료됨: 로그아웃 처리 필요");
           localStorage.removeItem("accessToken");
-          window.location.href = "/"; // 또는 로그인 모달 띄우기
+          //window.location.href = "/"; // 또는 로그인 모달 띄우기
           return Promise.reject(refreshError);
         } finally {
           isRefreshing = false; // refresh 종료
