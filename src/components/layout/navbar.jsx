@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoginStatus, logout } from "../../redux/features/auth/authSlice";
 import {
@@ -21,21 +21,6 @@ const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
-
-  // ✅ 로그인 상태 확인 (최초 1회)
-  useEffect(() => {
-    const checkLogin = async () => {
-      try {
-        const result = await checkLoginStatusAPI();
-        dispatch(setLoginStatus(result));
-      } catch (err) {
-        dispatch(setLoginStatus(false));
-        console.error("로그인 상태 확인 실패", err);
-      }
-    };
-
-    checkLogin();
-  }, [dispatch]);
 
   const handleLogout = async () => {
     try {

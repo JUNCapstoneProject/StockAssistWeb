@@ -12,8 +12,17 @@ import axiosInstance from "../../../api/axiosInstance";
  * - Navbar.jsx (처음 렌더링 시)
  */
 export const checkLoginStatusAPI = async () => {
+  const token = localStorage.getItem("accessToken");
+  
+  // 토큰이 없으면 바로 false 반환
+  if (!token) {
+    return false;
+  }
+
+  // 토큰이 있을 때만 서버 체크 수행
   const response = await axiosInstance.get("/api/auth/check");
-  return response.data.loggedIn; // 서버 응답: { loggedIn: true/false }
+  console.log("api/auth/check 실행");
+  return response.data.loggedIn;
 };
 
 /**
