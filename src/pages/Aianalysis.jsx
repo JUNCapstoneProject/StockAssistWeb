@@ -44,7 +44,7 @@ const AiAnalysis = () => {
     if (currentTab === "뉴스") {
       setSearchParams({ newsPage: newsPage.toString() });
     }
-  }, [newsPage, currentTab]);
+  }, [newsPage, currentTab, setSearchParams]);
 
   useEffect(() => {
     const fetchNewsData = async () => {

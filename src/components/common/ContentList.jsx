@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -9,12 +9,11 @@ const ContentList = ({ data, totalItems, currentPage, onPageChange }) => {
   const listRef = React.useRef(null);
  
   useEffect(() => {
-    // URL에서 페이지 파라미터 가져오기
     const pageParam = searchParams.get('page');
     if (pageParam) {
       onPageChange(Number(pageParam));
     }
-  }, []);
+  }, [onPageChange, searchParams]); // ✅ 의존성 추가
 
   const handlePageChange = (pageNumber) => {
     // URL 파라미터 업데이트
