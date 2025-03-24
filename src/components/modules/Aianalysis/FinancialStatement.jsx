@@ -2,37 +2,52 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
 const FinancialStatement = () => {
-  const [activeTab, setActiveTab] = useState('손익계산서');
+  const [activeTabs, setActiveTabs] = useState({});
   const [financialData, setFinancialData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 3;
 
   useEffect(() => {
-    const fetchFinancialData = async () => {
-      try {
-        setIsLoading(true);
-        const response = await fetch('http://localhost:8080/api/financial', {
-          credentials: 'include'
-        });
-        const result = await response.json();
-        
-        if (result.success && result.data) {  // success 확인 후 data 배열 직접 사용
-          setFinancialData(result.data);
-          console.log('받아온 데이터:', result.data); // 디버깅용 로그
-        } else {
-          console.error('재무제표 데이터 로드 실패: 데이터 구조가 올바르지 않습니다');
-        }
-      } catch (error) {
-        console.error('재무제표 데이터를 불러오는 중 오류가 발생했습니다:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchFinancialData();
+    fetchFinancialData(1);
   }, []);
 
-  // 디버깅을 위한 렌더링 확인
-  console.log('렌더링 시 financialData:', financialData);
+  const fetchFinancialData = async (page) => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`http://localhost:8080/api/financial?page=${page}&size=${itemsPerPage}`, {
+        credentials: 'include'
+      });
+      const result = await response.json();
+      
+      if (result.success && result.data) {
+        setFinancialData(result.data);
+        const initialTabs = {};
+        result.data.forEach(stock => {
+          initialTabs[stock.ticker] = '손익계산서';
+        });
+        setActiveTabs(initialTabs);
+      } else {
+        console.error('재무제표 데이터 로드 실패: 데이터 구조가 올바르지 않습니다');
+      }
+    } catch (error) {
+      console.error('재무제표 데이터를 불러오는 중 오류가 발생했습니다:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleTabChange = (ticker, tab) => {
+    setActiveTabs(prev => ({
+      ...prev,
+      [ticker]: tab
+    }));
+  };
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    fetchFinancialData(pageNumber);
+  };
 
   if (isLoading) {
     return <div>로딩 중...</div>;
@@ -57,14 +72,34 @@ const FinancialStatement = () => {
           </StockHeader>
 
           <TabWrapper>
-            <TabItem $active={activeTab === '손익계산서'} onClick={() => setActiveTab('손익계산서')}>손익계산서</TabItem>
-            <TabItem $active={activeTab === '대차대조표'} onClick={() => setActiveTab('대차대조표')}>대차대조표</TabItem>
-            <TabItem $active={activeTab === '현금흐름표'} onClick={() => setActiveTab('현금흐름표')}>현금흐름표</TabItem>
-            <TabItem $active={activeTab === '주요비율'} onClick={() => setActiveTab('주요비율')}>주요 비율</TabItem>
+            <TabItem 
+              $active={activeTabs[stock.ticker] === '손익계산서'} 
+              onClick={() => handleTabChange(stock.ticker, '손익계산서')}
+            >
+              손익계산서
+            </TabItem>
+            <TabItem 
+              $active={activeTabs[stock.ticker] === '대차대조표'} 
+              onClick={() => handleTabChange(stock.ticker, '대차대조표')}
+            >
+              대차대조표
+            </TabItem>
+            <TabItem 
+              $active={activeTabs[stock.ticker] === '현금흐름표'} 
+              onClick={() => handleTabChange(stock.ticker, '현금흐름표')}
+            >
+              현금흐름표
+            </TabItem>
+            <TabItem 
+              $active={activeTabs[stock.ticker] === '주요비율'} 
+              onClick={() => handleTabChange(stock.ticker, '주요비율')}
+            >
+              주요 비율
+            </TabItem>
           </TabWrapper>
 
           <Table>
-            {stock[activeTab === '주요비율' ? '주요비율' : activeTab].map((item, idx) => (
+            {stock[activeTabs[stock.ticker] === '주요비율' ? '주요비율' : activeTabs[stock.ticker]].map((item, idx) => (
               <Row key={idx}>
                 <Column>{item.name}</Column>
                 <Column>{item.value}</Column>
@@ -74,6 +109,20 @@ const FinancialStatement = () => {
           </Table>
         </StockContainer>
       ))}
+      <PaginationContainer>
+        <PageButton 
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          이전
+        </PageButton>
+        <PageButton 
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={financialData.length < itemsPerPage}
+        >
+          다음
+        </PageButton>
+      </PaginationContainer>
     </Container>
   );
 };
@@ -85,6 +134,8 @@ const Container = styled.div`
   flex-direction: column;
   gap: 20px;
   padding: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
 `;
 
 const StockContainer = styled.div`
@@ -92,6 +143,7 @@ const StockContainer = styled.div`
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
 `;
 
 const StockHeader = styled.div`
@@ -173,6 +225,34 @@ const Column = styled.div.withConfig({
 
   color: ${({ $change }) =>
     $change !== undefined ? ($change >= 0 ? 'green' : 'red') : 'black'};
+`;
+
+const PaginationContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-top: 30px;
+  padding: 20px 0;
+`;
+
+const PageButton = styled.button`
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+  font-size: 14px;
+
+  &:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+
+  &:hover:not(:disabled) {
+    background-color: #f0f0f0;
+  }
 `;
 
 export default FinancialStatement;

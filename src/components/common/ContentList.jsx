@@ -1,13 +1,32 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 
-const ContentList = ({ data }) => {
+const ContentList = ({ data, totalItems, currentPage, onPageChange }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const itemsPerPage = 6;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const listRef = React.useRef(null);
+ 
+  useEffect(() => {
+    const pageParam = searchParams.get('page');
+    if (pageParam) {
+      onPageChange(Number(pageParam));
+    }
+  }, [onPageChange, searchParams]); // ✅ 의존성 추가
+
+  const handlePageChange = (pageNumber) => {
+    // URL 파라미터 업데이트
+    setSearchParams({ page: pageNumber });
+    onPageChange(pageNumber);
+  };
+
   return (
-    <Container>
+    <Container ref={listRef}>
       <TopSection>
         {data.slice(0, 3).map((item, index) => (
           <ContentCard
-            key={index}
+            key={item.id || index}
             $featured
             onClick={() => window.open(item.link, '_blank')}
           >
@@ -29,7 +48,7 @@ const ContentList = ({ data }) => {
       <BottomSection>
         {data.slice(3).map((item, index) => (
           <ContentCard
-            key={index}
+            key={item.id || index}
             onClick={() => window.open(item.link, '_blank')}
           >
             <CardHeader>
@@ -47,6 +66,20 @@ const ContentList = ({ data }) => {
           </ContentCard>
         ))}
       </BottomSection>
+      <PaginationContainer>
+        <PageButton 
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          이전
+        </PageButton>
+        <PageButton 
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          다음
+        </PageButton>
+      </PaginationContainer>
     </Container>
   );
 };
@@ -138,6 +171,39 @@ const Source = styled.span`
 const Date = styled.span`
   font-size: 14px;
   color: #999;
+`;
+
+const PaginationContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-top: 30px;
+  padding: 20px 0;
+`;
+
+const PageButton = styled.button`
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+  font-size: 14px;
+
+  &:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+
+  &:hover:not(:disabled) {
+    background-color: #f0f0f0;
+  }
+`;
+
+const PageInfo = styled.span`
+  font-size: 14px;
+  color: #666;
 `;
 
 export default ContentList;
