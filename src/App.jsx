@@ -48,7 +48,7 @@ function App() {
       const token = localStorage.getItem("accessToken");
       dispatch(setLoginStatus(!!token));
     }
-  }, []); // 컴포넌트 마운트 시 1회만 실행
+  }, [dispatch]); // 컴포넌트 마운트 시 1회만 실행
 
   return (
     <Router>

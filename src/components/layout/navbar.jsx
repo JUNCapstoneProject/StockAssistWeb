@@ -6,8 +6,7 @@ import {
   selectIsLoginChecked,
 } from "../../redux/features/auth/authSelectors";
 import {
-  checkLoginStatusAPI,
-  logoutAPI,
+  logoutAPI
 } from "../../redux/features/auth/authAPI";
 import LoginModal from "../common/LoginModal";
 import SignupModal from "../common/SignupModal";
