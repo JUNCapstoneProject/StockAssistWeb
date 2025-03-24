@@ -1,48 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-
-const dummyData = [
-  {
-    name: '삼성전자',
-    ticker: '005930',
-    price: '78,000',
-    change: 2.5,
-    status: '긍정',
-    손익계산서: [
-      { name: '매출액', value: '2,796,048억', change: 1.2 },
-      { name: '영업이익', value: '365,855억', change: -3.5 },
-      { name: '당기순이익', value: '289,934억', change: 2.8 }
-    ],
-    대차대조표: [
-      { name: '자산총계', value: '4,265,223억', change: 0.8 },
-      { name: '부채총계', value: '1,205,501억', change: -1.2 },
-      { name: '자본총계', value: '3,059,722억', change: 1.5 }
-    ],
-    현금흐름표: [
-      { name: '영업활동현금흐름', value: '446,857억', change: 5.2 },
-      { name: '투자활동현금흐름', value: '-285,914억', change: -2.1 },
-      { name: '재무활동현금흐름', value: '-124,503억', change: -0.9 }
-    ],
-    주요비율: [
-      { name: 'ROE', value: '9.45%', change: 0.5 },
-      { name: '부채비율', value: '39.4%', change: -1.8 },
-      { name: '유동비율', value: '265.8%', change: 2.3 }
-    ]
-  }
-];
 
 const FinancialStatement = () => {
   const [activeTab, setActiveTab] = useState('손익계산서');
+  const [financialData, setFinancialData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchFinancialData = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch('http://localhost:8080/api/financial', {
+          credentials: 'include'
+        });
+        const result = await response.json();
+        
+        if (result.success && result.data) {  // success 확인 후 data 배열 직접 사용
+          setFinancialData(result.data);
+          console.log('받아온 데이터:', result.data); // 디버깅용 로그
+        } else {
+          console.error('재무제표 데이터 로드 실패: 데이터 구조가 올바르지 않습니다');
+        }
+      } catch (error) {
+        console.error('재무제표 데이터를 불러오는 중 오류가 발생했습니다:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchFinancialData();
+  }, []);
+
+  // 디버깅을 위한 렌더링 확인
+  console.log('렌더링 시 financialData:', financialData);
+
+  if (isLoading) {
+    return <div>로딩 중...</div>;
+  }
+
+  if (!financialData || financialData.length === 0) {
+    return <div>데이터가 없습니다.</div>;
+  }
 
   return (
     <Container>
-      {dummyData.map((stock, index) => (
+      {financialData.map((stock, index) => (
         <StockContainer key={index}>
           <StockHeader>
             <StockInfo>
               <StockName>{stock.name} ({stock.ticker})</StockName>
               <StockPrice>
-                {stock.price} <PriceChange $change={stock.change}>{stock.change}%</PriceChange>
+                ${stock.price} <PriceChange $change={stock.change}>{stock.change}%</PriceChange> 
               </StockPrice>
             </StockInfo>
             <StatusBadge $status={stock.status}>{stock.status}</StatusBadge>

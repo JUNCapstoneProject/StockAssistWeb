@@ -1,26 +1,19 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-const AiTab = ({ onTabChange }) => {
-  const [activeTab, setActiveTab] = useState('뉴스');
-
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
-    onTabChange(tab);
-  };
-
+const AiTab = ({ onTabChange, currentTab }) => {
   return (
     <TabContainer>
       <TabWrapper>
         <TabItem 
-          $active={activeTab === '뉴스'} 
-          onClick={() => handleTabChange('뉴스')}
+          $active={currentTab === '뉴스'} 
+          onClick={() => onTabChange('뉴스')}
         >
           뉴스
         </TabItem>
         <TabItem 
-          $active={activeTab === '재무제표'} 
-          onClick={() => handleTabChange('재무제표')}
+          $active={currentTab === '재무제표'} 
+          onClick={() => onTabChange('재무제표')}
         >
           재무제표
         </TabItem>
