@@ -1,53 +1,97 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
 const MacroEconomy = () => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [macroValues, setMacroValues] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
 
-  const macroData = [
+  const baseData = [
     {
       title: '국내총생산',
-      value: '24.3조 달러',
-      change: '+2.1%',
       tag: 'GDP',
       description: '미국 경제 규모'
     },
     {
       title: '소비자물가지수',
-      value: '3.2%',
-      change: '-0.1%',
       tag: 'CPI',
       description: '물가상승률'
     },
     {
-      title: '1인당 국내총생산 (GCDP)',
-      value: '1.8%',
-      change: '+0.2%',
-      tag: 'GCDP',
-      description: '경제 성장률'
+      title: '실업률',
+      tag: 'UNRATE',
+      description: '노동시장 지표'
     },
     {
-      title: '미국 2년 국채 (DGS2)',
-      value: '4.29%',
-      change: '+0.1%',
+      title: '연방기금금리',
+      tag: 'FEDFUNDS',
+      description: '미국 기준금리'
+    },
+    {
+      title: '미국 2년 국채',
       tag: 'DGS2',
-      description: '국채 금리'
+      description: '단기 금리 지표'
     },
     {
-      title: '미국 10년 국채 (DGS10)',
-      value: '3.45%',
-      change: '-0.2%',
-      tag: 'DGS10',
-      description: '국채 금리'
+      title: '1인당 국내총생산',
+      tag: 'GDPC',
+      description: '개인 경제력 지표'
     },
     {
-      title: '미국 30년 국채 (DGS30)',
-      value: '3.87%',
-      change: '+0.1%',
-      tag: 'DGS30',
-      description: '국채 금리'
+      title: '무역수지',
+      tag: 'TRADE_BALANCE',
+      description: '수출입 균형 지표'
+    },
+    {
+      title: '생산자물가지수',
+      tag: 'PPI',
+      description: '생산단계 물가지표'
+    },
+    {
+      title: '자동차 PPI',
+      tag: 'PPI_VEHICLE',
+      description: '자동차 생산 물가'
+    },
+    {
+      title: '전기 PPI',
+      tag: 'PPI_ELECTRIC',
+      description: '전기 생산 물가'
+    },
+    {
+      title: '구매관리자지수',
+      tag: 'PMI',
+      description: '제조업 경기 지표'
+    },
+    {
+      title: '개인소비지출',
+      tag: 'PCE',
+      description: '소비 동향 지표'
+    },
+    {
+      title: '소비자신뢰지수',
+      tag: 'CCI',
+      description: '소비자 심리 지표'
     }
   ];
+
+  useEffect(() => {
+    const fetchMacroData = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch('http://localhost:8080/api/macro');
+        const result = await response.json();
+        if (result.success) {
+          setMacroValues(result.data);
+        }
+      } catch (error) {
+        console.error('거시경제 데이터 로딩 실패:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMacroData();
+  }, []);
 
   return (
     <Container>
@@ -58,19 +102,23 @@ const MacroEconomy = () => {
       
       <Content $expanded={isExpanded}>
         <Grid>
-          {macroData.map((item, index) => (
-            <MacroItem key={index}>
-              <ItemHeader>
-                <ItemTitle>{item.title}</ItemTitle>
-                <Tag>{item.tag}</Tag>
-              </ItemHeader>
-              <Value>{item.value}</Value>
-              <Change $positive={item.change.includes('+')}>
-                {item.change}
-              </Change>
-              <Description>{item.description}</Description>
-            </MacroItem>
-          ))}
+          {isLoading ? (
+            <LoadingMessage>데이터를 불러오는 중...</LoadingMessage>
+          ) : (
+            baseData.map((item, index) => (
+              <MacroItem key={index}>
+                <ItemHeader>
+                  <ItemTitle>{item.title}</ItemTitle>
+                  <Tag>{item.tag}</Tag>
+                </ItemHeader>
+                <Value>{macroValues[item.tag]?.value || '-'}</Value>
+                <Change $positive={macroValues[item.tag]?.change?.includes('+')}>
+                  {macroValues[item.tag]?.change || '-'}
+                </Change>
+                <Description>{item.description}</Description>
+              </MacroItem>
+            ))
+          )}
         </Grid>
       </Content>
     </Container>
@@ -163,6 +211,13 @@ const Description = styled.div`
   font-size: 12px;
   color: #888;
   margin-top: 5px;
+`;
+
+const LoadingMessage = styled.div`
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 20px;
+  color: #666;
 `;
 
 export default MacroEconomy;
