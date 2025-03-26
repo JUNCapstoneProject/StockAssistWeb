@@ -15,6 +15,7 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const [isLoading, setIsLoading] = useState(false);
   const isLoggedIn = useSelector(selectIsLoggedIn);
   const isLoginChecked = useSelector(selectIsLoginChecked);
 

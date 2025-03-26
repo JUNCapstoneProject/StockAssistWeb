@@ -53,7 +53,7 @@ const FinancialStatementPage = () => {
 
   return (
     <Container>
-      {financialData.map((stock, idx) => (
+      {financialData.map((stock /*,idx*/) => (
         <FinancialCard
           key={stock.ticker}
           stock={stock}
