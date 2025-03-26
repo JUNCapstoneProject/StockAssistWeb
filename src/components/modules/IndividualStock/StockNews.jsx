@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
-const StockNews = () => {
+const StockNews = ({ ticker }) => {
   const { state } = useLocation();
-  const { ticker } = useParams();
   const stockName = state?.name || ticker;
 
   const [newsData, setNewsData] = useState([]);
@@ -17,8 +16,8 @@ const StockNews = () => {
       try {
         const res = await fetch(`http://localhost:8080/api/news/${ticker}`);
         if (!res.ok) throw new Error("뉴스 데이터를 가져오지 못했습니다.");
-        const data = await res.json();
-        setNewsData(data);
+        const result = await res.json();
+        setNewsData(result.data); // ✅ 백엔드 구조에 맞게 data 사용
       } catch (err) {
         console.error("❌ 뉴스 요청 오류:", err);
         setError(err.message);
@@ -81,7 +80,6 @@ const NewsTitle = styled.h3`
   font-weight: 600;
 `;
 
-// ✅ 리팩토링: DOM에 전달되지 않도록 처리
 const NewsTag = styled.span.withConfig({
   shouldForwardProp: (prop) => prop !== '$type',
 })`

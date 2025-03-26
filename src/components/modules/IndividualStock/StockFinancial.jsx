@@ -18,10 +18,8 @@ const StockFinancial = () => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        console.log('재무제표 데이터 요청:', cleanSymbol);
         const res = await fetch(`http://localhost:8080/api/financial/${cleanSymbol}`);
         const json = await res.json();
-        console.log('재무제표 응답:', json);
 
         if (json.success && json.data) {
           setStock(json.data);
