@@ -39,8 +39,6 @@ const FinancialStatementPage = () => {
         "재무제표 데이터를 불러오는 중 오류가 발생했습니다:",
         error
       );
-    } finally {
-      setIsLoading(false);
     }
   };
 
