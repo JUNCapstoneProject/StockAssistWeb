@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import FinancialCard from '../../../components/common/FinancialCard'; // 분리한 컴포넌트 import
-import styled from 'styled-components';
+import React, { useState, useEffect } from "react";
+import FinancialCard from "../../../components/common/FinancialCard"; // 분리한 컴포넌트 import
+import styled from "styled-components";
 
 const FinancialStatementPage = () => {
   const [activeTabs, setActiveTabs] = useState({});
   const [financialData, setFinancialData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
   const itemsPerPage = 3;
 
   useEffect(() => {
@@ -15,32 +16,40 @@ const FinancialStatementPage = () => {
   const fetchFinancialData = async (page) => {
     try {
       setIsLoading(true);
-      const response = await fetch(`http://localhost:8080/api/financial?page=${page}&size=${itemsPerPage}`, {
-        credentials: 'include'
-      });
+      const response = await fetch(
+        `http://localhost:8080/api/financial?page=${page}&size=${itemsPerPage}`,
+        {
+          credentials: "include",
+        }
+      );
       const result = await response.json();
-      
+
       if (result.success && result.data) {
         setFinancialData(result.data);
         const initialTabs = {};
-        result.data.forEach(stock => {
-          initialTabs[stock.ticker] = '손익계산서';
+        result.data.forEach((stock) => {
+          initialTabs[stock.ticker] = "손익계산서";
         });
         setActiveTabs(initialTabs);
       } else {
-        console.error('재무제표 데이터 로드 실패: 데이터 구조가 올바르지 않습니다');
+        console.error(
+          "재무제표 데이터 로드 실패: 데이터 구조가 올바르지 않습니다"
+        );
       }
     } catch (error) {
-      console.error('재무제표 데이터를 불러오는 중 오류가 발생했습니다:', error);
+      console.error(
+        "재무제표 데이터를 불러오는 중 오류가 발생했습니다:",
+        error
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleTabChange = (ticker, tab) => {
-    setActiveTabs(prev => ({
+    setActiveTabs((prev) => ({
       ...prev,
-      [ticker]: tab
+      [ticker]: tab,
     }));
   };
 
@@ -53,7 +62,7 @@ const FinancialStatementPage = () => {
 
   return (
     <Container>
-      {financialData.map((stock /*,idx*/) => (
+      {financialData.map((stock) => (
         <FinancialCard
           key={stock.ticker}
           stock={stock}
