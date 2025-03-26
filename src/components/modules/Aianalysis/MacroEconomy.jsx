@@ -7,71 +7,19 @@ const MacroEconomy = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   const baseData = [
-    {
-      title: '국내총생산',
-      tag: 'GDP',
-      description: '미국 경제 규모'
-    },
-    {
-      title: '소비자물가지수',
-      tag: 'CPI',
-      description: '물가상승률'
-    },
-    {
-      title: '실업률',
-      tag: 'UNRATE',
-      description: '노동시장 지표'
-    },
-    {
-      title: '연방기금금리',
-      tag: 'FEDFUNDS',
-      description: '미국 기준금리'
-    },
-    {
-      title: '미국 2년 국채',
-      tag: 'DGS2',
-      description: '단기 금리 지표'
-    },
-    {
-      title: '1인당 국내총생산',
-      tag: 'GDPC',
-      description: '개인 경제력 지표'
-    },
-    {
-      title: '무역수지',
-      tag: 'TRADE_BALANCE',
-      description: '수출입 균형 지표'
-    },
-    {
-      title: '생산자물가지수',
-      tag: 'PPI',
-      description: '생산단계 물가지표'
-    },
-    {
-      title: '자동차 PPI',
-      tag: 'PPI_VEHICLE',
-      description: '자동차 생산 물가'
-    },
-    {
-      title: '전기 PPI',
-      tag: 'PPI_ELECTRIC',
-      description: '전기 생산 물가'
-    },
-    {
-      title: '구매관리자지수',
-      tag: 'PMI',
-      description: '제조업 경기 지표'
-    },
-    {
-      title: '개인소비지출',
-      tag: 'PCE',
-      description: '소비 동향 지표'
-    },
-    {
-      title: '소비자신뢰지수',
-      tag: 'CCI',
-      description: '소비자 심리 지표'
-    }
+    { title: '국내총생산', tag: 'GDP', description: '미국 경제 규모' },
+    { title: '소비자물가지수', tag: 'CPI', description: '물가상승률' },
+    { title: '실업률', tag: 'UNRATE', description: '노동시장 지표' },
+    { title: '연방기금금리', tag: 'FEDFUNDS', description: '미국 기준금리' },
+    { title: '미국 2년 국채', tag: 'DGS2', description: '단기 금리 지표' },
+    { title: '1인당 국내총생산', tag: 'GDPC', description: '개인 경제력 지표' },
+    { title: '무역수지', tag: 'TRADE_BALANCE', description: '수출입 균형 지표' },
+    { title: '생산자물가지수', tag: 'PPI', description: '생산단계 물가지표' },
+    { title: '자동차 PPI', tag: 'PPI_VEHICLE', description: '자동차 생산 물가' },
+    { title: '전기 PPI', tag: 'PPI_ELECTRIC', description: '전기 생산 물가' },
+    { title: '구매관리자지수', tag: 'PMI', description: '제조업 경기 지표' },
+    { title: '개인소비지출', tag: 'PCE', description: '소비 동향 지표' },
+    { title: '소비자신뢰지수', tag: 'CCI', description: '소비자 심리 지표' }
   ];
 
   useEffect(() => {
@@ -81,7 +29,7 @@ const MacroEconomy = () => {
         const response = await fetch('http://localhost:8080/api/macro');
         const result = await response.json();
         if (result.success) {
-          setMacroValues(result.data);
+          setMacroValues(result.response); // ✅ 'data' → 'response'
         }
       } catch (error) {
         console.error('거시경제 데이터 로딩 실패:', error);
@@ -93,6 +41,34 @@ const MacroEconomy = () => {
     fetchMacroData();
   }, []);
 
+  const getUnit = (tag) => {
+    switch (tag) {
+      case 'GDP':
+        return '조 달러';
+      case 'GDPC':
+        return ' 달러';
+      case 'TRADE_BALANCE':
+        return 'B 달러';
+      case 'CPI':
+      case 'UNRATE':
+      case 'FEDFUNDS':
+      case 'DGS2':
+      case 'PPI':
+      case 'PPI_VEHICLE':
+      case 'PPI_ELECTRIC':
+      case 'PCE':
+        return '%';
+      default:
+        return '';
+    }
+  };
+
+  const getChangeUnit = (tag) => {
+    // 단위 없이 보여야 할 항목
+    const unitlessTags = ['PMI', 'CCI'];
+    return unitlessTags.includes(tag) ? '' : '%';
+  };
+  
   return (
     <Container>
       <Header onClick={() => setIsExpanded(!isExpanded)}>
@@ -105,19 +81,28 @@ const MacroEconomy = () => {
           {isLoading ? (
             <LoadingMessage>데이터를 불러오는 중...</LoadingMessage>
           ) : (
-            baseData.map((item, index) => (
-              <MacroItem key={index}>
-                <ItemHeader>
-                  <ItemTitle>{item.title}</ItemTitle>
-                  <Tag>{item.tag}</Tag>
-                </ItemHeader>
-                <Value>{macroValues[item.tag]?.value || '-'}</Value>
-                <Change $positive={macroValues[item.tag]?.change?.includes('+')}>
-                  {macroValues[item.tag]?.change || '-'}
-                </Change>
-                <Description>{item.description}</Description>
-              </MacroItem>
-            ))
+            baseData.map((item, index) => {
+              const macro = macroValues[item.tag];
+              return (
+                <MacroItem key={index}>
+                  <ItemHeader>
+                    <ItemTitle>{item.title}</ItemTitle>
+                    <Tag>{item.tag}</Tag>
+                  </ItemHeader>
+                  <Value>
+                    {macro?.value !== undefined
+                      ? `${macro.value.toLocaleString()}${getUnit(item.tag)}`
+                      : '-'}
+                  </Value>
+                  <Change $positive={macro?.change > 0}>
+                    {macro?.change !== undefined
+                      ? `${macro.change > 0 ? '+' : ''}${macro.change}${getChangeUnit(item.tag)}`
+                      : '-'}
+                  </Change>
+                  <Description>{item.description}</Description>
+                </MacroItem>
+              );
+            })
           )}
         </Grid>
       </Content>
@@ -125,7 +110,7 @@ const MacroEconomy = () => {
   );
 };
 
-// ✅ 스타일 컴포넌트 (withConfig로 prop 전달 차단)
+// ✅ 스타일 컴포넌트
 const Container = styled.div`
   border: 1px solid #e0e0e0;
   border-radius: 8px;

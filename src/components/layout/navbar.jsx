@@ -5,25 +5,28 @@ import {
   selectIsLoggedIn,
   selectIsLoginChecked,
 } from "../../redux/features/auth/authSelectors";
-import {
-  logoutAPI
-} from "../../redux/features/auth/authAPI";
+import { logoutAPI } from "../../redux/features/auth/authAPI";
 import LoginModal from "../common/LoginModal";
 import SignupModal from "../common/SignupModal";
 import "./navbar.css";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const isLoggedIn = useSelector(selectIsLoggedIn);
   const isLoginChecked = useSelector(selectIsLoginChecked);
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
-      const success = await logoutAPI(); // ✅ 내부에서 토큰 제거
+      const success = await logoutAPI();
       if (success) {
         dispatch(logout());
         alert("로그아웃되었습니다.");
@@ -34,10 +37,45 @@ const Navbar = () => {
     }
   };
 
-  // ✅ 로그인 체크 전 로딩 처리 (선택)
-  if (!isLoginChecked) {
-    return null; // 또는 <div className="loading">로딩 중...</div>
-  }
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/stock/${searchQuery}`);
+    }
+  };
+
+  const handleSearchChange = async (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+
+    if (!query.trim()) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    try {
+      const res = await fetch(`http://localhost:8080/api/search?query=${encodeURIComponent(query)}`);
+      if (res.ok) {
+        const data = await res.json();
+        setSuggestions(data);
+        setShowSuggestions(true);
+      }
+    } catch (err) {
+      console.error("🔍 자동완성 에러:", err);
+    }
+  };
+
+  const handleSuggestionClick = (ticker) => {
+    navigate(`/stock/${ticker}`, {
+      state: { name: suggestions.find(item => item.ticker === ticker)?.name }
+    });
+    setSearchQuery("");
+    setSuggestions([]);
+    setShowSuggestions(false);
+  };
+
+  if (!isLoginChecked) return null;
 
   return (
     <>
@@ -56,20 +94,36 @@ const Navbar = () => {
         </div>
 
         <div className="nav-right">
-          <div className="search-container">
+          <form className="search-container" onSubmit={handleSearch}>
             <input
               type="text"
               placeholder="종목 검색"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearchChange}
+              onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
               className="search-input"
             />
-            <button className="search-button">
+            <button type="submit" className="search-button">
               <svg className="search-icon" viewBox="0 0 24 24">
                 <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </button>
-          </div>
+
+            {showSuggestions && (
+              <ul className="suggestions-dropdown">
+                {suggestions.map((item) => (
+                  <li
+                    key={item.ticker}
+                    className="suggestion-item"
+                    onClick={() => handleSuggestionClick(item.ticker)}
+                  >
+                    {item.name} ({item.ticker})
+                  </li>
+                ))}
+              </ul>
+            )}
+          </form>
 
           <img src="/images/my.svg" alt="My Icon" className="my-icon" />
 

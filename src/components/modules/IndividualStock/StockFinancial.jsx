@@ -1,91 +1,61 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { useParams, useLocation } from 'react-router-dom';
+import FinancialCard from '../../../components/common/FinancialCard';
 
-const StockFinancials = () => {
+const StockFinancial = () => {
+  const { symbol: rawSymbol } = useParams();
+  const location = useLocation();
+  const stockName = location.state?.name || rawSymbol;
+  const cleanSymbol = rawSymbol?.replace(':', '');
+  const [stock, setStock] = useState(null);
+  const [activeTab, setActiveTab] = useState('손익계산서');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!cleanSymbol) return;
+
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const res = await fetch(`http://localhost:8080/api/financial/${cleanSymbol}`);
+        const json = await res.json();
+
+        if (json.success && json.data) {
+          setStock(json.data);
+        } else {
+          console.error('❌ 재무 데이터 없음:', json);
+        }
+      } catch (err) {
+        console.error('❌ API 오류:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [cleanSymbol]); // 의존성 배열을 cleanSymbol로 변경
+
+  if (isLoading) return <Wrapper>로딩 중...</Wrapper>;
+  if (!stock) return <Wrapper>데이터 없음</Wrapper>;
+
   return (
-    <Container>
-      <FinancialItem>
-        <Label>총자산</Label>
-        <Value>
-          <Amount>$128.11B</Amount>
-          <Change $positive>+14.2% ↑</Change>
-        </Value>
-      </FinancialItem>
-
-      <FinancialItem>
-        <Label>총부채</Label>
-        <Value>
-          <Amount>$41.37B</Amount>
-          <Change $positive>+6.9% ↑</Change>
-        </Value>
-      </FinancialItem>
-
-      <FinancialItem>
-        <Label>자본금</Label>
-        <Value>
-          <Amount>$86.74B</Amount>
-          <Change $positive>+17.3% ↑</Change>
-        </Value>
-      </FinancialItem>
-
-      <FinancialItem>
-        <Label>부채비율</Label>
-        <Value>
-          <Amount>32.3%</Amount>
-          <Change $positive={false}>-4.8% ↓</Change>
-        </Value>
-      </FinancialItem>
-    </Container>
+    <Wrapper>
+      <FinancialCard
+        stock={stock}
+        activeTab={activeTab}
+        onTabChange={(ticker, tab) => setActiveTab(tab)}
+        ticker={cleanSymbol}
+        name={stockName}
+      />
+    </Wrapper>
   );
 };
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 20px;
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  max-width: 800px;
-  margin: 20px auto;
+export default StockFinancial;
+
+const Wrapper = styled.div`
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px;
 `;
-
-const FinancialItem = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 0;
-  border-bottom: 1px solid #eee;
-
-  &:last-child {
-    border-bottom: none;
-  }
-`;
-
-const Label = styled.span`
-  font-size: 14px;
-  color: #666;
-`;
-
-const Value = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const Amount = styled.span`
-  font-size: 16px;
-  font-weight: 600;
-  color: #333;
-`;
-
-// ✅ DOM 전달 차단: $positive + withConfig
-const Change = styled.span.withConfig({
-  shouldForwardProp: (prop) => prop !== '$positive',
-})`
-  font-size: 14px;
-  color: ${({ $positive }) => $positive ? '#22c55e' : '#ef4444'};
-`;
-
-export default StockFinancials;

@@ -56,14 +56,14 @@ const AiAnalysis = () => {
         );
         const result = await response.json();
 
-        if (result.data?.newsData) {
+        if (result.response?.news) {
+          const newData = result.response.news;
           setNewsData((prevData) => {
-            const newData = result.data.newsData;
             return JSON.stringify(prevData) === JSON.stringify(newData)
               ? prevData
               : newData;
           });
-          setTotalItems(result.data.totalItems);
+          setTotalItems(result.response.totalItems);
         } else {
           console.error("뉴스 데이터 로드 실패: 데이터 구조가 올바르지 않습니다");
         }
@@ -102,7 +102,7 @@ const AiAnalysis = () => {
       {currentTab === "뉴스" && (
         <div style={{ minHeight: "100vh" }}>
           {isLoading ? (
-            <div>로딩 중...</div>
+            <div></div>
           ) : newsData && newsData.length > 0 ? (
             <ContentList
               key="news-list"
@@ -112,7 +112,7 @@ const AiAnalysis = () => {
               onPageChange={handleNewsPageChange}
             />
           ) : (
-            <div>뉴스 데이터가 없습니다.</div>
+            <div></div>
           )}
         </div>
       )}
