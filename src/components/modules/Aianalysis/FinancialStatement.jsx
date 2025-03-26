@@ -6,7 +6,6 @@ const FinancialStatementPage = () => {
   const [activeTabs, setActiveTabs] = useState({});
   const [financialData, setFinancialData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
   const itemsPerPage = 3;
 
   useEffect(() => {
@@ -15,7 +14,6 @@ const FinancialStatementPage = () => {
 
   const fetchFinancialData = async (page) => {
     try {
-      setIsLoading(true);
       const response = await fetch(
         `http://localhost:8080/api/financial?page=${page}&size=${itemsPerPage}`,
         {
