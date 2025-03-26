@@ -1,20 +1,42 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { useLocation, useParams } from 'react-router-dom';
 
 const StockNews = () => {
-  const newsData = [
-    {
-      title: '테슬라, 자율주행 기술 업데이트로 주가 상승',
-      content: '테슬라가 최신 자율주행 소프트웨어 업데이트를 발표하여 주가가 3% 상승했습니다. 이번 업데이트는 도심 환경에서의 주행 성능을 크게 개선했다고 회사 측은 밝혔습니다.',
-      source: '블룸버그',
-      date: '2024.03.08',
-      type: '긍정'
-    },
-  ];
+  const { state } = useLocation();
+  const { ticker } = useParams();
+  const stockName = state?.name || ticker;
+
+  const [newsData, setNewsData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchNews = async () => {
+      setIsLoading(true);
+      try {
+        const res = await fetch(`http://localhost:8080/api/news/${ticker}`);
+        if (!res.ok) throw new Error("뉴스 데이터를 가져오지 못했습니다.");
+        const data = await res.json();
+        setNewsData(data);
+      } catch (err) {
+        console.error("❌ 뉴스 요청 오류:", err);
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (ticker) fetchNews();
+  }, [ticker]);
+
+  if (isLoading) return <NewsContainer>로딩 중...</NewsContainer>;
+  if (error) return <NewsContainer>에러 발생: {error}</NewsContainer>;
+  if (!newsData || newsData.length === 0) return <NewsContainer>뉴스 없음</NewsContainer>;
 
   return (
     <NewsContainer>
-      <h2>테슬라 관련 최신 뉴스</h2>
+      <h2>{stockName} 관련 최신 뉴스</h2>
       {newsData.map((news, index) => (
         <NewsItem key={index}>
           <NewsHeader>

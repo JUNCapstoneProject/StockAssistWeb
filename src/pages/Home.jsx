@@ -29,7 +29,7 @@ function Home() {
         </p>
 
         {loading ? (
-          <p>로딩 중...</p>
+          <p></p>
         ) : (
           <div className="card-container">
             {stocks.map((stock) => (
@@ -47,7 +47,7 @@ function Home() {
           재무제표 분석을 통해 AI가 선별한 종목 입니다.
         </p>
         {loading ? (
-          <p>로딩 중...</p>
+          <p></p>
         ) : (
           <div className="card-container">
             {financialStocks.map((stock) => (
