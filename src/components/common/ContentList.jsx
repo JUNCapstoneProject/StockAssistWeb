@@ -17,7 +17,7 @@ const ContentList = ({ data, currentPage, hasNext, onPageChange, onItemClick }) 
     if (isUserReport && !typeParam) {
       setSearchParams({ type: 'user', page: pageParam || '1' });
     }
-  }, [onPageChange, searchParams]);
+  },  [onPageChange, searchParams, isUserReport, setSearchParams]);
 
   const handlePageChange = (pageNumber) => {
     if (pageNumber < 1 || (pageNumber > currentPage && hasNext === false)) return;

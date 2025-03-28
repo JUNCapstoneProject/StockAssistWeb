@@ -45,8 +45,6 @@ const StockNews = ({ ticker }) => {
   if (error) return <NewsContainer>에러 발생: {error}</NewsContainer>;
   if (!newsData || newsData.length === 0) return <NewsContainer>뉴스 없음</NewsContainer>;
 
-  const news = newsData[currentIndex];
-
   return (
     <NewsContainer>
       <h2>{stockName} 관련 최신 뉴스</h2>
