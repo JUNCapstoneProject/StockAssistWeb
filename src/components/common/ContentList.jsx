@@ -32,7 +32,11 @@ const ContentList = ({ data, currentPage, hasNext, onPageChange, onItemClick }) 
 
   const handleClick = (item) => {
     localStorage.setItem("selectedReport", JSON.stringify(item));
-    onItemClick(item.id);
+    if (isUserReport) {
+      onItemClick(item.id);
+    } else {
+      onItemClick(item.id);
+    }
   };
 
   return (

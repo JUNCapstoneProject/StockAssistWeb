@@ -55,9 +55,29 @@ const Report = () => {
   };
 
   const handleItemClick = (reportId) => {
-    const selectedReport = JSON.parse(localStorage.getItem("selectedReport"));
-    if (selectedReport && selectedReport.link) {
-      window.open(selectedReport.link, '_blank');
+    if (currentTab === '전문가 리포트') {
+      const selectedReport = reportData.find(r => r.id === reportId);
+      if (selectedReport?.link) {
+        window.open(selectedReport.link, '_blank');
+      }
+    } else {
+      const report = reportData.find((r) => r.id === reportId);
+      console.log("리포트 목록의 데이터:", reportData);
+      console.log("선택된 리포트:", report);
+      
+      if (report) {
+        const reportToStore = {
+          id: report.id,
+          title: report.title,
+          category: report.category,
+          date: report.date,
+          source: report.source,
+          description: report.description,
+          content: report.content
+        };
+        localStorage.setItem("selectedUserReport", JSON.stringify(reportToStore));
+      }
+      navigate(`/report/${reportId}`);
     }
   };
 
@@ -67,7 +87,7 @@ const Report = () => {
       <ReportTab onTabChange={handleTabChange} currentTab={currentTab} />
       <div style={{ minHeight: "100vh" }}>
         {isLoading ? (
-          <div></div>
+          <div>로딩 중...</div>
         ) : reportData && reportData.length > 0 ? (
           <ContentList
             key="report-list"
@@ -78,7 +98,7 @@ const Report = () => {
             onItemClick={handleItemClick}
           />
         ) : (
-          <div></div>
+          <div>리포트가 없습니다.</div>
         )}
       </div>
     </div>
