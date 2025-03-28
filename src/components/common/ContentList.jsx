@@ -1,23 +1,26 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 const ContentList = ({ data, currentPage, hasNext, onPageChange, onItemClick }) => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const listRef = React.useRef(null);
+  const listRef = useRef(null);
+
   const isReportPage = window.location.pathname === '/report';
   const isUserReport = isReportPage && window.location.search.includes('type=user');
 
   useEffect(() => {
     const pageParam = searchParams.get('page');
     const typeParam = searchParams.get('type');
+
     if (pageParam) {
       onPageChange(Number(pageParam));
     }
+
     if (isUserReport && !typeParam) {
       setSearchParams({ type: 'user', page: pageParam || '1' });
     }
-  },  [onPageChange, searchParams, isUserReport, setSearchParams]);
+  }, [onPageChange, searchParams, isUserReport, setSearchParams]);
 
   const handlePageChange = (pageNumber) => {
     if (pageNumber < 1 || (pageNumber > currentPage && hasNext === false)) return;
@@ -31,12 +34,7 @@ const ContentList = ({ data, currentPage, hasNext, onPageChange, onItemClick }) 
   };
 
   const handleClick = (item) => {
-    localStorage.setItem("selectedReport", JSON.stringify(item));
-    if (isUserReport) {
-      onItemClick(item.id);
-    } else {
-      onItemClick(item.id);
-    }
+    onItemClick(item.id);
   };
 
   return (
@@ -109,6 +107,7 @@ const ContentList = ({ data, currentPage, hasNext, onPageChange, onItemClick }) 
 };
 
 export default ContentList;
+
 
 
 // Styled Components
