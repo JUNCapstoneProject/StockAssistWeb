@@ -2,59 +2,83 @@ import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 
-const ContentList = ({ data, totalItems, currentPage, onPageChange }) => {
+const ContentList = ({ data, currentPage, hasNext, onPageChange, onItemClick }) => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const itemsPerPage = 6;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
   const listRef = React.useRef(null);
- 
+  const isReportPage = window.location.pathname === '/report';
+  const isUserReport = isReportPage && window.location.search.includes('type=user');
+
   useEffect(() => {
     const pageParam = searchParams.get('page');
+    const typeParam = searchParams.get('type');
     if (pageParam) {
       onPageChange(Number(pageParam));
     }
-  }, [onPageChange, searchParams]); // ✅ 의존성 추가
+    if (isUserReport && !typeParam) {
+      setSearchParams({ type: 'user', page: pageParam || '1' });
+    }
+  },  [onPageChange, searchParams, isUserReport, setSearchParams]);
 
   const handlePageChange = (pageNumber) => {
-    // URL 파라미터 업데이트
-    setSearchParams({ page: pageNumber });
+    if (pageNumber < 1 || (pageNumber > currentPage && hasNext === false)) return;
+
+    const currentType = searchParams.get('type');
+    setSearchParams({
+      ...(currentType && { type: currentType }),
+      page: pageNumber
+    });
     onPageChange(pageNumber);
+  };
+
+  const handleClick = (item) => {
+    localStorage.setItem("selectedReport", JSON.stringify(item));
+    if (isUserReport) {
+      onItemClick(item.id);
+    } else {
+      onItemClick(item.id);
+    }
   };
 
   return (
     <Container ref={listRef}>
-      <TopSection>
-        {data.slice(0, 3).map((item, index) => (
-          <ContentCard
-            key={item.id || index}
-            $featured
-            onClick={() => window.open(item.link, '_blank')}
-          >
-            <CardHeader>
-              <CategoryInfo>
-                <Category>{item.category}</Category>
-                <StatusBadge $status={item.status}>{item.status}</StatusBadge>
-              </CategoryInfo>
-              <Title>{item.title}</Title>
-            </CardHeader>
-            <Description>{item.description}</Description>
-            <CardFooter>
-              <Source>{item.source}</Source>
-              <Date>{item.date}</Date>
-            </CardFooter>
-          </ContentCard>
-        ))}
-      </TopSection>
+      {!isUserReport && (
+        <TopSection>
+          {data.slice(0, 3).map((item, index) => (
+            <ContentCard
+              key={item.id || index}
+              $featured
+              onClick={() => handleClick(item)}
+            >
+              <CardHeader>
+                <CategoryInfo>
+                  <Category>{item.category}</Category>
+                  {!isReportPage && (
+                    <StatusBadge $status={item.status}>{item.status}</StatusBadge>
+                  )}
+                </CategoryInfo>
+                <Title>{item.title}</Title>
+              </CardHeader>
+              <Description>{item.description}</Description>
+              <CardFooter>
+                <Source>{item.source}</Source>
+                <Date>{item.date}</Date>
+              </CardFooter>
+            </ContentCard>
+          ))}
+        </TopSection>
+      )}
       <BottomSection>
-        {data.slice(3).map((item, index) => (
+        {(isUserReport ? data : data.slice(3)).map((item, index) => (
           <ContentCard
             key={item.id || index}
-            onClick={() => window.open(item.link, '_blank')}
+            onClick={() => handleClick(item)}
           >
             <CardHeader>
               <CategoryInfo>
                 <Category>{item.category}</Category>
-                <StatusBadge $status={item.status}>{item.status}</StatusBadge>
+                {!isReportPage && (
+                  <StatusBadge $status={item.status}>{item.status}</StatusBadge>
+                )}
               </CategoryInfo>
               <Title>{item.title}</Title>
             </CardHeader>
@@ -67,15 +91,15 @@ const ContentList = ({ data, totalItems, currentPage, onPageChange }) => {
         ))}
       </BottomSection>
       <PaginationContainer>
-        <PageButton 
+        <PageButton
           onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
         >
           이전
         </PageButton>
-        <PageButton 
+        <PageButton
           onClick={() => handlePageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
+          disabled={hasNext === false}
         >
           다음
         </PageButton>
@@ -84,6 +108,10 @@ const ContentList = ({ data, totalItems, currentPage, onPageChange }) => {
   );
 };
 
+export default ContentList;
+
+
+// Styled Components
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -111,7 +139,7 @@ const ContentCard = styled.div`
   min-width: ${({ $featured }) => ($featured ? '30%' : '100%')};
   cursor: pointer;
   transition: transform 0.15s ease;
-  
+
   &:hover {
     transform: translateY(-4px);
   }
@@ -205,5 +233,3 @@ const PageInfo = styled.span`
   font-size: 14px;
   color: #666;
 `;
-
-export default ContentList;

@@ -9,7 +9,8 @@ import MyPortfolioLink from "./pages/MyPortfolioLink";
 import IndividualStock from "./pages/IndividualStock";
 import AiAnalysis from "./pages/Aianalysis";
 import EmailVerification from "./pages/EmailVerification";
-
+import Report from "./pages/Report";
+import ReportDetail from "./pages/ReportDetail";
 import {
   setLoginStatus,
   setAccessToken,
@@ -61,6 +62,8 @@ function App() {
           <Route path="/stock/:symbol" element={<IndividualStock />} />
           <Route path="/ai-analysis" element={<AiAnalysis />} />
           <Route path="/verify" element={<EmailVerification />} />
+          <Route path="/report" element={<Report />} />
+          <Route path="/report/:reportId" element={<ReportDetail />} />
         </Routes>
       </div>
     </Router>

@@ -29,10 +29,9 @@ const AiAnalysis = () => {
   const [newsPage, setNewsPage] = useState(
     parseInt(searchParams.get("newsPage")) || 1
   );
-  const [totalItems, setTotalItems] = useState(0);
+  const [hasNextNews, setHasNextNews] = useState(false); // ✅ 추가
   const [isLoading, setIsLoading] = useState(false);
 
-  // ✅ 새로고침 시에만 스크롤 맨 위로 이동
   useEffect(() => {
     if (isPageReloaded()) {
       window.scrollTo(0, 0);
@@ -40,7 +39,6 @@ const AiAnalysis = () => {
   }, []);
 
   useEffect(() => {
-    // URL 파라미터 업데이트
     if (currentTab === "뉴스") {
       setSearchParams({ newsPage: newsPage.toString() });
     }
@@ -58,12 +56,10 @@ const AiAnalysis = () => {
 
         if (result.response?.news) {
           const newData = result.response.news;
-          setNewsData((prevData) => {
-            return JSON.stringify(prevData) === JSON.stringify(newData)
-              ? prevData
-              : newData;
-          });
-          setTotalItems(result.response.totalItems);
+          setNewsData((prevData) =>
+            JSON.stringify(prevData) === JSON.stringify(newData) ? prevData : newData
+          );
+          setHasNextNews(result.response.hasNext); // ✅ 추가
         } else {
           console.error("뉴스 데이터 로드 실패: 데이터 구조가 올바르지 않습니다");
         }
@@ -82,7 +78,6 @@ const AiAnalysis = () => {
   const handleTabChange = (tab) => {
     setCurrentTab(tab);
     sessionStorage.setItem("aiAnalysisTab", tab);
-    // 탭 변경 시 해당 탭의 페이지 파라미터만 URL에 표시
     if (tab === "뉴스") {
       setSearchParams({ newsPage: newsPage.toString() });
     } else if (tab === "재무제표") {
@@ -107,8 +102,8 @@ const AiAnalysis = () => {
             <ContentList
               key="news-list"
               data={newsData}
-              totalItems={totalItems}
               currentPage={newsPage}
+              hasNext={hasNextNews} // ✅ 추가
               onPageChange={handleNewsPageChange}
             />
           ) : (
@@ -125,5 +120,6 @@ const AiAnalysis = () => {
     </div>
   );
 };
+
 
 export default AiAnalysis;
