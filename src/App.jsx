@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import RouteWatcher from "./components/common/RouterWatcher";
 
 import Navbar from "./components/layout/navbar";
 import Home from "./pages/Home";
@@ -11,6 +12,8 @@ import AiAnalysis from "./pages/Aianalysis";
 import EmailVerification from "./pages/EmailVerification";
 import Report from "./pages/Report";
 import ReportDetail from "./pages/ReportDetail";
+import ReportEdit from "./pages/ReportEdit";
+import ReportCreate from "./pages/ReportCreate";
 import {
   setLoginStatus,
   setAccessToken,
@@ -23,11 +26,9 @@ function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    // 페이지 새로고침 여부를 확인하는 플래그
     const navigationEntries = performance.getEntriesByType("navigation");
     const isPageRefresh = navigationEntries[0]?.type === "reload";
 
-    // 새로고침일 때만 로그인 상태 체크
     if (isPageRefresh) {
       (async () => {
         const token = localStorage.getItem("accessToken");
@@ -45,15 +46,15 @@ function App() {
         }
       })();
     } else {
-      // 단순 라우트 변경일 경우 localStorage의 토큰만 확인
       const token = localStorage.getItem("accessToken");
       dispatch(setLoginStatus(!!token));
     }
-  }, [dispatch]); // 컴포넌트 마운트 시 1회만 실행
+  }, [dispatch]);
 
   return (
     <Router>
       <div className="App">
+        <RouteWatcher /> {/* 여기서 경로 감시 */}
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
@@ -64,6 +65,8 @@ function App() {
           <Route path="/verify" element={<EmailVerification />} />
           <Route path="/report" element={<Report />} />
           <Route path="/report/:reportId" element={<ReportDetail />} />
+          <Route path="/report/:reportId/edit" element={<ReportEdit />} />
+          <Route path="/report/create" element={<ReportCreate />} />
         </Routes>
       </div>
     </Router>

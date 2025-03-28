@@ -19,7 +19,7 @@ const Report = () => {
     const fetchReportData = async () => {
       try {
         setIsLoading(true);
-        const reportType = currentTab === '전문가 리포트' ? 'expert' : 'user';
+        const reportType = currentTab === "전문가 리포트" ? "expert" : "user";
         const response = await fetch(
           `http://localhost:8080/api/reports?page=${reportPage}&limit=6&type=${reportType}`,
           { credentials: "include" }
@@ -29,7 +29,9 @@ const Report = () => {
         if (result.response?.reports) {
           const newData = result.response.reports;
           setReportData((prevData) =>
-            JSON.stringify(prevData) === JSON.stringify(newData) ? prevData : newData
+            JSON.stringify(prevData) === JSON.stringify(newData)
+              ? prevData
+              : newData
           );
           setHasNextReport(result.response.hasNext);
         }
@@ -46,7 +48,7 @@ const Report = () => {
   const handleTabChange = (tab) => {
     setCurrentTab(tab);
     setReportPage(1);
-    const type = tab === '전문가 리포트' ? 'expert' : 'user';
+    const type = tab === "전문가 리포트" ? "expert" : "user";
     setSearchParams({ type, page: 1 });
   };
 
@@ -55,28 +57,23 @@ const Report = () => {
   };
 
   const handleItemClick = (reportId) => {
-    if (currentTab === '전문가 리포트') {
-      const selectedReport = reportData.find(r => r.id === reportId);
-      if (selectedReport?.link) {
-        window.open(selectedReport.link, '_blank');
+    const report = reportData.find((r) => r.id === reportId);
+    if (!report) return;
+
+    if (currentTab === "전문가 리포트") {
+      if (report.link) {
+        window.open(report.link, "_blank");
       }
     } else {
-      const report = reportData.find((r) => r.id === reportId);
-      console.log("리포트 목록의 데이터:", reportData);
-      console.log("선택된 리포트:", report);
-      
-      if (report) {
-        const reportToStore = {
-          id: report.id,
-          title: report.title,
-          category: report.category,
-          date: report.date,
-          source: report.source,
-          description: report.description,
-          content: report.content
-        };
-        localStorage.setItem("selectedUserReport", JSON.stringify(reportToStore));
-      }
+      const reportToStore = {
+        id: report.id,
+        title: report.title,
+        category: report.category,
+        date: report.date,
+        source: report.source,
+        description: report.description,
+      };
+      localStorage.setItem(`report_${report.id}`, JSON.stringify(reportToStore));
       navigate(`/report/${reportId}`);
     }
   };
