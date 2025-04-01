@@ -1,3 +1,8 @@
+/**
+ * 콘텐츠 목록을 표시하는 컴포넌트
+ * 상단에 주요 콘텐츠를 크게 표시하고, 하단에 나머지 콘텐츠를 리스트로 표시
+ */
+
 import React, { useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
@@ -6,9 +11,11 @@ const ContentList = ({ data, currentPage, hasNext, onPageChange, onItemClick }) 
   const [searchParams, setSearchParams] = useSearchParams();
   const listRef = useRef(null);
 
+  // 현재 페이지가 report 페이지인지, 사용자 report인지 확인
   const isReportPage = window.location.pathname === '/report';
   const isUserReport = isReportPage && window.location.search.includes('type=user');
 
+  // URL 파라미터 변경 감지 및 페이지 변경 처리
   useEffect(() => {
     const pageParam = searchParams.get('page');
     const typeParam = searchParams.get('type');
@@ -22,6 +29,7 @@ const ContentList = ({ data, currentPage, hasNext, onPageChange, onItemClick }) 
     }
   }, [onPageChange, searchParams, isUserReport, setSearchParams]);
 
+  // 페이지 변경 핸들러
   const handlePageChange = (pageNumber) => {
     if (pageNumber < 1 || (pageNumber > currentPage && hasNext === false)) return;
 
@@ -33,12 +41,14 @@ const ContentList = ({ data, currentPage, hasNext, onPageChange, onItemClick }) 
     onPageChange(pageNumber);
   };
 
+  // 아이템 클릭 핸들러
   const handleClick = (item) => {
     onItemClick(item.id);
   };
 
   return (
     <Container ref={listRef}>
+      {/* 상단 주요 콘텐츠 섹션 */}
       {!isUserReport && (
         <TopSection>
           {data.slice(0, 3).map((item, index) => (
@@ -65,6 +75,7 @@ const ContentList = ({ data, currentPage, hasNext, onPageChange, onItemClick }) 
           ))}
         </TopSection>
       )}
+      {/* 하단 콘텐츠 리스트 섹션 */}
       <BottomSection>
         {(isUserReport ? data : data.slice(3)).map((item, index) => (
           <ContentCard
@@ -88,6 +99,7 @@ const ContentList = ({ data, currentPage, hasNext, onPageChange, onItemClick }) 
           </ContentCard>
         ))}
       </BottomSection>
+      {/* 페이지네이션 컨트롤 */}
       <PaginationContainer>
         <PageButton
           onClick={() => handlePageChange(currentPage - 1)}
@@ -108,9 +120,7 @@ const ContentList = ({ data, currentPage, hasNext, onPageChange, onItemClick }) 
 
 export default ContentList;
 
-
-
-// Styled Components
+// 스타일 컴포넌트 정의
 const Container = styled.div`
   display: flex;
   flex-direction: column;

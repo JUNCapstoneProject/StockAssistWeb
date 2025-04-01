@@ -1,9 +1,15 @@
+/**
+ * 주식 종목의 재무 정보를 표시하는 카드 컴포넌트
+ * 손익계산서, 대차대조표, 현금흐름표, 주요비율 등의 재무 정보를 탭으로 구분하여 표시
+ */
+
 import React from 'react';
 import styled from 'styled-components';
 
 const FinancialCard = ({ stock, activeTab, onTabChange }) => {
   return (
     <CardContainer>
+      {/* 종목 정보 헤더 */}
       <Header>
         <Info>
           <Name>{stock.name} ({stock.ticker})</Name>
@@ -17,6 +23,7 @@ const FinancialCard = ({ stock, activeTab, onTabChange }) => {
         <Badge $status={stock.status}>{stock.status}</Badge>
       </Header>
 
+      {/* 재무 정보 탭 */}
       <Tabs>
         {['손익계산서', '대차대조표', '현금흐름표', '주요비율'].map((tab) => (
           <Tab
@@ -29,6 +36,7 @@ const FinancialCard = ({ stock, activeTab, onTabChange }) => {
         ))}
       </Tabs>
 
+      {/* 재무 정보 테이블 */}
       <Table>
         {stock[activeTab === '주요비율' ? '주요비율' : activeTab].map((item, idx) => (
           <Row key={idx}>
@@ -47,8 +55,7 @@ const FinancialCard = ({ stock, activeTab, onTabChange }) => {
 
 export default FinancialCard;
 
-// ----------------------- styled-components -----------------------
-
+// 스타일 컴포넌트 정의
 const CardContainer = styled.div`
   background: #ffffff;
   padding: 20px;

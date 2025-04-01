@@ -1,17 +1,24 @@
+/**
+ * 이메일 인증 페이지 컴포넌트
+ * 사용자의 이메일 인증을 처리하고 결과를 표시하는 페이지
+ */
+
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
 const EmailVerification = () => {
+  // 상태 관리
   const [message, setMessage] = useState("인증 중...");
   const location = useLocation();
 
+  // 이메일 인증 처리
   useEffect(() => {
-    // URL 쿼리 스트링에서 token 추출
+    // URL 쿼리 스트링에서 인증 토큰 추출
     const params = new URLSearchParams(location.search);
     const token = params.get("token");
 
     if (token) {
-      // 백엔드의 이메일 인증 API 호출
+      // 이메일 인증 API 호출
       fetch(`http://localhost:8080/api/auth/verify?token=${token}`)
         .then(response => response.json())
         .then(data => {

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import FinancialCard from "../../../components/common/FinancialCard"; // 분리한 컴포넌트 import
+import FinancialCard from "../../../components/common/FinancialCard";
 import styled from "styled-components";
 
 const FinancialStatementPage = () => {
   const [activeTabs, setActiveTabs] = useState({});
   const [financialData, setFinancialData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [hasNext, setHasNext] = useState(false);
   const itemsPerPage = 3;
 
   useEffect(() => {
@@ -22,23 +23,21 @@ const FinancialStatementPage = () => {
       );
       const result = await response.json();
 
-      if (result.success && result.data) {
-        setFinancialData(result.data);
+      if (result.success && result.response) {
+        const stocks = result.response.financials;
+        setFinancialData(stocks);
+        setHasNext(result.response.hasNext);
+
         const initialTabs = {};
-        result.data.forEach((stock) => {
+        stocks.forEach((stock) => {
           initialTabs[stock.ticker] = "손익계산서";
         });
         setActiveTabs(initialTabs);
       } else {
-        console.error(
-          "재무제표 데이터 로드 실패: 데이터 구조가 올바르지 않습니다"
-        );
+        console.error("재무제표 데이터 로드 실패: 데이터 구조가 올바르지 않습니다");
       }
     } catch (error) {
-      console.error(
-        "재무제표 데이터를 불러오는 중 오류가 발생했습니다:",
-        error
-      );
+      console.error("재무제표 데이터를 불러오는 중 오류가 발생했습니다:", error);
     }
   };
 
@@ -75,7 +74,7 @@ const FinancialStatementPage = () => {
         </PageButton>
         <PageButton
           onClick={() => handlePageChange(currentPage + 1)}
-          disabled={financialData.length < itemsPerPage}
+          disabled={!hasNext}
         >
           다음
         </PageButton>

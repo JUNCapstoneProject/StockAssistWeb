@@ -1,3 +1,9 @@
+/**
+ * 리포트 작성 페이지 컴포넌트
+ * 사용자가 새로운 투자 리포트를 작성할 수 있는 페이지
+ * 제목, 내용, 작성자 정보를 입력받아 저장
+ */
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -5,10 +11,12 @@ import styled from 'styled-components';
 const ReportCreate = () => {
   const navigate = useNavigate();
 
+  // 상태 관리
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [author] = useState('테크투자러'); // 또는 로그인 사용자 이름
 
+  // 리포트 제출 핸들러
   const handleSubmit = async () => {
     if (!title.trim() || !content.trim()) {
       alert('제목과 내용을 모두 입력해주세요.');
@@ -49,62 +57,57 @@ const ReportCreate = () => {
       />
 
       <ButtonGroup>
-        <CancelButton onClick={() => navigate(-1)}>취소</CancelButton>
-        <SaveButton onClick={handleSubmit}>리포트 저장</SaveButton>
+        <CancelButton onClick={() => navigate('/report')}>취소</CancelButton>
+        <SubmitButton onClick={handleSubmit}>저장</SubmitButton>
       </ButtonGroup>
     </Wrapper>
   );
 };
 
-export default ReportCreate;
-
+// 스타일 컴포넌트 정의
 const Wrapper = styled.div`
   max-width: 800px;
-  margin: 40px auto;
+  margin: 0 auto;
   padding: 24px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 `;
 
 const DateText = styled.div`
-  font-size: 14px;
-  color: #999;
+  color: #666;
   margin-bottom: 16px;
 `;
 
 const TitleInput = styled.input`
-  font-size: 24px;
-  font-weight: 600;
   width: 100%;
+  padding: 12px;
+  font-size: 24px;
   border: none;
+  border-bottom: 2px solid #eee;
+  margin-bottom: 16px;
   outline: none;
-  margin-bottom: 8px;
 
-  &::placeholder {
-    color: #aaa;
+  &:focus {
+    border-bottom-color: #4B50E6;
   }
 `;
 
 const AuthorText = styled.div`
-  font-size: 14px;
   color: #666;
   margin-bottom: 24px;
-  text-align: right;
 `;
 
 const ContentInput = styled.textarea`
   width: 100%;
-  min-height: 300px;
-  font-size: 16px;
+  height: 400px;
   padding: 16px;
+  font-size: 16px;
+  line-height: 1.6;
+  border: 1px solid #eee;
   border-radius: 8px;
-  border: 1px solid #ddd;
-  resize: vertical;
-  margin-bottom: 24px;
+  resize: none;
+  outline: none;
 
-  &::placeholder {
-    color: #bbb;
+  &:focus {
+    border-color: #4B50E6;
   }
 `;
 
@@ -112,27 +115,35 @@ const ButtonGroup = styled.div`
   display: flex;
   justify-content: flex-end;
   gap: 12px;
+  margin-top: 24px;
 `;
 
-const CancelButton = styled.button`
-  padding: 10px 20px;
-  background: #f5f5f5;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  cursor: pointer;
-`;
-
-const SaveButton = styled.button`
-  padding: 10px 20px;
-  background: #4B3FFF;
-  color: white;
-  border: none;
-  border-radius: 8px;
+const Button = styled.button`
+  padding: 12px 24px;
+  border-radius: 6px;
   font-weight: 500;
   cursor: pointer;
+`;
+
+const CancelButton = styled(Button)`
+  background-color: #f5f5f5;
+  color: #666;
+  border: none;
 
   &:hover {
-    background: #3a31e4;
+    background-color: #e5e5e5;
   }
 `;
+
+const SubmitButton = styled(Button)`
+  background-color: #4B50E6;
+  color: white;
+  border: none;
+
+  &:hover {
+    background-color: #3A3FB9;
+  }
+`;
+
+export default ReportCreate;
 

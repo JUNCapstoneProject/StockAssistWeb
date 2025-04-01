@@ -1,3 +1,8 @@
+/**
+ * 네비게이션 바 컴포넌트
+ * 웹사이트의 상단 네비게이션을 담당하며, 로고, 메뉴 링크, 검색 기능, 로그인/로그아웃 기능을 포함
+ */
+
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoginStatus, logout } from "../../redux/features/auth/authSlice";
@@ -15,15 +20,18 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  // Redux 상태 관리
   const isLoggedIn = useSelector(selectIsLoggedIn);
   const isLoginChecked = useSelector(selectIsLoginChecked);
 
+  // 로컬 상태 관리
   const [searchQuery, setSearchQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
 
+  // 로그아웃 처리 함수
   const handleLogout = async () => {
     try {
       const success = await logoutAPI();
@@ -37,6 +45,7 @@ const Navbar = () => {
     }
   };
 
+  // 검색 제출 처리 함수
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -44,6 +53,7 @@ const Navbar = () => {
     }
   };
 
+  // 검색어 변경 및 자동완성 처리 함수
   const handleSearchChange = async (e) => {
     const query = e.target.value;
     setSearchQuery(query);
@@ -66,6 +76,7 @@ const Navbar = () => {
     }
   };
 
+  // 자동완성 항목 클릭 처리 함수
   const handleSuggestionClick = (ticker) => {
     navigate(`/stock/${ticker}`, {
       state: { name: suggestions.find(item => item.ticker === ticker)?.name }
@@ -75,11 +86,13 @@ const Navbar = () => {
     setShowSuggestions(false);
   };
 
+  // 로그인 상태 체크가 완료되지 않았으면 렌더링하지 않음
   if (!isLoginChecked) return null;
 
   return (
     <>
       <nav className="navbar">
+        {/* 왼쪽 네비게이션 영역 */}
         <div className="nav-left">
           <a href="/" className="logo">
             <img src="/vite.svg" alt="Logoname" className="logo-image" />
@@ -93,7 +106,9 @@ const Navbar = () => {
           </div>
         </div>
 
+        {/* 오른쪽 네비게이션 영역 */}
         <div className="nav-right">
+          {/* 검색 폼 */}
           <form className="search-container" onSubmit={handleSearch}>
             <input
               type="text"
@@ -110,6 +125,7 @@ const Navbar = () => {
               </svg>
             </button>
 
+            {/* 검색 자동완성 드롭다운 */}
             {showSuggestions && (
               <ul className="suggestions-dropdown">
                 {suggestions.map((item) => (
@@ -127,6 +143,7 @@ const Navbar = () => {
 
           <img src="/images/my.svg" alt="My Icon" className="my-icon" />
 
+          {/* 로그인/로그아웃 버튼 */}
           {isLoggedIn ? (
             <button className="login-button" onClick={handleLogout}>
               로그아웃
@@ -142,6 +159,7 @@ const Navbar = () => {
         </div>
       </nav>
 
+      {/* 로그인/회원가입 모달 */}
       <LoginModal
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}

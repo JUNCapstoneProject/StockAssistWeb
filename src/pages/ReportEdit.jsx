@@ -1,13 +1,22 @@
-// ReportEdit.jsx
+/**
+ * 리포트 수정 페이지 컴포넌트
+ * 기존 리포트의 내용을 수정할 수 있는 페이지
+ * 제목, 설명, 내용을 수정하고 저장 가능
+ */
+
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const ReportEdit = () => {
+  // URL 파라미터와 라우팅 관련 훅
   const { reportId } = useParams();
   const navigate = useNavigate();
+
+  // 폼 상태 관리
   const [form, setForm] = useState({ title: "", description: "", content: "" });
 
+  // 기존 리포트 데이터 로딩
   useEffect(() => {
     const stored = localStorage.getItem(`report_${reportId}`);
     if (stored) {
@@ -15,16 +24,26 @@ const ReportEdit = () => {
     }
   }, [reportId]);
 
+  // 리포트 저장 핸들러
   const handleSave = async () => {
-    await fetch(`http://localhost:8080/api/reports/${reportId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify(form),
-    });
+    try {
+      const response = await fetch(`http://localhost:8080/api/reports/${reportId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(form),
+      });
 
-    localStorage.setItem(`report_${reportId}`, JSON.stringify(form));
-    navigate(`/report/${reportId}`);
+      if (response.ok) {
+        localStorage.setItem(`report_${reportId}`, JSON.stringify(form));
+        navigate(`/report/${reportId}`);
+      } else {
+        alert("리포트 수정에 실패했습니다.");
+      }
+    } catch (error) {
+      console.error("리포트 수정 중 오류:", error);
+      alert("리포트 수정 중 오류가 발생했습니다.");
+    }
   };
 
   return (
@@ -48,86 +67,100 @@ const ReportEdit = () => {
         <TextArea
           value={form.content}
           onChange={(e) => setForm({ ...form, content: e.target.value })}
-          placeholder="본문을 입력하세요 (HTML 포함)"
-          rows={15}
+          placeholder="내용을 입력하세요"
+          rows={20}
         />
       </Content>
       <ButtonGroup>
-        <ActionButton onClick={handleSave}>저장</ActionButton>
-        <ActionButton onClick={() => navigate(-1)}>취소</ActionButton>
+        <CancelButton onClick={() => navigate(`/report/${reportId}`)}>
+          취소
+        </CancelButton>
+        <SaveButton onClick={handleSave}>저장</SaveButton>
       </ButtonGroup>
     </Container>
   );
 };
 
-export default ReportEdit;
-
+// 스타일 컴포넌트 정의
 const Container = styled.div`
   max-width: 800px;
   margin: 0 auto;
-  padding: 40px 20px;
+  padding: 24px;
 `;
 
 const Header = styled.div`
-  margin-bottom: 40px;
-`;
-
-const Title = styled.h1`
-  font-size: 32px;
-  font-weight: 700;
   margin-bottom: 24px;
 `;
 
-const Content = styled.div`
-  line-height: 1.6;
+const Title = styled.h1`
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 16px;
 `;
 
 const InputField = styled.input`
   width: 100%;
   padding: 12px;
-  margin-bottom: 16px;
   font-size: 18px;
   border: 1px solid #ddd;
-  border-radius: 8px;
-  
+  border-radius: 6px;
+  margin-bottom: 16px;
+  outline: none;
+
   &:focus {
-    outline: none;
-    border-color: #666;
+    border-color: #4B50E6;
   }
 `;
 
 const TextArea = styled.textarea`
   width: 100%;
   padding: 12px;
-  margin-bottom: 16px;
   font-size: 16px;
   border: 1px solid #ddd;
-  border-radius: 8px;
-  resize: vertical;
-  
+  border-radius: 6px;
+  resize: none;
+  outline: none;
+
   &:focus {
-    outline: none;
-    border-color: #666;
+    border-color: #4B50E6;
   }
+`;
+
+const Content = styled.div`
+  margin-bottom: 24px;
 `;
 
 const ButtonGroup = styled.div`
-  margin-top: 40px;
   display: flex;
-  gap: 12px;
   justify-content: flex-end;
+  gap: 12px;
 `;
 
-const ActionButton = styled.button`
-  padding: 10px 20px;
-  font-size: 14px;
-  background-color: #444;
-  color: white;
-  border: none;
-  border-radius: 8px;
+const Button = styled.button`
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 500;
   cursor: pointer;
+`;
+
+const CancelButton = styled(Button)`
+  background-color: #f5f5f5;
+  color: #666;
+  border: none;
 
   &:hover {
-    background-color: #222;
+    background-color: #e5e5e5;
   }
 `;
+
+const SaveButton = styled(Button)`
+  background-color: #4B50E6;
+  color: white;
+  border: none;
+
+  &:hover {
+    background-color: #3A3FB9;
+  }
+`;
+
+export default ReportEdit;

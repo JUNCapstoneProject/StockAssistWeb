@@ -1,9 +1,17 @@
+/**
+ * 메인 애플리케이션 컴포넌트
+ * 라우팅 설정과 전역 상태 관리를 담당
+ */
+
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import RouteWatcher from "./components/common/RouterWatcher";
 
+// 레이아웃 컴포넌트
 import Navbar from "./components/layout/navbar";
+
+// 페이지 컴포넌트들
 import Home from "./pages/Home";
 import MyPortfolioUnlink from "./pages/MyPortfolioUnlink";
 import MyPortfolioLink from "./pages/MyPortfolioLink";
@@ -14,6 +22,8 @@ import Report from "./pages/Report";
 import ReportDetail from "./pages/ReportDetail";
 import ReportEdit from "./pages/ReportEdit";
 import ReportCreate from "./pages/ReportCreate";
+
+// Redux 관련 import
 import {
   setLoginStatus,
   setAccessToken,
@@ -25,6 +35,7 @@ import "./App.css";
 function App() {
   const dispatch = useDispatch();
 
+  // 페이지 새로고침 시 로그인 상태 확인
   useEffect(() => {
     const navigationEntries = performance.getEntriesByType("navigation");
     const isPageRefresh = navigationEntries[0]?.type === "reload";
@@ -54,9 +65,10 @@ function App() {
   return (
     <Router>
       <div className="App">
-        <RouteWatcher /> {/* 여기서 경로 감시 */}
-        <Navbar />
+        <RouteWatcher /> {/* 라우트 변경 감시 컴포넌트 */}
+        <Navbar /> {/* 네비게이션 바 컴포넌트 */}
         <Routes>
+          {/* 메인 라우트 설정 */}
           <Route path="/" element={<Home />} />
           <Route path="/portfolio" element={<MyPortfolioUnlink />} />
           <Route path="/portfolio/link" element={<MyPortfolioLink />} />

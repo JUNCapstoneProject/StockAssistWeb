@@ -1,9 +1,15 @@
+/**
+ * 회원가입 모달 컴포넌트
+ * 사용자 회원가입 기능을 제공하는 모달 창
+ * 비밀번호 강도 검사 및 이메일 인증 기능 포함
+ */
+
 import React, { useState, useEffect } from "react";
 import zxcvbn from "zxcvbn";
 import "./SignupModal.css";
 
 const SignupModal = ({ isOpen, onClose, onLoginClick }) => {
-  // 상태 정의 (닉네임, 이메일, 비밀번호 등)
+  // 폼 입력 상태 관리
   const [nickname, setNickname] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -34,7 +40,7 @@ const SignupModal = ({ isOpen, onClose, onLoginClick }) => {
     });
   };
 
-  // 비밀번호 변경 시 평가 및 피드백 업데이트
+  // 비밀번호 변경 시 강도 평가 및 피드백 업데이트
   useEffect(() => {
     if (password) {
       const evaluation = zxcvbn(password);
@@ -54,7 +60,7 @@ const SignupModal = ({ isOpen, onClose, onLoginClick }) => {
     }
   }, [password]);
 
-  // 모든 비밀번호 조건 충족 확인
+  // 모든 비밀번호 조건 충족 여부 확인
   const isPasswordValid = Object.values(passwordValidation).every((value) => value);
 
   // 이메일 유효성 검사 함수
@@ -63,14 +69,14 @@ const SignupModal = ({ isOpen, onClose, onLoginClick }) => {
     return emailRegex.test(email);
   };
 
-  // 이메일 변경 핸들러
+  // 이메일 입력 핸들러
   const handleEmailChange = (e) => {
     const newEmail = e.target.value;
     setEmail(newEmail);
     setIsEmailValid(validateEmail(newEmail));
   };
 
-  // 폼 유효성 검사
+  // 폼 전체 유효성 검사
   const isFormValid =
     nickname &&
     email &&
@@ -80,16 +86,18 @@ const SignupModal = ({ isOpen, onClose, onLoginClick }) => {
     isPasswordValid &&
     password === confirmPassword;
 
-  // 회원가입 폼 제출
+  // 회원가입 폼 제출 처리
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
 
+    // 비밀번호 일치 여부 확인
     if (password !== confirmPassword) {
       setErrorMessage("비밀번호가 일치하지 않습니다.");
       return;
     }
 
+    // 비밀번호 강도 검사
     const requiredScore = 2;
     if (passwordScore === null || passwordScore < requiredScore) {
       let suggestionMessage = "";
@@ -103,7 +111,7 @@ const SignupModal = ({ isOpen, onClose, onLoginClick }) => {
     }
 
     try {
-      // 백엔드의 회원가입 API 호출 (절대 경로 사용)
+      // 회원가입 API 호출
       const response = await fetch("http://localhost:8080/api/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -123,6 +131,7 @@ const SignupModal = ({ isOpen, onClose, onLoginClick }) => {
     }
   };
 
+  // 모달이 닫혀있으면 렌더링하지 않음
   if (!isOpen) return null;
 
   return (
@@ -132,6 +141,7 @@ const SignupModal = ({ isOpen, onClose, onLoginClick }) => {
           <h2>회원가입</h2>
           <p>새 계정을 만들어보세요</p>
           
+          {/* 회원가입 폼 */}
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label>닉네임</label>
@@ -145,6 +155,7 @@ const SignupModal = ({ isOpen, onClose, onLoginClick }) => {
             <div className="form-group">
               <label>비밀번호</label>
               <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+              {/* 비밀번호 요구사항 목록 */}
               <div className="password-requirements">
                 <p>비밀번호는 다음 조건을 만족해야 합니다:</p>
                 <ul>
@@ -155,6 +166,7 @@ const SignupModal = ({ isOpen, onClose, onLoginClick }) => {
                   <li className={passwordValidation.hasSpecialChar ? "valid" : "invalid"}>특수문자 포함</li>
                 </ul>
               </div>
+              {/* 비밀번호 강도 피드백 */}
               {password && passwordFeedback && (
                 <div className="password-feedback">
                   {passwordFeedback.warning && <p className="warning">{passwordFeedback.warning}</p>}
@@ -177,6 +189,7 @@ const SignupModal = ({ isOpen, onClose, onLoginClick }) => {
               가입하기
             </button>
           </form>
+          {/* 로그인 링크 */}
           <p className="login-link">
             이미 계정이 있으신가요?{" "}
             <a
@@ -194,6 +207,7 @@ const SignupModal = ({ isOpen, onClose, onLoginClick }) => {
         </div>
       </div>
 
+      {/* 이메일 인증 안내 모달 */}
       {showEmailVerificationModal && (
         <div className="modal-overlay">
           <div className="modal-content">
