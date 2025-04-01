@@ -1,13 +1,21 @@
+/**
+ * 미연동 포트폴리오 페이지 컴포넌트
+ * 증권사와 연동되지 않은 사용자를 위한 빈 상태 페이지
+ * 증권사 연동 기능을 제공
+ */
+
 import React from 'react';
 import styled from 'styled-components';
 
 const MyPortfolioUnlink = () => {
   return (
     <Container>
+      {/* 페이지 헤더 */}
       <Header>
         <Title>나의 포트폴리오</Title>
         <ConnectButton>+ 증권사 연동하기</ConnectButton>
       </Header>
+      {/* 빈 상태 메시지 */}
       <EmptyStateWrapper>
         <EmptyMessage>연동된 증권사가 없습니다</EmptyMessage>
       </EmptyStateWrapper>
@@ -15,6 +23,7 @@ const MyPortfolioUnlink = () => {
   );
 };
 
+// 스타일 컴포넌트 정의
 const Container = styled.div`
   padding: 24px;
   max-width: 1200px;

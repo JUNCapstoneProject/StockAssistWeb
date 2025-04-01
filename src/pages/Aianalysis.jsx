@@ -1,3 +1,8 @@
+/**
+ * AI 분석 페이지 컴포넌트
+ * 뉴스와 재무제표를 기반으로 한 AI 분석 결과를 표시하는 페이지
+ */
+
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import AiHeader from "../components/modules/Aianalysis/AiHeader";
@@ -6,12 +11,13 @@ import ContentList from "../components/common/ContentList";
 import FinancialStatement from "../components/modules/Aianalysis/FinancialStatement";
 import MacroEconomy from "../components/modules/Aianalysis/MacroEconomy";
 
-// 새로고침 여부 판별 함수
+// 페이지 새로고침 여부를 확인하는 함수
 const isPageReloaded = () => {
   const navEntries = performance.getEntriesByType("navigation");
   return navEntries[0]?.type === "reload";
 };
 
+// 초기 탭 상태를 결정하는 함수
 const getInitialTab = () => {
   if (isPageReloaded()) {
     const storedTab = sessionStorage.getItem("aiAnalysisTab");
@@ -23,27 +29,31 @@ const getInitialTab = () => {
 };
 
 const AiAnalysis = () => {
+  // 상태 관리
   const [searchParams, setSearchParams] = useSearchParams();
   const [currentTab, setCurrentTab] = useState(getInitialTab);
   const [newsData, setNewsData] = useState([]);
   const [newsPage, setNewsPage] = useState(
     parseInt(searchParams.get("newsPage")) || 1
   );
-  const [hasNextNews, setHasNextNews] = useState(false); // ✅ 추가
+  const [hasNextNews, setHasNextNews] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // 페이지 새로고침 시 스크롤 위치 초기화
   useEffect(() => {
     if (isPageReloaded()) {
       window.scrollTo(0, 0);
     }
   }, []);
 
+  // URL 파라미터 업데이트
   useEffect(() => {
     if (currentTab === "뉴스") {
       setSearchParams({ newsPage: newsPage.toString() });
     }
   }, [newsPage, currentTab, setSearchParams]);
 
+  // 뉴스 데이터 로드
   useEffect(() => {
     const fetchNewsData = async () => {
       try {
@@ -59,7 +69,7 @@ const AiAnalysis = () => {
           setNewsData((prevData) =>
             JSON.stringify(prevData) === JSON.stringify(newData) ? prevData : newData
           );
-          setHasNextNews(result.response.hasNext); // ✅ 추가
+          setHasNextNews(result.response.hasNext);
         } else {
           console.error("뉴스 데이터 로드 실패: 데이터 구조가 올바르지 않습니다");
         }
@@ -75,6 +85,7 @@ const AiAnalysis = () => {
     }
   }, [currentTab, newsPage]);
 
+  // 탭 변경 핸들러
   const handleTabChange = (tab) => {
     setCurrentTab(tab);
     sessionStorage.setItem("aiAnalysisTab", tab);
@@ -85,15 +96,21 @@ const AiAnalysis = () => {
     }
   };
 
+  // 뉴스 페이지 변경 핸들러
   const handleNewsPageChange = (newPage) => {
     setNewsPage(newPage);
   };
 
   return (
     <div>
+      {/* AI 분석 헤더 */}
       <AiHeader />
+      {/* 거시경제 분석 섹션 */}
       {currentTab === "재무제표" && <MacroEconomy />}
+      {/* 탭 네비게이션 */}
       <AiTab onTabChange={handleTabChange} currentTab={currentTab} />
+      
+      {/* 뉴스 탭 컨텐츠 */}
       {currentTab === "뉴스" && (
         <div style={{ minHeight: "100vh" }}>
           {isLoading ? (
@@ -103,7 +120,7 @@ const AiAnalysis = () => {
               key="news-list"
               data={newsData}
               currentPage={newsPage}
-              hasNext={hasNextNews} // ✅ 추가
+              hasNext={hasNextNews}
               onPageChange={handleNewsPageChange}
             />
           ) : (
@@ -111,6 +128,8 @@ const AiAnalysis = () => {
           )}
         </div>
       )}
+      
+      {/* 재무제표 탭 컨텐츠 */}
       {currentTab === "재무제표" && (
         <FinancialStatement 
           initialPage={parseInt(searchParams.get("financialPage")) || 1}
@@ -120,6 +139,5 @@ const AiAnalysis = () => {
     </div>
   );
 };
-
 
 export default AiAnalysis;

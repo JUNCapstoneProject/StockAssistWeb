@@ -1,3 +1,13 @@
+/**
+ * @파일명 StockFinancial.jsx
+ * @설명 주식 재무정보 컴포넌트
+ * @주요기능
+ * - 재무제표 데이터 표시
+ * - 탭 전환 (손익계산서/대차대조표 등)
+ * @데이터처리
+ * - 재무 데이터 fetch
+ * - 데이터 포맷팅
+ */
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useParams, useLocation } from 'react-router-dom';
@@ -18,11 +28,11 @@ const StockFinancial = () => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const res = await fetch(`http://localhost:8080/api/financial/${cleanSymbol}`);
+        const res = await fetch(`http://localhost:8080/api/financial?ticker=${cleanSymbol}`);
         const json = await res.json();
 
-        if (json.success && json.data) {
-          setStock(json.data);
+        if (json.success && json.response) {
+          setStock(json.response);
         } else {
           console.error('❌ 재무 데이터 없음:', json);
         }
@@ -34,7 +44,7 @@ const StockFinancial = () => {
     };
 
     fetchData();
-  }, [cleanSymbol]); // 의존성 배열을 cleanSymbol로 변경
+  }, [cleanSymbol]);
 
   if (isLoading) return <Wrapper>로딩 중...</Wrapper>;
   if (!stock) return <Wrapper>데이터 없음</Wrapper>;
