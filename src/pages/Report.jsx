@@ -7,13 +7,17 @@ import ContentList from "../components/common/ContentList";
 const Report = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [currentTab, setCurrentTab] = useState("전문가 리포트");
+  const [currentTab, setCurrentTab] = useState(searchParams.get("type") || "전문가 리포트");
   const [reportData, setReportData] = useState([]);
   const [reportPage, setReportPage] = useState(
     parseInt(searchParams.get("page")) || 1
   );
   const [hasNextReport, setHasNextReport] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   useEffect(() => {
     const fetchReportData = async () => {
@@ -48,8 +52,7 @@ const Report = () => {
   const handleTabChange = (tab) => {
     setCurrentTab(tab);
     setReportPage(1);
-    const type = tab === "전문가 리포트" ? "expert" : "user";
-    setSearchParams({ type, page: 1 });
+    setSearchParams({ type: tab, page: 1 });
   };
 
   const handlePageChange = (newPage) => {

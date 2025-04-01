@@ -22,6 +22,7 @@ import Report from "./pages/Report";
 import ReportDetail from "./pages/ReportDetail";
 import ReportEdit from "./pages/ReportEdit";
 import ReportCreate from "./pages/ReportCreate";
+import MyPage from "./pages/MyPage";
 
 // Redux 관련 import
 import {
@@ -70,6 +71,7 @@ function App() {
         <Routes>
           {/* 메인 라우트 설정 */}
           <Route path="/" element={<Home />} />
+          <Route path="/mypage" element={<MyPage />} />
           <Route path="/portfolio" element={<MyPortfolioUnlink />} />
           <Route path="/portfolio/link" element={<MyPortfolioLink />} />
           <Route path="/stock/:symbol" element={<IndividualStock />} />

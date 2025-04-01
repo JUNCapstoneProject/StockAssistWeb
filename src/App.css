@@ -24,3 +24,27 @@
     color: #666;
     margin-bottom: 2rem;
   }
+
+  .more-button-container {
+    display: flex;
+    justify-content: center;
+    margin: 2rem 0;
+  }
+
+  .more-button {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 30px;
+    padding: 0.8rem 2rem;
+    font-size: 1rem;
+    color: #495057;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .more-button:hover {
+    background-color: #e9ecef;
+    color: #212529;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }

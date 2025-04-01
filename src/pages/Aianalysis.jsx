@@ -23,8 +23,11 @@ const getInitialTab = () => {
     const storedTab = sessionStorage.getItem("aiAnalysisTab");
     return storedTab || "뉴스";
   } else {
-    sessionStorage.setItem("aiAnalysisTab", "뉴스");
-    return "뉴스";
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
+    const initialTab = tabParam || "뉴스";
+    sessionStorage.setItem("aiAnalysisTab", initialTab);
+    return initialTab;
   }
 };
 
@@ -65,7 +68,10 @@ const AiAnalysis = () => {
         const result = await response.json();
 
         if (result.response?.news) {
-          const newData = result.response.news;
+          const newData = result.response.news.map(news => ({
+            ...news,
+            link: news.url || news.link // url 또는 link 필드가 있는 경우 사용
+          }));
           setNewsData((prevData) =>
             JSON.stringify(prevData) === JSON.stringify(newData) ? prevData : newData
           );
