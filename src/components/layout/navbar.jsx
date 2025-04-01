@@ -141,7 +141,23 @@ const Navbar = () => {
             )}
           </form>
 
-          <img src="/images/my.svg" alt="My Icon" className="my-icon" />
+          {isLoggedIn ? (
+            <img 
+              src="/images/my.svg" 
+              alt="My Icon" 
+              className="my-icon" 
+              onClick={() => navigate('/mypage')}
+              style={{ cursor: 'pointer' }}
+            />
+          ) : (
+            <img 
+              src="/images/my.svg" 
+              alt="My Icon" 
+              className="my-icon" 
+              onClick={() => setIsLoginModalOpen(true)}
+              style={{ cursor: 'pointer' }}
+            />
+          )}
 
           {/* 로그인/로그아웃 버튼 */}
           {isLoggedIn ? (

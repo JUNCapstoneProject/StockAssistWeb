@@ -1,8 +1,3 @@
-/**
- * 콘텐츠 목록을 표시하는 컴포넌트
- * 상단에 주요 콘텐츠를 크게 표시하고, 하단에 나머지 콘텐츠를 리스트로 표시
- */
-
 import React, { useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
@@ -11,25 +6,27 @@ const ContentList = ({ data, currentPage, hasNext, onPageChange, onItemClick }) 
   const [searchParams, setSearchParams] = useSearchParams();
   const listRef = useRef(null);
 
-  // 현재 페이지가 report 페이지인지, 사용자 report인지 확인
+  // URL 파라미터로부터 타입(type) 파악
+  const reportType = searchParams.get("type");
   const isReportPage = window.location.pathname === '/report';
-  const isUserReport = isReportPage && window.location.search.includes('type=user');
+  const isUserReport = reportType === 'user'; // 사용자가 작성한 리포트 탭인지 확인
 
-  // URL 파라미터 변경 감지 및 페이지 변경 처리
+  // URL의 page/type 파라미터 변경 감지 및 상태 업데이트
   useEffect(() => {
     const pageParam = searchParams.get('page');
-    const typeParam = searchParams.get('type');
 
+    // 현재 page 파라미터가 있으면 부모 컴포넌트에 알림
     if (pageParam) {
       onPageChange(Number(pageParam));
     }
 
-    if (isUserReport && !typeParam) {
+    // 사용자 리포트인데 type 파라미터가 없는 경우 기본값 설정
+    if (isUserReport && !reportType) {
       setSearchParams({ type: 'user', page: pageParam || '1' });
     }
-  }, [onPageChange, searchParams, isUserReport, setSearchParams]);
+  }, [onPageChange, searchParams, isUserReport, reportType, setSearchParams]);
 
-  // 페이지 변경 핸들러
+  // 페이지 변경 버튼 핸들러
   const handlePageChange = (pageNumber) => {
     if (pageNumber < 1 || (pageNumber > currentPage && hasNext === false)) return;
 
@@ -41,15 +38,19 @@ const ContentList = ({ data, currentPage, hasNext, onPageChange, onItemClick }) 
     onPageChange(pageNumber);
   };
 
-  // 아이템 클릭 핸들러
+  // 리포트 항목 클릭 시
   const handleClick = (item) => {
-    onItemClick(item.id);
+    if (item.link) {
+      window.open(item.link, '_blank');
+    } else if (onItemClick) {
+      onItemClick(item.id);
+    }
   };
 
   return (
     <Container ref={listRef}>
-      {/* 상단 주요 콘텐츠 섹션 */}
-      {!isUserReport && (
+      {/* 전문가 리포트 탭일 경우에만 상단 강조 섹션 렌더링 */}
+      {!isUserReport && data.length > 0 && (
         <TopSection>
           {data.slice(0, 3).map((item, index) => (
             <ContentCard
@@ -75,7 +76,8 @@ const ContentList = ({ data, currentPage, hasNext, onPageChange, onItemClick }) 
           ))}
         </TopSection>
       )}
-      {/* 하단 콘텐츠 리스트 섹션 */}
+
+      {/* 하단 리스트 섹션 */}
       <BottomSection>
         {(isUserReport ? data : data.slice(3)).map((item, index) => (
           <ContentCard
@@ -99,7 +101,8 @@ const ContentList = ({ data, currentPage, hasNext, onPageChange, onItemClick }) 
           </ContentCard>
         ))}
       </BottomSection>
-      {/* 페이지네이션 컨트롤 */}
+
+      {/* 페이지네이션 영역 */}
       <PaginationContainer>
         <PageButton
           onClick={() => handlePageChange(currentPage - 1)}
@@ -120,7 +123,8 @@ const ContentList = ({ data, currentPage, hasNext, onPageChange, onItemClick }) 
 
 export default ContentList;
 
-// 스타일 컴포넌트 정의
+// ========== styled-components ==========
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -131,12 +135,14 @@ const Container = styled.div`
 const TopSection = styled.div`
   display: flex;
   gap: 16px;
+  flex-wrap: wrap;
 `;
 
 const BottomSection = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
+  width: 100%;
 `;
 
 const ContentCard = styled.div`
@@ -146,6 +152,8 @@ const ContentCard = styled.div`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   flex: ${({ $featured }) => ($featured ? '1' : 'none')};
   min-width: ${({ $featured }) => ($featured ? '30%' : '100%')};
+  width: 100%;
+  max-width: 100%;
   cursor: pointer;
   transition: transform 0.15s ease;
 
@@ -236,9 +244,4 @@ const PageButton = styled.button`
   &:hover:not(:disabled) {
     background-color: #f0f0f0;
   }
-`;
-
-const PageInfo = styled.span`
-  font-size: 14px;
-  color: #666;
 `;
