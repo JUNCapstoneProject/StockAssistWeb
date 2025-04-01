@@ -76,15 +76,23 @@ const InvestmentReports = ({ defaultTab = "expert" }) => {
         <p>리포트를 불러오는 중...</p>
       ) : (
         <div className="report-list">
-          {reports.map((report) => (
-            <div key={report.id} onClick={() => handleReportClick(report)} style={{ cursor: "pointer" }}>
-              <ReportCard 
-                {...report} 
+        {reports.map((report, index) => {
+          const key = report.id || `${report.title}_${index}`;
+          return (
+            <div
+              key={key}
+              onClick={() => handleReportClick(report)}
+              style={{ cursor: "pointer" }}
+            >
+              <ReportCard
+                {...report}
                 analyst={report.source}
               />
             </div>
-          ))}
-        </div>
+          );
+        })}
+      </div>
+      
       )}
 
       {/* 더보기 버튼 */}

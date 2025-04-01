@@ -2,84 +2,46 @@
  * 홈페이지 컴포넌트
  * 웹사이트의 메인 페이지를 구성하며, AI 분석 종목과 투자 리포트를 표시
  */
-
 import { useState, useEffect } from "react";
-import styled from "styled-components";
 import HomeHero from "../components/layout/mainsection";
 import MainStockCard from "../components/modules/Main/MainStockCard";
-import mockStocks from "../data/mockStocks.json"; // 뉴스 기반 AI 분석 종목 더미 데이터
-import mockFinancialStocks from "../data/mockFinancialStocks.json"; // 재무제표 기반 AI 분석 종목 더미 데이터
 import MainInvestmentReports from "../components/modules/Main/MainInvestmentReports";
 
-// Styled Components
-const Container = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
-`;
-
-const Title = styled.h1`
-  font-size: 2rem;
-  font-weight: 700;
-  margin: 2rem 0 1rem;
-  color: #212529;
-`;
-
-const Subtitle = styled.p`
-  font-size: 1.1rem;
-  color: #6c757d;
-  margin-bottom: 2rem;
-`;
-
-const CardContainer = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 2rem;
-  margin-bottom: 2rem;
-`;
-
-const MoreButtonContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  margin: 2rem 0;
-`;
-
-const MoreButton = styled.button`
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 30px;
-  padding: 0.8rem 2rem;
-  font-size: 1rem;
-  color: #495057;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-
-  &:hover {
-    background-color: #e9ecef;
-    color: #212529;
-    transform: translateY(-2px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-`;
-
 function Home() {
-  // 상태 관리
   const [stocks, setStocks] = useState([]); // 뉴스 기반 AI 분석 종목
   const [financialStocks, setFinancialStocks] = useState([]); // 재무제표 기반 AI 분석 종목
   const [loading, setLoading] = useState(true);
 
-  // 컴포넌트 마운트 시 데이터 로드
-  useEffect(() => {
-    setTimeout(() => {
-      setStocks(mockStocks);
-      setFinancialStocks(mockFinancialStocks);
+  // API로 데이터 불러오기
+  const fetchStockData = async () => {
+    try {
+      const [newsRes, financialRes] = await Promise.all([
+        fetch("http://localhost:8080/api/stock-analysis?type=news"),
+        fetch("http://localhost:8080/api/stock-analysis?type=financial"),
+      ]);
+
+      const newsData = await newsRes.json();
+      const financialData = await financialRes.json();
+
+      if (newsData.success) {
+        setStocks(newsData.response);
+      }
+      if (financialData.success) {
+        setFinancialStocks(financialData.response);
+      }
+    } catch (error) {
+      console.error("데이터 로딩 실패:", error);
+    } finally {
       setLoading(false);
-    }, 500);
+    }
+  };
+
+  useEffect(() => {
+    fetchStockData();
   }, []);
 
   return (
     <>
-      {/* 메인 히어로 섹션 */}
       <HomeHero />
       <div className="container">
         {/* 뉴스 기반 AI 분석 종목 섹션 */}
@@ -87,23 +49,28 @@ function Home() {
         <p className="subtitle">
           최신 뉴스 및 미디어 분석을 통해 AI가 선별한 종목 입니다.
         </p>
-
+        {/* 뉴스 기반 AI 분석 종목 섹션 */}
         {loading ? (
-          <p></p>
+          <p>로딩 중...</p>
         ) : (
           <div className="card-container">
             {stocks.map((stock) => (
               <MainStockCard
-                key={stock.id}
+                key={`news-${stock.ticker}`}
+                ticker={stock.ticker}
                 stockName={stock.name}
-                aiAnalysis={stock.analysis}
-                imageSrc={stock.image}
-              />
+                aiAnalysis={stock.status}
+                imageSrc={`https://static.toss.im/png-icons/securities/icn-sec-fill-${stock.ticker}.png?20240617`}
+                />
             ))}
           </div>
         )}
+
         <div className="more-button-container">
-          <button className="more-button" onClick={() => window.location.href='/ai-analysis'}>
+          <button
+            className="more-button"
+            onClick={() => (window.location.href = "/ai-analysis")}
+          >
             뉴스 AI 분석 더보기
           </button>
         </div>
@@ -113,22 +80,28 @@ function Home() {
         <p className="subtitle">
           재무제표 분석을 통해 AI가 선별한 종목 입니다.
         </p>
+        {/* 재무제표 기반 AI 분석 종목 섹션 */}
         {loading ? (
-          <p></p>
+          <p>로딩 중...</p>
         ) : (
           <div className="card-container">
             {financialStocks.map((stock) => (
               <MainStockCard
-                key={stock.id}
+                key={`financial-${stock.ticker}`}
+                ticker={stock.ticker}
                 stockName={stock.name}
-                aiAnalysis={stock.analysis}
-                imageSrc={stock.image}
-              />
+                aiAnalysis={stock.status}
+                imageSrc={`https://static.toss.im/png-icons/securities/icn-sec-fill-${stock.ticker}.png?20240617`}
+                />
             ))}
           </div>
         )}
+
         <div className="more-button-container">
-          <button className="more-button" onClick={() => window.location.href='/ai-analysis?tab=재무제표'}>
+          <button
+            className="more-button"
+            onClick={() => (window.location.href = "/ai-analysis?tab=재무제표")}
+          >
             재무제표 AI 분석 더보기
           </button>
         </div>
