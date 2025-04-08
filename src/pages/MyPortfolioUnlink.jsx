@@ -8,15 +8,15 @@ import React from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { selectIsLoggedIn } from '../redux/features/auth/authSelectors';
-import LoginModal from '../components/common/LoginModal';
+import { useNavigate } from 'react-router-dom';
 
 const MyPortfolioUnlink = () => {
   const isLoggedIn = useSelector(selectIsLoggedIn);
-  const [isLoginModalOpen, setIsLoginModalOpen] = React.useState(false);
+  const navigate = useNavigate();
 
-  const handleConnectClick = () => {
+  const handleUnlinkClick = () => {
     if (!isLoggedIn) {
-      setIsLoginModalOpen(true);
+      navigate('/login', { state: { from: location.pathname } });
       return;
     }
     // TODO: 증권사 연동 로직 구현
@@ -27,22 +27,12 @@ const MyPortfolioUnlink = () => {
       {/* 페이지 헤더 */}
       <Header>
         <Title>나의 포트폴리오</Title>
-        <ConnectButton onClick={handleConnectClick}>+ 증권사 연동하기</ConnectButton>
+        <ConnectButton onClick={handleUnlinkClick}>+ 증권사 연동하기</ConnectButton>
       </Header>
       {/* 빈 상태 메시지 */}
       <EmptyStateWrapper>
         <EmptyMessage>연동된 증권사가 없습니다</EmptyMessage>
       </EmptyStateWrapper>
-
-      {/* 로그인 모달 */}
-      <LoginModal
-        isOpen={isLoginModalOpen}
-        onClose={() => setIsLoginModalOpen(false)}
-        onSignupClick={() => {
-          setIsLoginModalOpen(false);
-          // TODO: 회원가입 모달로 전환하는 로직 추가
-        }}
-      />
     </Container>
   );
 };
