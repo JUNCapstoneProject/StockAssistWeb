@@ -5,20 +5,19 @@
 
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useLocation } from "react-router-dom";
 import { setLoginStatus, logout } from "../../redux/features/auth/authSlice";
 import {
   selectIsLoggedIn,
   selectIsLoginChecked,
 } from "../../redux/features/auth/authSelectors";
 import { logoutAPI } from "../../redux/features/auth/authAPI";
-import LoginModal from "../common/LoginModal";
-import SignupModal from "../common/SignupModal";
 import "./navbar.css";
-import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Redux 상태 관리
   const isLoggedIn = useSelector(selectIsLoggedIn);
@@ -28,8 +27,6 @@ const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
 
   // 로그아웃 처리 함수
   const handleLogout = async () => {
@@ -37,11 +34,9 @@ const Navbar = () => {
       const success = await logoutAPI();
       if (success) {
         dispatch(logout());
-        alert("로그아웃되었습니다.");
       }
     } catch (err) {
       console.error(err);
-      alert("로그아웃 중 오류가 발생했습니다.");
     }
   };
 
@@ -90,110 +85,89 @@ const Navbar = () => {
   if (!isLoginChecked) return null;
 
   return (
-    <>
-      <nav className="navbar">
-        {/* 왼쪽 네비게이션 영역 */}
-        <div className="nav-left">
-          <a href="/" className="logo">
-            <img src="/vite.svg" alt="Logoname" className="logo-image" />
-            <span className="logo-text">Logoname</span>
-          </a>
-          <div className="nav-links">
-            <a href="/">홈</a>
-            <a href="/ai-analysis">AI 투자 분석</a>
-            <a href="/report">리포트</a>
-            <a href="/portfolio">나의 포트폴리오</a>
-          </div>
+    <nav className="navbar">
+      {/* 왼쪽 네비게이션 영역 */}
+      <div className="nav-left">
+        <a href="/" className="logo">
+          <img src="/vite.svg" alt="Logoname" className="logo-image" />
+          <span className="logo-text">Logoname</span>
+        </a>
+        <div className="nav-links">
+          <a href="/">홈</a>
+          <a href="/ai-analysis">AI 투자 분석</a>
+          <a href="/report">리포트</a>
+          <a href="/portfolio">나의 포트폴리오</a>
         </div>
+      </div>
 
-        {/* 오른쪽 네비게이션 영역 */}
-        <div className="nav-right">
-          {/* 검색 폼 */}
-          <form className="search-container" onSubmit={handleSearch}>
-            <input
-              type="text"
-              placeholder="종목 검색"
-              value={searchQuery}
-              onChange={handleSearchChange}
-              onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-              className="search-input"
-            />
-            <button type="submit" className="search-button">
-              <svg className="search-icon" viewBox="0 0 24 24">
-                <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </button>
+      {/* 오른쪽 네비게이션 영역 */}
+      <div className="nav-right">
+        {/* 검색 폼 */}
+        <form className="search-container" onSubmit={handleSearch}>
+          <input
+            type="text"
+            placeholder="종목 검색"
+            value={searchQuery}
+            onChange={handleSearchChange}
+            onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+            className="search-input"
+          />
+          <button type="submit" className="search-button">
+            <svg className="search-icon" viewBox="0 0 24 24">
+              <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </button>
 
-            {/* 검색 자동완성 드롭다운 */}
-            {showSuggestions && (
-              <ul className="suggestions-dropdown">
-                {suggestions.map((item) => (
-                  <li
-                    key={item.ticker}
-                    className="suggestion-item"
-                    onClick={() => handleSuggestionClick(item.ticker)}
-                  >
-                    {item.name} ({item.ticker})
-                  </li>
-                ))}
-              </ul>
-            )}
-          </form>
-
-          {isLoggedIn ? (
-            <img 
-              src="/images/my.svg" 
-              alt="My Icon" 
-              className="my-icon" 
-              onClick={() => navigate('/mypage')}
-              style={{ cursor: 'pointer' }}
-            />
-          ) : (
-            <img 
-              src="/images/my.svg" 
-              alt="My Icon" 
-              className="my-icon" 
-              onClick={() => setIsLoginModalOpen(true)}
-              style={{ cursor: 'pointer' }}
-            />
+          {/* 검색 자동완성 드롭다운 */}
+          {showSuggestions && (
+            <ul className="suggestions-dropdown">
+              {suggestions.map((item) => (
+                <li
+                  key={item.ticker}
+                  className="suggestion-item"
+                  onClick={() => handleSuggestionClick(item.ticker)}
+                >
+                  {item.name} ({item.ticker})
+                </li>
+              ))}
+            </ul>
           )}
+        </form>
 
-          {/* 로그인/로그아웃 버튼 */}
-          {isLoggedIn ? (
-            <button className="login-button" onClick={handleLogout}>
-              로그아웃
-            </button>
-          ) : (
-            <button
-              className="login-button"
-              onClick={() => setIsLoginModalOpen(true)}
-            >
-              로그인
-            </button>
-          )}
-        </div>
-      </nav>
+        {isLoggedIn ? (
+          <img 
+            src="/images/my.svg" 
+            alt="My Icon" 
+            className="my-icon" 
+            onClick={() => navigate('/mypage')}
+            style={{ cursor: 'pointer' }}
+          />
+        ) : (
+          <img 
+            src="/images/my.svg" 
+            alt="My Icon" 
+            className="my-icon" 
+            onClick={() => navigate("/signup", { state: { from: location.pathname } })}
+            style={{ cursor: 'pointer' }}
+          />
+        )}
 
-      {/* 로그인/회원가입 모달 */}
-      <LoginModal
-        isOpen={isLoginModalOpen}
-        onClose={() => setIsLoginModalOpen(false)}
-        onSignupClick={() => {
-          setIsLoginModalOpen(false);
-          setIsSignupModalOpen(true);
-        }}
-        onLoginSuccess={() => dispatch(setLoginStatus(true))}
-      />
-      <SignupModal
-        isOpen={isSignupModalOpen}
-        onClose={() => setIsSignupModalOpen(false)}
-        onLoginClick={() => {
-          setIsSignupModalOpen(false);
-          setIsLoginModalOpen(true);
-        }}
-      />
-    </>
+        {/* 로그인/로그아웃 버튼 */}
+        {isLoggedIn ? (
+          <button className="login-button" onClick={handleLogout}>
+            로그아웃
+          </button>
+        ) : (
+          <button
+            className="login-button"
+            onClick={() => navigate("/login", { state: { from: location.pathname } })}
+          >
+            로그인
+          </button>
+        )}
+      </div>
+    </nav>
   );
 };
 

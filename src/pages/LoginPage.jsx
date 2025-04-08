@@ -1,65 +1,55 @@
-/**
- * 로그인 모달 컴포넌트
- * 사용자 로그인 기능을 제공하는 모달 창
- */
-
 import React, { useState } from "react";
-import axiosInstance from "../../api/axiosInstance"; // ✅ 변경된 부분
-import "./LoginModal.css";
 import { useDispatch } from "react-redux";
-import { setLoginStatus } from "../../redux/features/auth/authSlice";
+import { useNavigate, useLocation } from "react-router-dom";
+import axiosInstance from "../api/axiosInstance";
+import { setLoginStatus } from "../redux/features/auth/authSlice";
+import "./LoginPage.css";
 
-const LoginModal = ({ isOpen, onClose, onSignupClick }) => {
+const LoginPage = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  // 회원가입 모달로 전환하는 핸들러
-  const handleSignupClick = (e) => {
-    e.preventDefault();
-    onClose();
-    onSignupClick();
-  };
+  // 이전 페이지 경로 (없으면 홈으로)
+  const from = location.state?.from || "/";
 
-  // 로그인 처리 핸들러
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
 
     try {
-      // 로그인 API 요청
       const response = await axiosInstance.post(
         "/api/login",
         { email, password },
-        { withCredentials: true } // ✅ 쿠키로 refreshToken 받기 위해 유지
+        { withCredentials: true }
       );
 
-      const { success, accessToken, error } = response.data;
+      const { success, accessToken, error: apiError } = response.data;
 
       if (success && accessToken) {
-        // 로그인 성공 처리
         localStorage.setItem("accessToken", accessToken);
         dispatch(setLoginStatus(true));
-        alert("로그인 성공!");
-        onClose();
+        navigate(from); // 이전 페이지로 리다이렉트
       } else {
-        alert("로그인 실패: " + (error || "알 수 없는 오류"));
+        setError(apiError || "로그인에 실패했습니다.");
       }
     } catch (error) {
       console.error("로그인 요청 중 에러 발생:", error);
-      alert("로그인 요청 중 에러가 발생했습니다.");
+      setError("로그인 중 오류가 발생했습니다. 다시 시도해주세요.");
     }
   };
 
-  // 모달이 닫혀있으면 렌더링하지 않음
-  if (!isOpen) return null;
-
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
+    <div className="login-page">
+      <div className="login-container">
         <h2>로그인</h2>
         <p>계정에 로그인하세요</p>
 
-        {/* 로그인 폼 */}
+        {error && <div className="error-message">{error}</div>}
+
         <form onSubmit={handleLogin}>
           <div className="form-group">
             <label>이메일</label>
@@ -85,20 +75,18 @@ const LoginModal = ({ isOpen, onClose, onSignupClick }) => {
           </button>
         </form>
 
-        {/* 회원가입 링크 */}
         <p className="signup-link">
-          <button onClick={handleSignupClick} className="signup-link-button">
+          계정이 없으신가요?{" "}
+          <button 
+            onClick={() => navigate("/signup", { state: { from } })} 
+            className="signup-link-button"
+          >
             회원가입
           </button>
         </p>
-
-        {/* 모달 닫기 버튼 */}
-        <button className="modal-close" onClick={onClose}>
-          ✕
-        </button>
       </div>
     </div>
   );
 };
 
-export default LoginModal;
+export default LoginPage; 

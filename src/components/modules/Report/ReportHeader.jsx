@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { selectIsLoggedIn } from '../../../redux/features/auth/authSelectors';
-import LoginModal from '../../common/LoginModal';
 
 const ReportHeader = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const isLoggedIn = useSelector(selectIsLoggedIn);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const handleCreateClick = () => {
     if (!isLoggedIn) {
-      setIsLoginModalOpen(true);
+      navigate('/login', { state: { from: location.pathname } });
       return;
     }
     navigate('/report/create');
@@ -34,15 +34,6 @@ const ReportHeader = () => {
           </CreateButton>
         </ContentWrapper>
       </HeaderWrapper>
-
-      <LoginModal
-        isOpen={isLoginModalOpen}
-        onClose={() => setIsLoginModalOpen(false)}
-        onSignupClick={() => {
-          setIsLoginModalOpen(false);
-          // 회원가입 모달로 전환하는 로직은 필요하다면 추가
-        }}
-      />
     </>
   );
 };
