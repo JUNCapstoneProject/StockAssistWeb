@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
@@ -8,7 +8,6 @@ const ReportHeader = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isLoggedIn = useSelector(selectIsLoggedIn);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const handleCreateClick = () => {
     if (!isLoggedIn) {
@@ -22,16 +21,8 @@ const ReportHeader = () => {
     <>
       <HeaderWrapper>
         <ContentWrapper>
-          <div>
-            <Title>리포트 센터</Title>
-            <Description>
-              진단가 보고서 사용자 리포트를 확인하고 공유하세요
-            </Description>
-          </div>
-          <CreateButton onClick={handleCreateClick}>
-            <PlusIcon>+</PlusIcon>
-            리포트 작성하기
-          </CreateButton>
+          <Title>리포트</Title>
+          <CreateButton onClick={handleCreateClick}>+ 리포트 작성</CreateButton>
         </ContentWrapper>
       </HeaderWrapper>
     </>

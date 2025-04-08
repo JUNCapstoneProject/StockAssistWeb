@@ -6,7 +6,7 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
-import { setLoginStatus, logout } from "../../redux/features/auth/authSlice";
+import { logout } from "../../redux/features/auth/authSlice";
 import {
   selectIsLoggedIn,
   selectIsLoginChecked,
