@@ -1,7 +1,6 @@
 /**
  * 메인 애플리케이션 컴포넌트
  * 라우팅 설정과 전역 상태 관리를 담당
- * test
  */
 
 import { useEffect } from "react";
