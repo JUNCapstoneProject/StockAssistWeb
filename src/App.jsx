@@ -2,7 +2,6 @@
  * 메인 애플리케이션 컴포넌트
  * 라우팅 설정과 전역 상태 관리를 담당
  */
-/**/
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
