@@ -1,15 +1,28 @@
 .investment-reports {
     text-align: center;
-    padding: 40px;
+    padding: 40px 2rem;
   }
   .report-list {
     display: flex;
-    gap: 20px;
+    gap: 24px;
     justify-content: center;
     flex-wrap: wrap;
     max-width: 1200px;
     margin: 0 auto;
   }
+
+  @media (max-width: 1200px) {
+    .report-list {
+      max-width: 504px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .report-list {
+      max-width: 240px;
+    }
+  }
+
   .more-btn {
     margin-top: 20px;
     padding: 10px 20px;

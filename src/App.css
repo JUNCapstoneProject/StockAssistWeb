@@ -1,10 +1,22 @@
 .card-container {
     display: flex;
-    gap: 1rem;
+    gap: 24px;
     justify-content: center;
     flex-wrap: wrap;
     max-width: 1200px;
     margin: 0 auto;
+  }
+
+  @media (max-width: 1200px) {
+    .card-container {
+      max-width: 504px;  /* 240px * 2 + 24px gap */
+    }
+  }
+
+  @media (max-width: 768px) {
+    .card-container {
+      max-width: 240px;  /* 한 줄에 하나만 */
+    }
   }
 
   .container {

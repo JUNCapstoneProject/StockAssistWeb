@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import axiosInstance from "../api/axiosInstance";
 import { setLoginStatus } from "../redux/features/auth/authSlice";
 import "./LoginPage.css";
@@ -8,31 +8,36 @@ import "./LoginPage.css";
 const LoginPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const location = useLocation();
+  const [searchParams] = useSearchParams();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  // 이전 페이지 경로 (없으면 홈으로)
-  const from = location.state?.from || "/";
+  // redirect URL (ex. http://localhost:5174/callback)
+  const redirect = searchParams.get("redirect") || "/";
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
-
+  
     try {
       const response = await axiosInstance.post(
-        "/api/login",
+        "/api/login", // ✅ redirect query 제거
         { email, password },
         { withCredentials: true }
       );
-
+  
       const { success, accessToken, error: apiError } = response.data;
-
+  
       if (success && accessToken) {
+        // 🔐 토큰 저장 (선택)
         localStorage.setItem("accessToken", accessToken);
         dispatch(setLoginStatus(true));
-        navigate(from); // 이전 페이지로 리다이렉트
+  
+        // ✅ 프론트에서 redirect + 토큰 붙이기
+        const redirectUrlWithToken = `${redirect}?token=${accessToken}`;
+        window.location.href = redirectUrlWithToken;
       } else {
         setError(apiError || "로그인에 실패했습니다.");
       }
@@ -41,6 +46,7 @@ const LoginPage = () => {
       setError("로그인 중 오류가 발생했습니다. 다시 시도해주세요.");
     }
   };
+  
 
   return (
     <div className="login-page">
@@ -77,8 +83,8 @@ const LoginPage = () => {
 
         <p className="signup-link">
           계정이 없으신가요?{" "}
-          <button 
-            onClick={() => navigate("/signup", { state: { from } })} 
+          <button
+            onClick={() => navigate("/signup", { state: { from: redirect } })}
             className="signup-link-button"
           >
             회원가입
@@ -89,4 +95,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage; 
+export default LoginPage;
