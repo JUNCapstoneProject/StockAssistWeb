@@ -1,17 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { selectIsLoggedIn } from '../../../redux/features/auth/authSelectors';
+import LoginModal from '../../common/LoginModal';
 
 const ReportHeader = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const isLoggedIn = useSelector(selectIsLoggedIn);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const handleCreateClick = () => {
     if (!isLoggedIn) {
-      navigate('/login', { state: { from: location.pathname } });
+      setIsLoginModalOpen(true);
       return;
     }
     navigate('/report/create');
@@ -21,10 +22,27 @@ const ReportHeader = () => {
     <>
       <HeaderWrapper>
         <ContentWrapper>
-          <Title>리포트</Title>
-          <CreateButton onClick={handleCreateClick}>+ 리포트 작성</CreateButton>
+          <div>
+            <Title>리포트 센터</Title>
+            <Description>
+              진단가 보고서 사용자 리포트를 확인하고 공유하세요
+            </Description>
+          </div>
+          <CreateButton onClick={handleCreateClick}>
+            <PlusIcon>+</PlusIcon>
+            리포트 작성하기
+          </CreateButton>
         </ContentWrapper>
       </HeaderWrapper>
+
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        onSignupClick={() => {
+          setIsLoginModalOpen(false);
+          // 회원가입 모달로 전환하는 로직은 필요하다면 추가
+        }}
+      />
     </>
   );
 };
