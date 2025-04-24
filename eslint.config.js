@@ -1,20 +1,18 @@
 /**
  * ESLint 설정 파일
- * 코드 품질과 스타일을 관리하는 린터 설정
+ * 코드 품질과 스타일을 관리하는 린터 설정 (JavaScript + React 기반)
  */
 
 import js from '@eslint/js'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
-import tseslint from '@typescript-eslint/eslint-plugin'
-import tsParser from '@typescript-eslint/parser'
 
 export default [
   // ✅ 빌드 디렉토리 무시
   { ignores: ['dist', 'dev-dist'] },
 
-  // ✅ JS + JSX
+  // ✅ JS + JSX 린트 설정
   {
     files: ['**/*.{js,jsx}'],
     languageOptions: {
@@ -41,23 +39,6 @@ export default [
     },
   },
 
-  // ✅ TypeScript + TSX
-  {
-    files: ['**/*.{ts,tsx}'],
-    languageOptions: {
-      parser: tsParser,
-      ecmaVersion: 'latest',
-      sourceType: 'module',
-      globals: globals.browser,
-    },
-    plugins: {
-      '@typescript-eslint': tseslint,
-    },
-    rules: {
-      ...tseslint.configs.recommended.rules,
-    },
-  },
-
   // ✅ Service Worker 전역 허용 (sw.js, workbox 등)
   {
     files: ['**/sw.js', '**/dev-dist/*.js'],
@@ -72,7 +53,7 @@ export default [
       },
     },
     rules: {
-      'no-undef': 'off', // 전역 허용한 것들 검사하지 않음
+      'no-undef': 'off',
     },
   },
 ]
