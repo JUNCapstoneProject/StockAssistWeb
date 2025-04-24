@@ -1,6 +1,6 @@
 /**
  * ESLint 설정 파일
- * 코드 품질과 스타일을 관리하는 린터 설정
+ * 코드 품질과 스타일을 관리하는 린터 설정 (JavaScript + React 기반)
  */
 
 import js from '@eslint/js'
@@ -9,30 +9,51 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 
 export default [
-  { ignores: ['dist'] }, // dist 디렉토리 린트 제외
+  // ✅ 빌드 디렉토리 무시
+  { ignores: ['dist', 'dev-dist'] },
+
+  // ✅ JS + JSX 린트 설정
   {
-    files: ['**/*.{js,jsx}'], // JavaScript와 JSX 파일에 대한 설정
+    files: ['**/*.{js,jsx}'],
     languageOptions: {
-      ecmaVersion: 2020, // ECMAScript 버전 설정
-      globals: globals.browser, // 브라우저 전역 변수 허용
+      ecmaVersion: 2020,
+      globals: globals.browser,
       parserOptions: {
-        ecmaVersion: 'latest', // 최신 ECMAScript 문법 지원
-        ecmaFeatures: { jsx: true }, // JSX 문법 지원
-        sourceType: 'module', // ES 모듈 사용
+        ecmaVersion: 'latest',
+        ecmaFeatures: { jsx: true },
+        sourceType: 'module',
       },
     },
     plugins: {
-      'react-hooks': reactHooks, // React Hooks 규칙 검사
-      'react-refresh': reactRefresh, // React Fast Refresh 지원
+      'react-hooks': reactHooks,
+      'react-refresh': reactRefresh,
     },
     rules: {
-      ...js.configs.recommended.rules, // JavaScript 권장 규칙
-      ...reactHooks.configs.recommended.rules, // React Hooks 권장 규칙
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }], // 미사용 변수 검사 (대문자로 시작하는 변수는 제외)
+      ...js.configs.recommended.rules,
+      ...reactHooks.configs.recommended.rules,
+      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
       'react-refresh/only-export-components': [
         'warn',
-        { allowConstantExport: true }, // 상수 내보내기 허용
+        { allowConstantExport: true },
       ],
+    },
+  },
+
+  // ✅ Service Worker 전역 허용 (sw.js, workbox 등)
+  {
+    files: ['**/sw.js', '**/dev-dist/*.js'],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: {
+        self: 'readonly',
+        define: 'readonly',
+        importScripts: 'readonly',
+        ExtendableEvent: 'readonly',
+        FetchEvent: 'readonly',
+      },
+    },
+    rules: {
+      'no-undef': 'off',
     },
   },
 ]
