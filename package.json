@@ -19,6 +19,7 @@
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.3.0",
     "styled-components": "^6.1.15",
+    "vite-plugin-pwa": "^1.0.0",
     "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
