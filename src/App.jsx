@@ -2,12 +2,11 @@
  * 메인 애플리케이션 컴포넌트
  * 라우팅 설정과 전역 상태 관리를 담당
  */
+
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import RouteWatcher from "./components/common/RouterWatcher";
-import LoginPage from "./pages/LoginPage";
-import SignupPage from "./pages/SignupPage";
 
 // 레이아웃 컴포넌트
 import Navbar from "./components/layout/navbar";
@@ -82,8 +81,6 @@ function App() {
           <Route path="/report/:reportId" element={<ReportDetail />} />
           <Route path="/report/:reportId/edit" element={<ReportEdit />} />
           <Route path="/report/create" element={<ReportCreate />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
         </Routes>
       </div>
     </Router>
