@@ -6,7 +6,7 @@ WORKDIR /app
 
 # 3. package.json과 yarn.lock 파일을 먼저 복사
 #    이 단계에서 의존성만 설치하기 위해 먼저 복사합니다.
-COPY package.json yarn.lock ./
+COPY package.json ./
 
 # 4. 의존성 설치 (npm 대신 yarn을 사용한다고 가정)
 RUN yarn install
