@@ -8,13 +8,13 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 
 # 4. 의존성 설치
-RUN npm install
+RUN npm install && npm audit fix
 
 # 5. 리액트 애플리케이션 파일들을 복사
 COPY . .
 
 # 6. 리액트 애플리케이션 빌드 (Production 환경 빌드)
-RUN npm run build
+RUN npm run build || (cat /app/npm-debug.log && exit 1)
 
 # 6.5. 빌드된 리액트 애플리케이션의 내용 확인 (디버깅용)
 RUN ls -alh build/
