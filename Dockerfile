@@ -23,4 +23,4 @@ RUN npm install -g serve
 EXPOSE 80
 
 # 9. 빌드된 리액트 앱을 serve로 실행
-CMD ["serve", "-s", "build", "-l", "80"]
+CMD ["serve", "build", "--single", "--listen", "80"]
