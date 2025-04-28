@@ -16,6 +16,9 @@ COPY . .
 # 6. 리액트 애플리케이션 빌드 (Production 환경 빌드)
 RUN npm run build
 
+# 6.5. 빌드된 리액트 애플리케이션의 내용 확인 (디버깅용)
+RUN ls -alh build/
+
 # 7. 앱 실행을 위한 HTTP 서버 설치 (리액트 앱은 빌드 후 정적 파일을 제공)
 RUN npm install -g serve
 
