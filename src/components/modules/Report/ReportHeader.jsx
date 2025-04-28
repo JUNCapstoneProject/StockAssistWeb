@@ -21,7 +21,10 @@ const ReportHeader = () => {
     <>
       <HeaderWrapper>
         <ContentWrapper>
-          <Title>리포트</Title>
+          <div>
+            <Title>리포트 센터</Title>
+            <Description>전문가 분석과 사용자 리포트를 확인하고 공유하세요</Description>
+          </div>
           <CreateButton onClick={handleCreateClick}>+ 리포트 작성</CreateButton>
         </ContentWrapper>
       </HeaderWrapper>
@@ -30,7 +33,7 @@ const ReportHeader = () => {
 };
 
 const HeaderWrapper = styled.div`
-  padding: 40px 0 24px;
+  padding: 40px 20px 24px;
 `;
 
 const ContentWrapper = styled.div`
