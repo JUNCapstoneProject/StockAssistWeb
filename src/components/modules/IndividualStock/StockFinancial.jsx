@@ -28,7 +28,7 @@ const StockFinancial = () => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const res = await fetch(`http://localhost:8080/api/financial?ticker=${cleanSymbol}`);
+        const res = await fetch(`http://assist-server-service:4003/api/financial?ticker=${cleanSymbol}`);
         const json = await res.json();
 
         if (json.success && json.response) {

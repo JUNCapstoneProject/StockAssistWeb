@@ -62,7 +62,7 @@ const AiAnalysis = () => {
       try {
         setIsLoading(true);
         const response = await fetch(
-          `http://localhost:8080/api/news?page=${newsPage}&limit=6`,
+          `http://assist-server-service:4003/api/news?page=${newsPage}&limit=6`,
           { credentials: "include" }
         );
         const result = await response.json();

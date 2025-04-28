@@ -33,6 +33,11 @@ const TabWrapper = styled.div`
   overflow: hidden;
   width: 800px;
   justify-content: space-between;
+
+  @media (max-width: 840px) {
+    width: 100%;
+    max-width: 800px;
+  }
 `;
 
 const TabItem = styled.div`
@@ -46,6 +51,11 @@ const TabItem = styled.div`
   background: ${({ $active }) => ($active ? '#ffffff' : 'transparent')};
   border-radius: 8px;
   transition: all 0.3s ease;
+
+  @media (max-width: 840px) {
+    min-width: auto;
+    padding: 14px 10px;
+  }
 
   &:hover {
     background: ${({ $active }) => ($active ? '#ffffff' : '#dfe6ee')};

@@ -16,7 +16,7 @@ const FinancialStatementPage = () => {
   const fetchFinancialData = async (page) => {
     try {
       const response = await fetch(
-        `http://localhost:8080/api/financial?page=${page}&size=${itemsPerPage}`,
+        `http://assist-server-service:4003/api/financial?page=${page}&size=${itemsPerPage}`,
         {
           credentials: "include",
         }

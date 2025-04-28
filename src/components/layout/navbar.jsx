@@ -60,7 +60,7 @@ const Navbar = () => {
     }
 
     try {
-      const res = await fetch(`http://localhost:8080/api/search?query=${encodeURIComponent(query)}`);
+      const res = await fetch(`http://assist-server-service:4003/api/search?query=${encodeURIComponent(query)}`);
       if (res.ok) {
         const data = await res.json();
         setSuggestions(data);
@@ -89,8 +89,8 @@ const Navbar = () => {
       {/* 왼쪽 네비게이션 영역 */}
       <div className="nav-left">
         <a href="/" className="logo">
-          <img src="/vite.svg" alt="Logoname" className="logo-image" />
-          <span className="logo-text">Logoname</span>
+          <img src="/Logo.svg" alt="Logoname" className="logo-image" />
+          <span className="logo-text">Tuzain</span>
         </a>
         <div className="nav-links">
           <a href="/">홈</a>
