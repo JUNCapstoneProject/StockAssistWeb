@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 
 # 4. 의존성 설치
-RUN npm install && npm audit fix
+RUN npm install
 
 # 5. 리액트 애플리케이션 파일들을 복사
 COPY . .
@@ -17,7 +17,7 @@ COPY . .
 RUN npm run build || (cat /app/npm-debug.log && exit 1)
 
 # 6.5. 빌드된 리액트 애플리케이션의 내용 확인 (디버깅용)
-RUN ls -alh build/
+RUN ls -alh dist/
 
 # 7. 앱 실행을 위한 HTTP 서버 설치 (리액트 앱은 빌드 후 정적 파일을 제공)
 RUN npm install -g serve
@@ -26,4 +26,4 @@ RUN npm install -g serve
 EXPOSE 80
 
 # 9. 빌드된 리액트 앱을 serve로 실행
-CMD ["serve", "build", "--single", "--listen", "80"]
+CMD ["serve", "dist", "--single", "--listen", "80"]
