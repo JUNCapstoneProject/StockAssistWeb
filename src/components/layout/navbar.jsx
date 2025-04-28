@@ -74,7 +74,7 @@ const Navbar = () => {
   // 자동완성 항목 클릭 처리 함수
   const handleSuggestionClick = (ticker) => {
     navigate(`/stock/${ticker}`, {
-      state: { name: suggestions.find(item => item.ticker === ticker)?.name }
+      state: { name: suggestions.find(item => item.ticker === ticker)?.nameKr }
     });
     setSearchQuery("");
     setSuggestions([]);
@@ -128,7 +128,8 @@ const Navbar = () => {
                   className="suggestion-item"
                   onClick={() => handleSuggestionClick(item.ticker)}
                 >
-                  {item.name} ({item.ticker})
+                  {item.nameKr} ({item.ticker})
+                  {item.nameEn && ` - ${item.nameEn}`}
                 </li>
               ))}
             </ul>

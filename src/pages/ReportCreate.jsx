@@ -7,92 +7,208 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { IoChevronBack } from 'react-icons/io5';
+import axiosInstance from '../api/axiosInstance';
 
 const ReportCreate = () => {
   const navigate = useNavigate();
-
-  // 상태 관리
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [author] = useState('테크투자러'); // 또는 로그인 사용자 이름
+  const [category, setCategory] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 리포트 제출 핸들러
   const handleSubmit = async () => {
-    if (!title.trim() || !content.trim()) {
-      alert('제목과 내용을 모두 입력해주세요.');
+    // 입력값 검증
+    if (!title.trim() || !content.trim() || !category) {
+      alert('제목, 내용, 카테고리를 모두 입력해주세요.');
       return;
     }
 
-    const newReport = {
-      title,
-      content,
-      source: author,
-      date: new Date().toISOString().slice(0, 10),
-      description: content.slice(0, 100), // 간단한 설명 자동 생성
-    };
+    setIsSubmitting(true);
 
-    // 임시로 localStorage에 저장
-    const reports = JSON.parse(localStorage.getItem('userReports') || '[]');
-    const updatedReports = [...reports, newReport];
-    localStorage.setItem('userReports', JSON.stringify(updatedReports));
+    try {
+      const response = await axiosInstance.post('/api/reports', {
+        title: title.trim(),
+        content: content.trim(),
+        category
+      });
 
-    alert('리포트가 저장되었습니다!');
-    navigate('/report');
+      if (response.data.success) {
+        alert('리포트가 저장되었습니다!');
+        navigate('/report');
+      } else {
+        throw new Error(response.data.error || '리포트 저장에 실패했습니다.');
+      }
+    } catch (error) {
+      let errorMessage = '리포트 저장에 실패했습니다.';
+      
+      if (error.response) {
+        switch (error.response.status) {
+          case 400:
+            errorMessage = '필수 입력값이 누락되었습니다.';
+            break;
+          case 401:
+            errorMessage = '로그인이 필요합니다.';
+            navigate('/login');
+            break;
+          case 403:
+            errorMessage = '접근 권한이 없습니다.';
+            break;
+          case 415:
+            errorMessage = '지원하지 않는 형식입니다.';
+            break;
+          case 429:
+            errorMessage = '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.';
+            break;
+          case 503:
+            errorMessage = '서비스가 일시적으로 불가능합니다. 잠시 후 다시 시도해주세요.';
+            break;
+          default:
+            errorMessage = '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+        }
+      }
+      
+      alert(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <Wrapper>
-      <DateText>{new Date().toISOString().slice(0, 10)}</DateText>
-      <TitleInput
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="리포트 제목을 입력하세요"
-      />
-      <AuthorText>작성자: {author}</AuthorText>
+    <Container>
+      <Header>
+        <BackButton onClick={() => navigate('/report')}>
+          <IoChevronBack />
+          리포트 목록 보기
+        </BackButton>
+      </Header>
 
-      <ContentInput
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        placeholder="리포트 내용을 입력하세요"
-      />
+      <ContentWrapper>
+        <TopSection>
+          <DateText>{new Date().toISOString().slice(0, 10)}</DateText>
+          <CategorySelect 
+            value={category} 
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            <option value="">카테고리 선택</option>
+            <option value="기업분석">기업 분석</option>
+            <option value="산업섹터">산업/섹터</option>
+            <option value="시장전망">시장 전망</option>
+            <option value="이슈테마">이슈 테마</option>
+          </CategorySelect>
+        </TopSection>
+        
+        <TitleInput
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="리포트 제목을 입력하세요"
+        />
 
-      <ButtonGroup>
-        <CancelButton onClick={() => navigate('/report')}>취소</CancelButton>
-        <SubmitButton onClick={handleSubmit}>저장</SubmitButton>
-      </ButtonGroup>
-    </Wrapper>
+        <ContentInput
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          placeholder="리포트 내용을 입력하세요"
+        />
+      </ContentWrapper>
+
+      <ButtonWrapper>
+        <ButtonGroup>
+          <CancelButton onClick={() => navigate('/report')} disabled={isSubmitting}>
+            취소
+          </CancelButton>
+          <SaveButton onClick={handleSubmit} disabled={isSubmitting}>
+            {isSubmitting ? '저장 중...' : '리포트 저장'}
+          </SaveButton>
+        </ButtonGroup>
+      </ButtonWrapper>
+    </Container>
   );
 };
 
-// 스타일 컴포넌트 정의
-const Wrapper = styled.div`
-  max-width: 800px;
+const Container = styled.div`
+  max-width: 1200px;
   margin: 0 auto;
   padding: 24px;
 `;
 
+const Header = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  padding: 0 32px;
+`;
+
+const ContentWrapper = styled.div`
+  padding: 0 32px;
+  position: relative;
+`;
+
+const ButtonWrapper = styled.div`
+  padding: 0 0px;
+`;
+
+const BackButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  font-size: 14px;
+
+  &:hover {
+    color: #333;
+  }
+`;
+
+const TopSection = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  position: relative;
+  margin-right: -65px;
+  padding-right: 32px;
+`;
+
 const DateText = styled.div`
   color: #666;
-  margin-bottom: 16px;
+  font-size: 14px;
+`;
+
+const CategorySelect = styled.select`
+  width: 200px;
+  padding: 8px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: white;
+  font-size: 14px;
+  cursor: pointer;
+
+  &:focus {
+    border-color: #4B50E6;
+    outline: none;
+  }
 `;
 
 const TitleInput = styled.input`
   width: 100%;
-  padding: 12px;
+  padding: 12px 16px;
   font-size: 24px;
-  border: none;
-  border-bottom: 2px solid #eee;
-  margin-bottom: 16px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  margin-bottom: 24px;
   outline: none;
 
-  &:focus {
-    border-bottom-color: #4B50E6;
+  &::placeholder {
+    color: #999;
   }
-`;
 
-const AuthorText = styled.div`
-  color: #666;
-  margin-bottom: 24px;
+  &:focus {
+    border-color: #4B50E6;
+  }
 `;
 
 const ContentInput = styled.textarea`
@@ -105,6 +221,11 @@ const ContentInput = styled.textarea`
   border-radius: 8px;
   resize: none;
   outline: none;
+  margin-bottom: 24px;
+
+  &::placeholder {
+    color: #999;
+  }
 
   &:focus {
     border-color: #4B50E6;
@@ -115,27 +236,32 @@ const ButtonGroup = styled.div`
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  margin-top: 24px;
 `;
 
 const Button = styled.button`
   padding: 12px 24px;
-  border-radius: 6px;
-  font-weight: 500;
+  border-radius: 4px;
+  font-size: 14px;
   cursor: pointer;
-`;
-
-const CancelButton = styled(Button)`
-  background-color: #f5f5f5;
-  color: #666;
-  border: none;
-
-  &:hover {
-    background-color: #e5e5e5;
+  min-width: 100px;
+  
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
   }
 `;
 
-const SubmitButton = styled(Button)`
+const CancelButton = styled(Button)`
+  background-color: white;
+  color: #666;
+  border: 1px solid #e0e0e0;
+
+  &:hover {
+    background-color: #f5f5f5;
+  }
+`;
+
+const SaveButton = styled(Button)`
   background-color: #4B50E6;
   color: white;
   border: none;

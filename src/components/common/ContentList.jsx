@@ -9,7 +9,7 @@ const ContentList = ({ data, currentPage, hasNext, onPageChange, onItemClick }) 
   // URL 파라미터로부터 타입(type) 파악
   const reportType = searchParams.get("type");
   const isReportPage = window.location.pathname === '/report';
-  const isUserReport = reportType === 'user'; // 사용자가 작성한 리포트 탭인지 확인
+  const isUserReport = reportType === '사용자 리포트'; // 사용자가 작성한 리포트 탭인지 확인
 
   // URL의 page/type 파라미터 변경 감지 및 상태 업데이트
   useEffect(() => {
@@ -49,13 +49,65 @@ const ContentList = ({ data, currentPage, hasNext, onPageChange, onItemClick }) 
 
   return (
     <Container ref={listRef}>
-      {/* 전문가 리포트 탭일 경우에만 상단 강조 섹션 렌더링 */}
-      {!isUserReport && data.length > 0 && (
-        <TopSection>
-          {data.slice(0, 3).map((item, index) => (
+      {!isUserReport ? (
+        <>
+          {/* 전문가 리포트 레이아웃 */}
+          {data.length > 0 && (
+            <TopSection>
+              {data.slice(0, 3).map((item, index) => (
+                <ContentCard
+                  key={item.id || index}
+                  $featured
+                  onClick={() => handleClick(item)}
+                >
+                  <CardHeader>
+                    <CategoryInfo>
+                      <Category>{item.category}</Category>
+                      {!isReportPage && (
+                        <StatusBadge $status={item.status}>{item.status}</StatusBadge>
+                      )}
+                    </CategoryInfo>
+                    <Title>{item.title}</Title>
+                  </CardHeader>
+                  <Description>{item.description}</Description>
+                  <CardFooter>
+                    <Source>{item.source}</Source>
+                    <Date>{item.date}</Date>
+                  </CardFooter>
+                </ContentCard>
+              ))}
+            </TopSection>
+          )}
+          <BottomSection>
+            {data.slice(3).map((item, index) => (
+              <ContentCard
+                key={item.id || index}
+                onClick={() => handleClick(item)}
+              >
+                <CardHeader>
+                  <CategoryInfo>
+                    <Category>{item.category}</Category>
+                    {!isReportPage && (
+                      <StatusBadge $status={item.status}>{item.status}</StatusBadge>
+                    )}
+                  </CategoryInfo>
+                  <Title>{item.title}</Title>
+                </CardHeader>
+                <Description>{item.description}</Description>
+                <CardFooter>
+                  <Source>{item.source}</Source>
+                  <Date>{item.date}</Date>
+                </CardFooter>
+              </ContentCard>
+            ))}
+          </BottomSection>
+        </>
+      ) : (
+        /* 사용자 리포트 레이아웃 */
+        <BottomSection>
+          {data.map((item, index) => (
             <ContentCard
               key={item.id || index}
-              $featured
               onClick={() => handleClick(item)}
             >
               <CardHeader>
@@ -74,33 +126,8 @@ const ContentList = ({ data, currentPage, hasNext, onPageChange, onItemClick }) 
               </CardFooter>
             </ContentCard>
           ))}
-        </TopSection>
+        </BottomSection>
       )}
-
-      {/* 하단 리스트 섹션 */}
-      <BottomSection>
-        {(isUserReport ? data : data.slice(3)).map((item, index) => (
-          <ContentCard
-            key={item.id || index}
-            onClick={() => handleClick(item)}
-          >
-            <CardHeader>
-              <CategoryInfo>
-                <Category>{item.category}</Category>
-                {!isReportPage && (
-                  <StatusBadge $status={item.status}>{item.status}</StatusBadge>
-                )}
-              </CategoryInfo>
-              <Title>{item.title}</Title>
-            </CardHeader>
-            <Description>{item.description}</Description>
-            <CardFooter>
-              <Source>{item.source}</Source>
-              <Date>{item.date}</Date>
-            </CardFooter>
-          </ContentCard>
-        ))}
-      </BottomSection>
 
       {/* 페이지네이션 영역 */}
       <PaginationContainer>

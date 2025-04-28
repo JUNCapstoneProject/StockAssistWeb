@@ -87,24 +87,39 @@ const ReportDetail = () => {
 
   return (
     <Container>
-      <Header>
-        <Title>{report.title}</Title>
+      <BackButton onClick={() => navigate("/report")}>
+        ← 리포트 목록 보기
+      </BackButton>
+      
+      <ContentWrapper>
         <MetaInfo>
-          <Author>작성자: {report.source}</Author>
-          <Date>{report.date}</Date>
+          <DateWrapper>
+            <Date>{report.date}</Date>
+          </DateWrapper>
+          <CategoryWrapper>
+            <CategoryTag>기업분석</CategoryTag>
+            <CategoryTag>전기차 기술의 우위</CategoryTag>
+            <CategoryTag>자율주행 기술</CategoryTag>
+          </CategoryWrapper>
         </MetaInfo>
-      </Header>
 
-      <Content>{report.content}</Content>
+        <Title>{report.title}</Title>
+        
+        <AuthorInfo>
+          작성자: <Author>{report.source}</Author>
+        </AuthorInfo>
 
-      {report.isAuthor && (
-        <ButtonGroup>
-          <EditButton onClick={() => navigate(`/report/edit/${reportId}`)}>
-            수정
-          </EditButton>
-          <DeleteButton onClick={handleDelete}>삭제</DeleteButton>
-        </ButtonGroup>
-      )}
+        <Content>{report.content}</Content>
+
+        {report.isAuthor && (
+          <ButtonGroup>
+            <EditButton onClick={() => navigate(`/report/${reportId}/edit`)}>
+              수정
+            </EditButton>
+            <DeleteButton onClick={handleDelete}>삭제</DeleteButton>
+          </ButtonGroup>
+        )}
+      </ContentWrapper>
     </Container>
   );
 };
@@ -113,41 +128,97 @@ const ReportDetail = () => {
 const Container = styled.div`
   max-width: 800px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 40px 24px;
 `;
 
-const Header = styled.div`
+const BackButton = styled.button`
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0;
   margin-bottom: 32px;
+  
+  &:hover {
+    color: #333;
+  }
 `;
 
-const Title = styled.h1`
-  font-size: 32px;
-  font-weight: 600;
-  margin-bottom: 16px;
+const ContentWrapper = styled.div`
+  background: #fff;
+  border-radius: 8px;
+  padding: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 `;
 
 const MetaInfo = styled.div`
   display: flex;
-  gap: 16px;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+`;
+
+const DateWrapper = styled.div`
+  margin-bottom: 4px;
+`;
+
+const CategoryWrapper = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+`;
+
+const Date = styled.span`
   color: #666;
   font-size: 14px;
 `;
 
-const Author = styled.span``;
+const CategoryTag = styled.span`
+  background-color: #f0f0f0;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 14px;
+  color: #666;
+  
+  &:hover {
+    background-color: #e5e5e5;
+  }
+`;
 
-const Date = styled.span``;
+const Title = styled.h1`
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #333;
+`;
+
+const AuthorInfo = styled.div`
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 32px;
+`;
+
+const Author = styled.span`
+  color: #333;
+  font-weight: 500;
+`;
 
 const Content = styled.div`
   font-size: 16px;
   line-height: 1.8;
   color: #333;
   margin-bottom: 32px;
+  white-space: pre-wrap;
 `;
 
 const ButtonGroup = styled.div`
   display: flex;
   justify-content: flex-end;
   gap: 12px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #eee;
 `;
 
 const Button = styled.button`
@@ -155,6 +226,7 @@ const Button = styled.button`
   border-radius: 6px;
   font-weight: 500;
   cursor: pointer;
+  font-size: 14px;
 `;
 
 const EditButton = styled(Button)`
