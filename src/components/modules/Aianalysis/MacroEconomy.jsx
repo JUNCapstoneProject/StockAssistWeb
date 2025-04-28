@@ -26,7 +26,7 @@ const MacroEconomy = () => {
     const fetchMacroData = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch('http://localhost:8080/api/macro');
+        const response = await fetch('http://assist-server-service:4003/api/macro');
         const result = await response.json();
         if (result.success) {
           setMacroValues(result.response); // ✅ 'data' → 'response'
@@ -117,11 +117,10 @@ const Container = styled.div`
   background: white;
   margin: 10px auto;
   min-height: 100px;
-  max-width: 900px;
+  max-width: 960px;
 `;
 
-const Header = styled.div`
-  display: flex;
+const Header = styled.div`  display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 15px 20px;
@@ -206,3 +205,4 @@ const LoadingMessage = styled.div`
 `;
 
 export default MacroEconomy;
+

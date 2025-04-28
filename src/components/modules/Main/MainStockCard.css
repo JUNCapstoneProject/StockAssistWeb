@@ -7,7 +7,29 @@
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     border-radius: 12px;
     padding: 24px;
-    width: 240px;
+    width: 260px;
+    box-sizing: border-box;
+  }
+  
+  .card-container {
+    display: grid;
+    grid-template-columns: repeat(4, 260px);
+    gap: 20px;
+    padding: 20px;
+    justify-content: center;
+    margin: 0 auto;
+  }
+  
+  @media (max-width: 1160px) {
+    .card-container {
+      grid-template-columns: repeat(2, 260px);
+    }
+  }
+  
+  @media (max-width: 580px) {
+    .card-container {
+      grid-template-columns: 260px;
+    }
   }
   
   .stock-card-image {

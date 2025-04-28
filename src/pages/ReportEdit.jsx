@@ -27,7 +27,7 @@ const ReportEdit = () => {
   // 리포트 저장 핸들러
   const handleSave = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/api/reports/${reportId}`, {
+      const response = await fetch(`http://assist-server-service:4003/api/reports/${reportId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
