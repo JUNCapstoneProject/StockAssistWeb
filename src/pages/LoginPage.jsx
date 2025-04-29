@@ -13,38 +13,33 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  // 이전 페이지 경로 (없으면 홈으로)
   const from = location.state?.from || "/";
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
-  
+
     try {
       const response = await axiosInstance.post(
         "/api/auth/login",
         { email, password },
         { withCredentials: true }
       );
-  
-      // 명세에 맞춰 구조 분해
+
       const { success, response: responseData, error: apiError } = response.data;
-      
-  
-      if (success && responseData) {
-        localStorage.setItem("accessToken", responseData); // accessToken 저장
-        dispatch(setLoginStatus(true)); // 로그인 상태 업데이트
-        navigate(from); // 원래 가려던 페이지로 이동
+
+      if (success && responseData?.accessToken) {
+        localStorage.setItem("accessToken", responseData.accessToken); // ✔️ accessToken 저장
+        dispatch(setLoginStatus(true));
+        navigate(from);
       } else {
-        // 실패한 경우, 서버에서 내려준 에러 메시지 사용
         setError(apiError?.message || "로그인에 실패했습니다.");
       }
     } catch (error) {
-      console.error("로그인 요청 중 에러 발생:", error);
+      console.error("로그인 요청 중 오류 발생:", error);
       setError("로그인 중 오류가 발생했습니다. 다시 시도해주세요.");
     }
   };
-  
 
   return (
     <div className="login-page">
@@ -93,4 +88,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage; 
+export default LoginPage;

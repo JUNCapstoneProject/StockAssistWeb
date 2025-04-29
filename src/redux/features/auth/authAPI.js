@@ -1,11 +1,11 @@
-// 🔗 axios 인스턴스 (accessToken 자동 포함, 응답 인터셉터 포함)
+// 🔗 axios 인스턴스 (accessToken 자동 포폴, 응답 인터셰터 포함)
 import axiosInstance from "../../../api/axiosInstance";
 
 /**
  * ✅ 로그인 상태 확인 API
- * - 클라이언트에 저장된 accessToken을 헤더에 포함하여 서버에 요청
+ * - 클라이언트에 저장된 accessToken을 헤더에 포함해 서버에 요청
  * - 서버가 accessToken의 유효성 검사
- * - 필요시 refreshToken으로 accessToken 자동 재발급됨 (인터셉터로)
+ * - 필요시 refreshToken으로 accessToken 자동 재발금됩니다 (axios 인터셰터 가장)
  * 
  * 사용 위치:
  * - App.jsx (앱 시작 시)
@@ -13,16 +13,21 @@ import axiosInstance from "../../../api/axiosInstance";
  */
 export const checkLoginStatusAPI = async () => {
   const token = localStorage.getItem("accessToken");
-  
-  // 토큰이 없으면 바로 false 반환
-  if (!token) {
+
+  if (!token) return false;
+
+  try {
+    const response = await axiosInstance.get("/api/auth/check");
+    console.log("api/auth/check 실행");
+    return response.data.response?.loggedIn || false;
+  } catch (error) {
+    if (error.response?.status === 401) {
+      console.warn("⛔ 유효하지 않은 토큰입니다.");
+    } else {
+      console.error("🚨 서버 오류 발생:", error);
+    }
     return false;
   }
-
-  // 토큰이 있을 때만 서버 체크 수행
-  const response = await axiosInstance.get("/api/auth/check");
-  console.log("api/auth/check 실행");
-  return response.data.loggedIn;
 };
 
 /**
@@ -34,12 +39,16 @@ export const checkLoginStatusAPI = async () => {
  * - Navbar.jsx → 로그아웃 버튼 클릭 시
  */
 export const logoutAPI = async () => {
-  const response = await axiosInstance.post("/api/logout");
+  try {
+    const response = await axiosInstance.post("/api/auth/logout");
 
-  if (response.data.success) {
-    // ✅ accessToken은 localStorage에서 삭제 (로그아웃 시 반드시!)
-    localStorage.removeItem("accessToken");
+    if (response.data.success) {
+      localStorage.removeItem("accessToken");
+    }
+
+    return response.data.success;
+  } catch (error) {
+    console.error("🚨 로그아웃 오류:", error);
+    return false;
   }
-
-  return response.data.success;
 };
