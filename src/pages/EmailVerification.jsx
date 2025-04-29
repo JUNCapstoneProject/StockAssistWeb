@@ -19,7 +19,7 @@ const EmailVerification = () => {
 
     if (token) {
       // 이메일 인증 API 호출
-      fetch(`http://assist-server-service:4003/api/auth/verify?token=${token}`)
+      fetch(`http://localhost:8080/api/auth/verify?token=${token}`)
         .then(response => response.json())
         .then(data => {
           if (data.success) {

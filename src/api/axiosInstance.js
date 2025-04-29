@@ -2,7 +2,7 @@ import axios from "axios";
 
 // ✅ 1. Axios 인스턴스 생성 (기본 설정 포함)
 const axiosInstance = axios.create({
-  baseURL: "http://assist-server-service:4003", // 백엔드 API 주소
+  baseURL: "http://localhost:8080", // 백엔드 API 주소
   withCredentials: true, // ✅ 쿠키 전송 허용 (refreshToken 쿠키 포함됨)
 });
 
@@ -57,7 +57,7 @@ axiosInstance.interceptors.response.use(
         try {
           // ✅ 백엔드로 refreshToken 쿠키 전송하여 accessToken 재발급 요청
           const res = await axios.post(
-            "http://assist-server-service:4003/api/refresh",
+            "http://localhost:8080/api/auth/refresh",
             {}, // 바디 필요 없음
             { withCredentials: true } // 쿠키 포함
           );
