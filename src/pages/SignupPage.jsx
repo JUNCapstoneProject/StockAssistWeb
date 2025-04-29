@@ -8,7 +8,6 @@ const SignupPage = () => {
   const location = useLocation();
   const from = location.state?.from || "/";
 
-  // 폼 입력 상태 관리
   const [nickname, setNickname] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,19 +18,21 @@ const SignupPage = () => {
   const [isEmailValid, setIsEmailValid] = useState(false);
   const [showEmailVerificationMessage, setShowEmailVerificationMessage] = useState(false);
 
-  // 비밀번호 유효성 검사 상태
   const [passwordValidation, setPasswordValidation] = useState({
     minLength: false,
+    maxLength: true,
+    noSpaces: true,
     hasUpperCase: false,
     hasLowerCase: false,
     hasNumber: false,
     hasSpecialChar: false,
   });
 
-  // 비밀번호 유효성 검사 함수
   const validatePassword = (password) => {
     setPasswordValidation({
       minLength: password.length >= 8,
+      maxLength: password.length <= 20,
+      noSpaces: !/\s/.test(password),
       hasUpperCase: /[A-Z]/.test(password),
       hasLowerCase: /[a-z]/.test(password),
       hasNumber: /[0-9]/.test(password),
@@ -39,7 +40,6 @@ const SignupPage = () => {
     });
   };
 
-  // 비밀번호 변경 시 강도 평가 및 피드백 업데이트
   useEffect(() => {
     if (password) {
       const evaluation = zxcvbn(password);
@@ -51,6 +51,8 @@ const SignupPage = () => {
       setPasswordFeedback(null);
       setPasswordValidation({
         minLength: false,
+        maxLength: true,
+        noSpaces: true,
         hasUpperCase: false,
         hasLowerCase: false,
         hasNumber: false,
@@ -59,25 +61,22 @@ const SignupPage = () => {
     }
   }, [password]);
 
-  // 이메일 유효성 검사 함수
   const validateEmail = (email) => {
     const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return emailRegex.test(email);
   };
 
-  // 이메일 입력 핸들러
   const handleEmailChange = (e) => {
     const newEmail = e.target.value;
     setEmail(newEmail);
     setIsEmailValid(validateEmail(newEmail));
   };
 
-  // 모든 비밀번호 조건 충족 여부 확인
+  const isNicknameValid = nickname.length >= 2 && nickname.length <= 10;
   const isPasswordValid = Object.values(passwordValidation).every((value) => value);
 
-  // 폼 전체 유효성 검사
   const isFormValid =
-    nickname &&
+    isNicknameValid &&
     email &&
     isEmailValid &&
     password &&
@@ -85,7 +84,6 @@ const SignupPage = () => {
     isPasswordValid &&
     password === confirmPassword;
 
-  // 회원가입 폼 제출 처리
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
@@ -118,7 +116,13 @@ const SignupPage = () => {
       if (response.ok) {
         setShowEmailVerificationMessage(true);
       } else {
-        setErrorMessage(data.message || "회원가입에 실패했습니다.");
+        if (response.status === 409) {
+          setErrorMessage("이미 존재하는 이메일입니다.");
+        } else if (response.status === 400) {
+          setErrorMessage(data.message || "입력 형식이 올바르지 않습니다.");
+        } else {
+          setErrorMessage("회원가입에 실패했습니다.");
+        }
       }
     } catch (error) {
       console.error("회원가입 오류:", error);
@@ -158,6 +162,9 @@ const SignupPage = () => {
               onChange={(e) => setNickname(e.target.value)}
               placeholder="닉네임을 입력하세요"
             />
+            {!isNicknameValid && nickname.length > 0 && (
+              <p className="error-message">닉네임은 2자 이상 10자 이하여야 합니다.</p>
+            )}
           </div>
 
           <div className="form-group">
@@ -184,21 +191,13 @@ const SignupPage = () => {
             <div className="password-requirements">
               <p>비밀번호는 다음 조건을 만족해야 합니다:</p>
               <ul>
-                <li className={passwordValidation.minLength ? "valid" : "invalid"}>
-                  최소 8자 이상
-                </li>
-                <li className={passwordValidation.hasUpperCase ? "valid" : "invalid"}>
-                  대문자 포함
-                </li>
-                <li className={passwordValidation.hasLowerCase ? "valid" : "invalid"}>
-                  소문자 포함
-                </li>
-                <li className={passwordValidation.hasNumber ? "valid" : "invalid"}>
-                  숫자 포함
-                </li>
-                <li className={passwordValidation.hasSpecialChar ? "valid" : "invalid"}>
-                  특수문자 포함
-                </li>
+                <li className={passwordValidation.minLength ? "valid" : "invalid"}>최소 8자 이상</li>
+                <li className={passwordValidation.maxLength ? "valid" : "invalid"}>20자 이하</li>
+                <li className={passwordValidation.noSpaces ? "valid" : "invalid"}>공백 없이</li>
+                <li className={passwordValidation.hasUpperCase ? "valid" : "invalid"}>대문자 포함</li>
+                <li className={passwordValidation.hasLowerCase ? "valid" : "invalid"}>소문자 포함</li>
+                <li className={passwordValidation.hasNumber ? "valid" : "invalid"}>숫자 포함</li>
+                <li className={passwordValidation.hasSpecialChar ? "valid" : "invalid"}>특수문자 포함</li>
               </ul>
             </div>
           </div>
@@ -221,7 +220,7 @@ const SignupPage = () => {
         </form>
 
         <p className="login-link">
-          이미 계정이 있으신가요?{" "}
+          이미 계정이 있으신가요? {" "}
           <button onClick={() => navigate("/login", { state: { from } })} className="login-link-button">
             로그인
           </button>
@@ -231,4 +230,4 @@ const SignupPage = () => {
   );
 };
 
-export default SignupPage; 
+export default SignupPage;

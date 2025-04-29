@@ -21,27 +21,25 @@ const ReportDetail = () => {
   useEffect(() => {
     const stored = localStorage.getItem(`report_${reportId}`);
     let parsed = null;
-
+  
     if (stored) {
       parsed = JSON.parse(stored);
       setReport(parsed);
     }
-
+  
     const fetchReportDetail = async () => {
       try {
         const response = await fetch(
           `http://localhost:8080/api/reports/${reportId}`,
-          {
-            credentials: "include",
-          }
+          { credentials: "include" }
         );
         const data = await response.json();
-
+  
         if (data.response?.content) {
           const updated = {
             ...(parsed || {}),
             content: data.response.content,
-            isAuthor: data.response.isAuthor, // ✅ 서버에서 받은 값 반영
+            isAuthor: data.response.isAuthor,
           };
           setReport(updated);
           localStorage.setItem(`report_${reportId}`, JSON.stringify(updated));
@@ -52,10 +50,14 @@ const ReportDetail = () => {
         setIsLoading(false);
       }
     };
-
-    fetchReportDetail();
+  
+    if (!parsed || !parsed.content) {
+      fetchReportDetail();
+    } else {
+      setIsLoading(false); // 👈 fetch 안 해도 로딩 끝냄
+    }
   }, [reportId]);
-
+  
   // 로딩 및 에러 상태 처리
   if (isLoading) return <div>로딩 중...</div>;
   if (!report) return <div>리포트를 찾을 수 없습니다.</div>;

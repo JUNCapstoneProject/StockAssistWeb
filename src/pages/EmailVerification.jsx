@@ -1,46 +1,54 @@
-/**
- * 이메일 인증 페이지 컴포넌트
- * 사용자의 이메일 인증을 처리하고 결과를 표시하는 페이지
- */
-
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const EmailVerification = () => {
-  // 상태 관리
   const [message, setMessage] = useState("인증 중...");
   const location = useLocation();
+  const navigate = useNavigate();
 
-  // 이메일 인증 처리
   useEffect(() => {
-    // URL 쿼리 스트링에서 인증 토큰 추출
     const params = new URLSearchParams(location.search);
     const token = params.get("token");
 
-    if (token) {
-      // 이메일 인증 API 호출
-      fetch(`http://localhost:8080/api/auth/verify?token=${token}`)
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            setMessage("이메일 인증이 완료되었습니다. 로그인 해주세요.");
-          } else {
-            setMessage("이메일 인증에 실패했습니다. 링크가 유효하지 않거나 만료되었습니다.");
-          }
-        })
-        .catch(error => {
-          console.error("인증 오류:", error);
-          setMessage("오류가 발생했습니다. 다시 시도해주세요.");
-        });
-    } else {
-      setMessage("잘못된 접근입니다.");
+    if (!token) {
+      setMessage("잘못된 접근입니다. 인증 토큰이 없습니다.");
+      return;
     }
+
+    fetch(`http://localhost:8080/api/auth/verify?token=${token}`)
+      .then(async (response) => {
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.response?.loggedIn) {
+            setMessage("✅ 이메일 인증이 완료되었습니다. 로그인 해주세요.");
+          } else {
+            setMessage("❌ 이메일 인증에 실패했습니다. 다시 시도해주세요.");
+          }
+        } else if (response.status === 401) {
+          setMessage("⛔ 인증 토큰이 만료되었거나 유효하지 않습니다.");
+        } else if (response.status === 500) {
+          setMessage("🚨 서버에서 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+        } else {
+          setMessage("⚠️ 알 수 없는 오류가 발생했습니다.");
+        }
+      })
+      .catch((error) => {
+        console.error("이메일 인증 요청 실패:", error);
+        setMessage("⚠️ 네트워크 오류가 발생했습니다. 다시 시도해주세요.");
+      });
   }, [location.search]);
 
   return (
-    <div className="email-verification">
-      <h1>이메일 인증</h1>
-      <p>{message}</p>
+    <div className="email-verification-page">
+      <div className="email-verification-container">
+        <h1>이메일 인증</h1>
+        <p>{message}</p>
+        {message.includes("완료") && (
+          <button onClick={() => navigate("/login")} className="go-login-btn">
+            로그인 페이지로 이동
+          </button>
+        )}
+      </div>
     </div>
   );
 };
