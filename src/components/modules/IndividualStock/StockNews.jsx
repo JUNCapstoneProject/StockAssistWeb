@@ -15,7 +15,7 @@ const StockNews = ({ ticker }) => {
     const fetchNews = async () => {
       setIsLoading(true);
       try {
-        const res = await fetch(`http://assist-server-service:4003/api/news?page=1&limit=100&category=${encodeURIComponent(stockName)}`);
+        const res = await fetch(`http://localhost:8080/api/news?page=1&limit=100&category=${encodeURIComponent(stockName)}`);
         if (!res.ok) throw new Error("뉴스 데이터를 가져오지 못했습니다.");
         const result = await res.json();
 

@@ -16,7 +16,7 @@ const InvestmentReports = ({ defaultTab = "expert" }) => {
     try {
       const reportType = tab === "user" ? "user" : "expert";
       const response = await fetch(
-        `http://assist-server-service:4003/api/reports?page=1&limit=3&type=${reportType}`,
+        `http://localhost:8080/api/reports?page=1&limit=3&type=${reportType}`,
         { credentials: "include" }
       );
       const result = await response.json();
