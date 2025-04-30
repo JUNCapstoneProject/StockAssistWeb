@@ -13,13 +13,30 @@ import axiosInstance from "../../../api/axiosInstance";
  */
 export const checkLoginStatusAPI = async () => {
   const token = localStorage.getItem("accessToken");
+  console.log("token:", token);
 
   if (!token) return false;
 
   try {
     const response = await axiosInstance.get("/api/auth/check");
-    console.log("api/auth/check 실행");
-    return response.data.response?.loggedIn || false;
+    console.log("api/auth/check 응답:", response.data);
+    
+    // response.data가 직접 boolean 값인 경우
+    if (typeof response.data === 'boolean') {
+      return response.data;
+    }
+    
+    // response.data.response.loggedIn 구조인 경우
+    if (response.data?.response?.loggedIn !== undefined) {
+      return response.data.response.loggedIn;
+    }
+    
+    // response.data.loggedIn 구조인 경우
+    if (response.data?.loggedIn !== undefined) {
+      return response.data.loggedIn;
+    }
+
+    return false;
   } catch (error) {
     if (error.response?.status === 401) {
       console.warn("⛔ 유효하지 않은 토큰입니다.");

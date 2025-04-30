@@ -42,26 +42,36 @@ function App() {
   useEffect(() => {
     const navigationEntries = performance.getEntriesByType("navigation");
     const isPageRefresh = navigationEntries[0]?.type === "reload";
+    const token = localStorage.getItem("accessToken");
 
     if (isPageRefresh) {
+      // 새로고침 시에만 API 호출
       (async () => {
-        const token = localStorage.getItem("accessToken");
         if (token) {
           dispatch(setAccessToken(token));
           try {
+            console.log("새로고침: 로그인 상태 체크 시작");
             const loggedIn = await checkLoginStatusAPI();
+            console.log("새로고침: 로그인 상태 체크 결과:", loggedIn);
             dispatch(setLoginStatus(loggedIn));
           } catch (err) {
+            console.error("새로고침: 로그인 상태 확인 실패:", err);
             dispatch(setLoginStatus(false));
-            console.error("앱 시작 시 로그인 상태 확인 실패:", err);
           }
         } else {
           dispatch(setLoginStatus(false));
         }
       })();
     } else {
-      const token = localStorage.getItem("accessToken");
-      dispatch(setLoginStatus(!!token));
+      // 일반 페이지 이동 시에는 localStorage 토큰 존재 여부로만 판단
+      if (token) {
+        dispatch(setAccessToken(token));
+        dispatch(setLoginStatus(true));
+        console.log("페이지 이동: localStorage 토큰 존재하여 로그인 상태 유지");
+      } else {
+        dispatch(setLoginStatus(false));
+        console.log("페이지 이동: localStorage 토큰 없음");
+      }
     }
   }, [dispatch]);
 

@@ -28,19 +28,19 @@ const LoginPage = () => {
 
       const { success, response: responseData, error: apiError } = response.data;
 
-      console.log(response.data);
-      console.log(responseData.accessToken);
-
       if (success && responseData) {
-        localStorage.setItem("accessToken", responseData); // ✔️ accessToken 저장
+        localStorage.setItem("accessToken", responseData);
         dispatch(setLoginStatus(true));
         navigate(from);
       } else {
-        setError(apiError?.message || "로그인에 실패했습니다.");
+        setError(apiError.message || "로그인에 실패했습니다.");
       }
     } catch (error) {
-      console.error("로그인 요청 중 오류 발생:", error);
-      setError("로그인 중 오류가 발생했습니다. 다시 시도해주세요.");
+      if (error.response?.data?.error?.message) {
+        setError(error.response.data.error.message);
+      } else {
+        setError("로그인 중 오류가 발생했습니다. 다시 시도해주세요.");
+      }
     }
   };
 
