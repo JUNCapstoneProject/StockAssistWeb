@@ -16,8 +16,8 @@ function Home() {
   const fetchStockData = async () => {
     try {
       const [newsRes, financialRes] = await Promise.all([
-        fetch("http://assist-server-service:4003/api/stock-analysis?type=news"),
-        fetch("http://assist-server-service:4003/api/stock-analysis?type=financial"),
+        fetch("http://192.168.25.137:8080/api/stock-analysis?type=news"),
+        fetch("http://192.168.25.137:8080/api/stock-analysis?type=financial"),
       ]);
 
       const newsData = await newsRes.json();

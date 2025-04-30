@@ -25,7 +25,7 @@ const Report = () => {
         setIsLoading(true);
         const reportType = currentTab === "전문가 리포트" ? "expert" : "user";
         const response = await fetch(
-          `http://assist-server-service:4003/api/reports?page=${reportPage}&limit=6&type=${reportType}`,
+          `http://192.168.25.137:8080/api/reports?page=${reportPage}&limit=6&type=${reportType}`,
           { credentials: "include" }
         );
         const result = await response.json();

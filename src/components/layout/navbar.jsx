@@ -60,7 +60,7 @@ const Navbar = () => {
     }
 
     try {
-      const res = await fetch(`http://assist-server-service:4003/api/stocks/search?query=${encodeURIComponent(query)}`);
+      const res = await fetch(`http://192.168.25.137:8080/api/stocks/search?query=${encodeURIComponent(query)}`);
       if (res.ok) {
         const data = await res.json();
         setSuggestions(data);

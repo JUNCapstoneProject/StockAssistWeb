@@ -31,8 +31,8 @@ const LoginPage = () => {
       console.log(response.data);
       console.log(responseData.accessToken);
 
-      if (success && responseData?.accessToken) {
-        localStorage.setItem("accessToken", responseData.accessToken); // ✔️ accessToken 저장
+      if (success && responseData) {
+        localStorage.setItem("accessToken", responseData); // ✔️ accessToken 저장
         dispatch(setLoginStatus(true));
         navigate(from);
       } else {

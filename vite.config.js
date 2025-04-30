@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://assist-server-service:4003',  // 너의 백엔드 서버 주소
+        target: 'http://192.168.25.137:8080',  // 너의 백엔드 서버 주소
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
