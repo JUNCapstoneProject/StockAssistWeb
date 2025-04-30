@@ -28,6 +28,9 @@ const LoginPage = () => {
 
       const { success, response: responseData, error: apiError } = response.data;
 
+      console.log(response.data);
+      console.log(responseData.accessToken);
+
       if (success && responseData?.accessToken) {
         localStorage.setItem("accessToken", responseData.accessToken); // ✔️ accessToken 저장
         dispatch(setLoginStatus(true));

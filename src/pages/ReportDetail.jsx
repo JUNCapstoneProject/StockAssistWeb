@@ -30,7 +30,7 @@ const ReportDetail = () => {
     const fetchReportDetail = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8080/api/reports/${reportId}`,
+          `http://assist-server-service:4003/api/reports/${reportId}`,
           { credentials: "include" }
         );
         const data = await response.json();
@@ -68,7 +68,7 @@ const ReportDetail = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:8080/api/reports/${reportId}`,
+        `http://assist-server-service:4003/api/reports/${reportId}`,
         {
           method: "DELETE",
           credentials: "include",
