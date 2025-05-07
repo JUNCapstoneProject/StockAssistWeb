@@ -33,7 +33,7 @@ const LoginPage = () => {
         dispatch(setLoginStatus(true));
         navigate(from);
       } else {
-        setError(apiError.message || "로그인에 실패했습니다.");
+        setError(apiError.message || "아이디나 비밀번호가 일치하지 않습니다.");
       }
     } catch (error) {
       if (error.response?.data?.error?.message) {

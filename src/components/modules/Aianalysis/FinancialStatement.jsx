@@ -2,26 +2,29 @@ import React, { useState, useEffect } from "react";
 import FinancialCard from "../../../components/common/FinancialCard";
 import styled from "styled-components";
 
-const FinancialStatementPage = () => {
+const FinancialStatementPage = ({ initialPage, onPageChange }) => {
   const [activeTabs, setActiveTabs] = useState({});
   const [financialData, setFinancialData] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(initialPage);
   const [hasNext, setHasNext] = useState(false);
   const itemsPerPage = 3;
 
   useEffect(() => {
-    fetchFinancialData(1);
-  }, []);
+    fetchFinancialData(currentPage);
+  }, [currentPage]);
 
   const fetchFinancialData = async (page) => {
     try {
+      console.log("Fetching data for page:", page); // 디버깅용 로그
+      const baseURL = import.meta.env.VITE_API_BASE_URL;
       const response = await fetch(
-        `http://192.168.25.137:8080/api/financial?page=${page}&size=${itemsPerPage}`,
+        `${baseURL}/api/financial?page=${page}&size=${itemsPerPage}`,
         {
           credentials: "include",
         }
       );
       const result = await response.json();
+      console.log("API Response:", result); // 디버깅용 로그
 
       if (result.success && result.response) {
         const stocks = result.response.financials;
@@ -50,7 +53,7 @@ const FinancialStatementPage = () => {
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
-    fetchFinancialData(pageNumber);
+    onPageChange(pageNumber);
   };
 
   if (!financialData || financialData.length === 0) return <div></div>;

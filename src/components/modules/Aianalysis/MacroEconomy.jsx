@@ -26,7 +26,7 @@ const MacroEconomy = () => {
     const fetchMacroData = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch('http://192.168.25.137:8080/api/economy/indicators');
+        const response = await fetch('http://localhost:8080/api/economy/indicators');
         const result = await response.json();
         if (result.success) {
           setMacroValues(result.response); // ✅ 'data' → 'response'

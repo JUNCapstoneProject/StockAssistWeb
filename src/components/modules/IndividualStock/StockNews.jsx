@@ -15,7 +15,8 @@ const StockNews = ({ ticker }) => {
     const fetchNews = async () => {
       setIsLoading(true);
       try {
-        const res = await fetch(`http://192.168.25.137:8080/api/news?page=1&limit=100&category=${encodeURIComponent(stockName)}`);
+        const baseURL = import.meta.env.VITE_API_BASE_URL;
+        const res = await fetch(`${baseURL}/api/news?page=1&limit=100&category=${encodeURIComponent(stockName)}`);
         if (!res.ok) throw new Error("뉴스 데이터를 가져오지 못했습니다.");
         const result = await res.json();
 

@@ -12,12 +12,14 @@ function Home() {
   const [financialStocks, setFinancialStocks] = useState([]); // 재무제표 기반 AI 분석 종목
   const [loading, setLoading] = useState(true);
 
+  const baseURL = import.meta.env.VITE_API_BASE_URL;
+
   // API로 데이터 불러오기
   const fetchStockData = async () => {
     try {
       const [newsRes, financialRes] = await Promise.all([
-        fetch("http://192.168.25.137:8080/api/stock-analysis?type=news"),
-        fetch("http://192.168.25.137:8080/api/stock-analysis?type=financial"),
+        fetch(`${baseURL}/api/stock-analysis?type=news`),
+        fetch(`${baseURL}/api/stock-analysis?type=financial`),
       ]);
 
       const newsData = await newsRes.json();

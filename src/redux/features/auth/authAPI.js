@@ -56,6 +56,7 @@ export const checkLoginStatusAPI = async () => {
  * - Navbar.jsx → 로그아웃 버튼 클릭 시
  */
 export const logoutAPI = async () => {
+  console.log("logoutAPI 실행");
   try {
     const response = await axiosInstance.post("/api/auth/logout");
 

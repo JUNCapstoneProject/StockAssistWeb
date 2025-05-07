@@ -27,13 +27,16 @@ const ReportDetail = () => {
       setReport(parsed);
     }
   
+    const baseURL = import.meta.env.VITE_API_BASE_URL;
     const fetchReportDetail = async () => {
       try {
         const response = await fetch(
-          `http://192.168.25.137:8080/api/reports/${reportId}`,
+          `${baseURL}/api/reports/${reportId}`,
           { credentials: "include" }
         );
         const data = await response.json();
+        console.log('API 응답 데이터:', data);
+        console.log('isAuthor 값:', data.response?.isAuthor);
   
         if (data.response?.content) {
           const updated = {
@@ -41,6 +44,7 @@ const ReportDetail = () => {
             content: data.response.content,
             isAuthor: data.response.isAuthor,
           };
+          console.log('업데이트된 리포트 데이터:', updated);
           setReport(updated);
           localStorage.setItem(`report_${reportId}`, JSON.stringify(updated));
         }
@@ -58,6 +62,14 @@ const ReportDetail = () => {
     }
   }, [reportId]);
   
+  // report 상태가 변경될 때마다 확인
+  useEffect(() => {
+    if (report) {
+      console.log('현재 리포트 상태:', report);
+      console.log('isAuthor 상태:', report.isAuthor);
+    }
+  }, [report]);
+  
   // 로딩 및 에러 상태 처리
   if (isLoading) return <div>로딩 중...</div>;
   if (!report) return <div>리포트를 찾을 수 없습니다.</div>;
@@ -68,7 +80,7 @@ const ReportDetail = () => {
 
     try {
       const response = await fetch(
-        `http://192.168.25.137:8080/api/reports/${reportId}`,
+        `http://localhost:8080/api/reports/${reportId}`,
         {
           method: "DELETE",
           credentials: "include",
@@ -99,9 +111,12 @@ const ReportDetail = () => {
             <Date>{report.date}</Date>
           </DateWrapper>
           <CategoryWrapper>
-            <CategoryTag>기업분석</CategoryTag>
-            <CategoryTag>전기차 기술의 우위</CategoryTag>
-            <CategoryTag>자율주행 기술</CategoryTag>
+            {Array.isArray(report.category)
+              ? report.category.map((cat, idx) => (
+                  <CategoryTag key={idx}>{cat}</CategoryTag>
+                ))
+              : report.category && <CategoryTag>{report.category}</CategoryTag>
+            }
           </CategoryWrapper>
         </MetaInfo>
 

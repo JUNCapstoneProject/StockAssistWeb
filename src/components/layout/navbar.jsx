@@ -52,30 +52,56 @@ const Navbar = () => {
   const handleSearchChange = async (e) => {
     const query = e.target.value;
     setSearchQuery(query);
-
+    console.log("🔍 검색어:", query);
+  
     if (!query.trim()) {
-      setSuggestions([]);
-      setShowSuggestions(false);
+      console.log("❌ 검색어가 비어있어 자동완성 중단");
+      setSearchQuery("");  // 검색어 초기화
+      setSuggestions([]);  // 추천 목록 초기화
+      setShowSuggestions(false);  // 드롭다운 숨기기
       return;
     }
 
     try {
-      const res = await fetch(`http://192.168.25.137:8080/api/stocks/search?query=${encodeURIComponent(query)}`);
+      const url = `http://localhost:8080/api/stocks/search?query=${encodeURIComponent(query)}`;
+      console.log("🌐 API 요청:", url);
+
+      const res = await fetch(url);
+      console.log("📡 API 응답 상태:", res.status);
+
       if (res.ok) {
         const data = await res.json();
-        setSuggestions(data);
+        console.log("✅ API 응답 데이터:", data);
+
+        const list = Array.isArray(data.response?.searchData) ? data.response.searchData : [];
+        setSuggestions(list);
         setShowSuggestions(true);
+        console.log("📋 가공된 검색 결과:", list);
+      } else {
+        console.warn("❌ API 응답 실패");
+        setSuggestions([]);
+        setShowSuggestions(false);
       }
     } catch (err) {
       console.error("🔍 자동완성 에러:", err);
+      setSuggestions([]);
+      setShowSuggestions(false);
     }
   };
 
   // 자동완성 항목 클릭 처리 함수
   const handleSuggestionClick = (ticker) => {
+    const selectedStock = suggestions.find((item) => item.ticker === ticker);
     navigate(`/stock/${ticker}`, {
-      state: { name: suggestions.find(item => item.ticker === ticker)?.nameKr }
+      state: { name: selectedStock?.nameKr },
     });
+    setSearchQuery("");
+    setSuggestions([]);
+    setShowSuggestions(false);
+  };
+
+  // 검색창 초기화 함수 추가
+  const clearSearch = () => {
     setSearchQuery("");
     setSuggestions([]);
     setShowSuggestions(false);
@@ -113,6 +139,23 @@ const Navbar = () => {
             onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
             className="search-input"
           />
+          {searchQuery && (
+            <button
+              type="button"
+              className="clear-button"
+              onClick={clearSearch}
+              style={{
+                position: "absolute",
+                right: "40px",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                padding: "5px"
+              }}
+            >
+              ✕
+            </button>
+          )}
           <button type="submit" className="search-button">
             <svg className="search-icon" viewBox="0 0 24 24">
               <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -137,20 +180,20 @@ const Navbar = () => {
         </form>
 
         {isLoggedIn ? (
-          <img 
-            src="/images/my.svg" 
-            alt="My Icon" 
-            className="my-icon" 
-            onClick={() => navigate('/mypage')}
-            style={{ cursor: 'pointer' }}
+          <img
+            src="/images/my.svg"
+            alt="My Icon"
+            className="my-icon"
+            onClick={() => navigate("/mypage")}
+            style={{ cursor: "pointer" }}
           />
         ) : (
-          <img 
-            src="/images/my.svg" 
-            alt="My Icon" 
-            className="my-icon" 
+          <img
+            src="/images/my.svg"
+            alt="My Icon"
+            className="my-icon"
             onClick={() => navigate("/signup", { state: { from: location.pathname } })}
-            style={{ cursor: 'pointer' }}
+            style={{ cursor: "pointer" }}
           />
         )}
 
