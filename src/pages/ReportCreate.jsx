@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { IoChevronBack } from 'react-icons/io5';
 import axiosInstance from '../api/axiosInstance';
+import Select from 'react-select';
 
 const ReportCreate = () => {
   const navigate = useNavigate();
@@ -16,6 +17,14 @@ const ReportCreate = () => {
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const categoryOptions = [
+    { value: '', label: '카테고리 선택' },
+    { value: '기업분석', label: '기업 분석' },
+    { value: '산업섹터', label: '산업/섹터' },
+    { value: '시장전망', label: '시장 전망' },
+    { value: '이슈테마', label: '이슈 테마' },
+  ];
 
   const handleSubmit = async () => {
     // 입력값 검증
@@ -86,16 +95,15 @@ const ReportCreate = () => {
       <ContentWrapper>
         <TopSection>
           <DateText>{new Date().toISOString().slice(0, 10)}</DateText>
-          <CategorySelect 
-            value={category} 
-            onChange={(e) => setCategory(e.target.value)}
-          >
-            <option value="">카테고리 선택</option>
-            <option value="기업분석">기업 분석</option>
-            <option value="산업섹터">산업/섹터</option>
-            <option value="시장전망">시장 전망</option>
-            <option value="이슈테마">이슈 테마</option>
-          </CategorySelect>
+          <Select
+            options={categoryOptions}
+            value={categoryOptions.find(opt => opt.value === category)}
+            onChange={opt => setCategory(opt.value)}
+            styles={{
+              container: (base) => ({ ...base, width: 240 }),
+              menu: (base) => ({ ...base, width: 240 }),
+            }}
+          />
         </TopSection>
         
         <TitleInput
@@ -176,21 +184,6 @@ const TopSection = styled.div`
 const DateText = styled.div`
   color: #666;
   font-size: 14px;
-`;
-
-const CategorySelect = styled.select`
-  width: 200px;
-  padding: 8px 12px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  background-color: white;
-  font-size: 14px;
-  cursor: pointer;
-
-  &:focus {
-    border-color: #4B50E6;
-    outline: none;
-  }
 `;
 
 const TitleInput = styled.input`

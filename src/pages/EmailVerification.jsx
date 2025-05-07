@@ -15,7 +15,7 @@ const EmailVerification = () => {
       return;
     }
 
-    fetch(`http://assist-server-service:4003/api/auth/verify?token=${token}`)
+    fetch(`http://localhost:8080/api/auth/verify?token=${token}`)
       .then(async (response) => {
         if (response.ok) {
           const data = await response.json();

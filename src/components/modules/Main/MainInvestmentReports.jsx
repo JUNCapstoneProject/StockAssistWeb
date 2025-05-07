@@ -15,8 +15,9 @@ const InvestmentReports = ({ defaultTab = "expert" }) => {
     setLoading(true);
     try {
       const reportType = tab === "user" ? "user" : "expert";
+      const baseURL = import.meta.env.VITE_API_BASE_URL;
       const response = await fetch(
-        `http://assist-server-service:4003/api/reports?page=1&limit=3&type=${reportType}`,
+        `${baseURL}/api/reports?page=1&limit=3&type=${reportType}`,
         { credentials: "include" }
       );
       const result = await response.json();

@@ -41,6 +41,9 @@ const AiAnalysis = () => {
   );
   const [hasNextNews, setHasNextNews] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [financialPage, setFinancialPage] = useState(
+    parseInt(searchParams.get("financialPage")) || 1
+  );
 
   // 페이지 새로고침 시 스크롤 위치 초기화
   useEffect(() => {
@@ -53,8 +56,10 @@ const AiAnalysis = () => {
   useEffect(() => {
     if (currentTab === "뉴스") {
       setSearchParams({ newsPage: newsPage.toString() });
+    } else if (currentTab === "재무제표") {
+      setSearchParams({ financialPage: financialPage.toString() });
     }
-  }, [newsPage, currentTab, setSearchParams]);
+  }, [newsPage, financialPage, currentTab, setSearchParams]);
 
   // 뉴스 데이터 로드
   useEffect(() => {
@@ -62,15 +67,21 @@ const AiAnalysis = () => {
       try {
         setIsLoading(true);
         const response = await fetch(
-          `http://assist-server-service:4003/api/news?page=${newsPage}&limit=6`,
+          `http://localhost:8080/api/news?page=${newsPage}&limit=6`,
           { credentials: "include" }
         );
         const result = await response.json();
 
         if (result.response?.news) {
+          // 데이터가 없는 경우 1페이지로 이동
+          if (result.response.news.length === 0) {
+            setNewsPage(1);
+            return;
+          }
+
           const newData = result.response.news.map(news => ({
             ...news,
-            link: news.url || news.link // url 또는 link 필드가 있는 경우 사용
+            link: news.url || news.link
           }));
           setNewsData((prevData) =>
             JSON.stringify(prevData) === JSON.stringify(newData) ? prevData : newData
@@ -138,8 +149,15 @@ const AiAnalysis = () => {
       {/* 재무제표 탭 컨텐츠 */}
       {currentTab === "재무제표" && (
         <FinancialStatement 
-          initialPage={parseInt(searchParams.get("financialPage")) || 1}
-          onPageChange={(page) => setSearchParams({ financialPage: page.toString() })}
+          initialPage={financialPage}
+          onPageChange={(page) => {
+            setFinancialPage(page);
+            setSearchParams((prev) => {
+              const newParams = new URLSearchParams(prev);
+              newParams.set('financialPage', page.toString());
+              return newParams;
+            });
+          }}
         />
       )}
     </div>
