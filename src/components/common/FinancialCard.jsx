@@ -40,11 +40,14 @@ const FinancialCard = ({ stock, activeTab, onTabChange }) => {
       <Table>
         {stock[activeTab === '주요비율' ? '주요비율' : activeTab].map((item, idx) => (
           <Row key={idx}>
-            <Col>{item.name}</Col>
-            <Col>{item.value}</Col>
-            <Col $change={item.change}>
-              {item.change >= 0 ? '+' : ''}
-              {item.change}%
+            <Col align="left">{item.name}</Col>
+            <Col align="right">
+              <RightGroup>
+                <span>{item.value}</span>
+                <Change $change={item.change}>
+                  {item.change >= 0 ? '+' : ''}{item.change}%
+                </Change>
+              </RightGroup>
             </Col>
           </Row>
         ))}
@@ -57,91 +60,156 @@ export default FinancialCard;
 
 // 스타일 컴포넌트 정의
 const CardContainer = styled.div`
-  background: #ffffff;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  margin-bottom: 20px;
+  background: #fff;
+  padding: 28px 32px 20px 32px;
+  border-radius: 18px;
+  box-shadow: 0 4px 16px rgba(30, 34, 40, 0.08);
+  margin-bottom: 28px;
+  transition: box-shadow 0.2s;
+  &:hover {
+    box-shadow: 0 8px 24px rgba(30, 34, 40, 0.13);
+  }
 `;
 
 const Header = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  margin-bottom: 8px;
 `;
 
 const Info = styled.div`
   display: flex;
   flex-direction: column;
+  gap: 2px;
 `;
 
 const Name = styled.h2`
-  font-size: 18px;
-  font-weight: bold;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const Price = styled.div`
-  font-size: 16px;
-  margin-top: 4px;
+  font-size: 18px;
+  font-weight: 500;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const Change = styled.span.withConfig({
   shouldForwardProp: (prop) => prop !== '$change',
 })`
-  color: ${({ $change }) => ($change >= 0 ? '#4CAF50' : '#FF5252')};
-  margin-left: 6px;
+  color: ${({ $change }) => ($change >= 0 ? '#1db954' : '#e53935')};
+  font-weight: 600;
+  font-size: 15px;
+  margin-left: 2px;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const Badge = styled.span.withConfig({
   shouldForwardProp: (prop) => prop !== '$status',
 })`
-  padding: 6px 12px;
-  font-size: 12px;
+  padding: 6px 16px;
+  font-size: 13px;
   border-radius: 16px;
   background-color: ${({ $status }) =>
-    $status === '긍정' ? '#4CAF50' :
-    $status === '부정' ? '#FF5252' :
+    $status === '긍정' ? '#1db954' :
+    $status === '부정' ? '#e53935' :
     '#757575'};
   color: white;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const Tabs = styled.div`
   display: flex;
-  gap: 12px;
-  margin-top: 14px;
+  gap: 0;
+  margin-top: 18px;
+  border-bottom: 1.5px solid #e0e0e0;
+  overflow-x: auto;
 `;
 
 const Tab = styled.div.withConfig({
   shouldForwardProp: (prop) => prop !== '$active',
 })`
-  padding: 10px 16px;
+  flex: 1;
+  min-width: 0;
+  padding: 0.5em 1em 0.4em 1em;
   cursor: pointer;
-  font-weight: ${({ $active }) => ($active ? '600' : '400')};
-  color: ${({ $active }) => ($active ? '#000' : '#666')};
-  border-bottom: ${({ $active }) => ($active ? '2px solid #000' : 'none')};
+  font-size: clamp(11px, 1.2vw, 16px);
+  font-weight: ${({ $active }) => ($active ? '700' : '400')};
+  color: ${({ $active }) => ($active ? '#222' : '#888')};
+  border-bottom: ${({ $active }) => ($active ? '3px solid #1db954' : 'none')};
+  background: #fff;
+  transition: color 0.15s, border-bottom 0.15s;
+  white-space: nowrap;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 const Table = styled.div`
-  margin-top: 15px;
+  margin-top: 18px;
+`;
+
+const LeftGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
 `;
 
 const Row = styled.div`
   display: flex;
   justify-content: space-between;
-  padding: 10px 0;
-  border-bottom: 1px solid #e0e0e0;
+  align-items: center;
+  padding: 13px 0;
+  border-bottom: 1px solid #f0f0f0;
+  &:last-child {
+    border-bottom: none;
+  }
+  &:hover {
+    background: #fafbfc;
+  }
 `;
 
 const Col = styled.div.withConfig({
-  shouldForwardProp: (prop) => prop !== '$change',
+  shouldForwardProp: (prop) => prop !== '$change' && prop !== 'align',
 })`
   flex: 1;
-  text-align: right;
-
+  text-align: ${({ align }) => align || 'right'};
+  font-size: 16px;
+  font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
   &:first-child {
-    text-align: left;
+    font-weight: 500;
+    color: #222;
   }
-
   color: ${({ $change }) =>
-    $change !== undefined ? ($change >= 0 ? '#4CAF50' : '#FF5252') : '#000'};
+    $change !== undefined ? ($change >= 0 ? '#1db954' : '#e53935') : '#222'};
+  font-weight: ${({ $change }) => ($change !== undefined ? 600 : 400)};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const RightGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
 `;

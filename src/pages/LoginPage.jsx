@@ -20,9 +20,15 @@ const LoginPage = () => {
     setError("");
 
     try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const redirect = urlParams.get("redirect");
+
+      const params = { email, password };
+      if (redirect) params.redirect = redirect;
+
       const response = await axiosInstance.post(
         "/api/auth/login",
-        { email, password },
+        params,
         { withCredentials: true }
       );
 
@@ -31,7 +37,26 @@ const LoginPage = () => {
       if (success && responseData) {
         localStorage.setItem("accessToken", responseData);
         dispatch(setLoginStatus(true));
-        navigate(from);
+        const redirectTo = response.data.redirect || from;
+        try {
+          const url = new URL(redirectTo);
+          const authCode = url.searchParams.get("code");
+          console.log("authCode:", authCode);
+        } catch (e) {
+          console.log("authCode 추출 실패:", e);
+        }
+        if (
+          redirectTo.startsWith("http://") ||
+          redirectTo.startsWith("https://")
+        ) {
+          setTimeout(() => {
+            window.location.href = redirectTo;
+          }, 1500);
+        } else {
+          setTimeout(() => {
+            navigate(redirectTo);
+          }, 1500);
+        }
       } else {
         setError(apiError.message || "아이디나 비밀번호가 일치하지 않습니다.");
       }

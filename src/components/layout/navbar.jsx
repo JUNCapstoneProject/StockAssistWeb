@@ -27,6 +27,7 @@ const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // 로그아웃 처리 함수
   const handleLogout = async () => {
@@ -107,6 +108,11 @@ const Navbar = () => {
     setShowSuggestions(false);
   };
 
+  // 햄버거 메뉴 토글 함수
+  const toggleMenu = () => {
+    setIsMenuOpen((prev) => !prev);
+  };
+
   // 로그인 상태 체크가 완료되지 않았으면 렌더링하지 않음
   if (!isLoginChecked) return null;
 
@@ -118,7 +124,8 @@ const Navbar = () => {
           <img src="/Logo.svg" alt="Logoname" className="logo-image" />
           <span className="logo-text">Tuzain</span>
         </a>
-        <div className="nav-links">
+        {/* 데스크탑용 메뉴 */}
+        <div className="nav-links desktop-menu">
           <a href="/">홈</a>
           <a href="/ai-analysis">AI 투자 분석</a>
           <a href="/report">리포트</a>
@@ -210,6 +217,19 @@ const Navbar = () => {
             로그인
           </button>
         )}
+
+        {/* 모바일용 햄버거 및 메뉴 */}
+        <button className="hamburger" onClick={toggleMenu} aria-label="메뉴 열기">
+          <span className="bar"></span>
+          <span className="bar"></span>
+          <span className="bar"></span>
+        </button>
+        <div className={`nav-links mobile-menu${isMenuOpen ? " open" : ""}`} onClick={() => setIsMenuOpen(false)}>
+          <a href="/">홈</a>
+          <a href="/ai-analysis">AI 투자 분석</a>
+          <a href="/report">리포트</a>
+          <a href="/portfolio">나의 포트폴리오</a>
+        </div>
       </div>
     </nav>
   );

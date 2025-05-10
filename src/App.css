@@ -1,11 +1,11 @@
-.card-container {
+/* .card-container {
     display: flex;
     gap: 1rem;
     justify-content: center;
     flex-wrap: wrap;
     max-width: 1200px;
     margin: 0 auto;
-  }
+  } */
 
   .container {
     padding: 2rem;

@@ -31,13 +31,13 @@ const TabWrapper = styled.div`
   background: #eef2f7;
   border-radius: 8px;
   overflow: hidden;
-  width: 800px;
+  width: 100%;
+  max-width: 800px;
   justify-content: space-between;
 `;
 
 const TabItem = styled.div`
   flex: 1;
-  min-width: 400px;
   text-align: center;
   padding: 14px 20px;
   cursor: pointer;
