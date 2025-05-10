@@ -3,7 +3,7 @@
  * 웹사이트의 상단 네비게이션을 담당하며, 로고, 메뉴 링크, 검색 기능, 로그인/로그아웃 기능을 포함
  */
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
 import { logout } from "../../redux/features/auth/authSlice";
@@ -30,6 +30,30 @@ const Navbar = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isVeryNarrow, setIsVeryNarrow] = useState(window.innerWidth <= 500);
+  const [isUltraNarrow, setIsUltraNarrow] = useState(window.innerWidth <= 340);
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsVeryNarrow(window.innerWidth <= 500);
+      setIsUltraNarrow(window.innerWidth <= 340);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // 검색창이 열릴 때 body 스크롤 방지
+  useEffect(() => {
+    if (showMobileSearch) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [showMobileSearch]);
 
   // 로그아웃 처리 함수
   const handleLogout = async () => {
@@ -48,6 +72,7 @@ const Navbar = () => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/stock/${searchQuery}`);
+      setShowMobileSearch(false); // 검색 성공 시 닫기
     }
   };
 
@@ -101,6 +126,7 @@ const Navbar = () => {
     setSearchQuery("");
     setSuggestions([]);
     setShowSuggestions(false);
+    setShowMobileSearch(false); // 검색 성공 시 닫기
   };
 
   // 검색창 초기화 함수 추가
@@ -137,56 +163,140 @@ const Navbar = () => {
 
       {/* 오른쪽 네비게이션 영역 */}
       <div className="nav-right">
-        {/* 검색 폼 */}
-        <form className="search-container" onSubmit={handleSearch}>
-          <input
-            type="text"
-            placeholder="종목 검색"
-            value={searchQuery}
-            onChange={handleSearchChange}
-            onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-            className="search-input"
-          />
-          {searchQuery && (
+        {/* 검색 폼: 500px 이하에서는 아이콘만, 그 이상에서는 검색창 */}
+        {isVeryNarrow ? (
+          <>
             <button
-              type="button"
-              className="clear-button"
-              onClick={clearSearch}
-              style={{
-                position: "absolute",
-                right: "40px",
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                padding: "5px"
-              }}
+              className="search-button mobile-search-icon"
+              style={{ background: "none", border: "none", padding: 0 }}
+              onClick={() => setShowMobileSearch(true)}
+              aria-label="종목 검색"
             >
-              ✕
+              <svg className="search-icon" viewBox="0 0 24 24">
+                <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
             </button>
-          )}
-          <button type="submit" className="search-button">
-            <svg className="search-icon" viewBox="0 0 24 24">
-              <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </button>
-
-          {/* 검색 자동완성 드롭다운 */}
-          {showSuggestions && (
-            <ul className="suggestions-dropdown">
-              {suggestions.map((item) => (
-                <li
-                  key={item.ticker}
-                  className="suggestion-item"
-                  onClick={() => handleSuggestionClick(item.ticker)}
+            {showMobileSearch && (
+              <>
+                {/* 오버레이 */}
+                <div
+                  style={{
+                    position: "fixed",
+                    top: 60,
+                    left: 0,
+                    width: "100vw",
+                    height: "100vh",
+                    background: "rgba(0,0,0,0)",
+                    zIndex: 1999
+                  }}
+                  onClick={() => setShowMobileSearch(false)}
+                />
+                {/* 검색창 */}
+                <form
+                  className="search-container"
+                  onSubmit={handleSearch}
+                  style={{
+                    position: "fixed",
+                    top: 60,
+                    left: 0,
+                    right: 0,
+                    width: "100vw",
+                    zIndex: 2000,
+                    background: "white",
+                    padding: "12px 8px 8px 8px",
+                    borderBottom: "1px solid #eee"
+                  }}
                 >
-                  {item.nameKr} ({item.ticker})
-                  {item.nameEn && ` - ${item.nameEn}`}
-                </li>
-              ))}
-            </ul>
-          )}
-        </form>
+                  <div className="mobile-search-row">
+                    <input
+                      type="text"
+                      placeholder="종목 검색"
+                      value={searchQuery}
+                      onChange={handleSearchChange}
+                      onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+                      onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                      className="search-input"
+                      autoFocus
+                    />
+                    <button
+                      type="button"
+                      className="clear-button"
+                      onClick={() => {
+                        setShowMobileSearch(false);
+                        clearSearch();
+                      }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  {showSuggestions && (
+                    <ul className="suggestions-dropdown">
+                      {suggestions.map((item) => (
+                        <li
+                          key={item.ticker}
+                          className="suggestion-item"
+                          onClick={() => handleSuggestionClick(item.ticker)}
+                        >
+                          {item.nameKr} ({item.ticker})
+                          {item.nameEn && ` - ${item.nameEn}`}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </form>
+              </>
+            )}
+          </>
+        ) : (
+          <form className="search-container" onSubmit={handleSearch}>
+            <input
+              type="text"
+              placeholder="종목 검색"
+              value={searchQuery}
+              onChange={handleSearchChange}
+              onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+              className="search-input"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                className="clear-button"
+                onClick={clearSearch}
+                style={{
+                  position: "absolute",
+                  right: "40px",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  padding: "5px"
+                }}
+              >
+                ✕
+              </button>
+            )}
+            <button type="submit" className="search-button">
+              <svg className="search-icon" viewBox="0 0 24 24">
+                <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </button>
+            {/* 검색 자동완성 드롭다운 */}
+            {showSuggestions && (
+              <ul className="suggestions-dropdown">
+                {suggestions.map((item) => (
+                  <li
+                    key={item.ticker}
+                    className="suggestion-item"
+                    onClick={() => handleSuggestionClick(item.ticker)}
+                  >
+                    {item.nameKr} ({item.ticker})
+                    {item.nameEn && ` - ${item.nameEn}`}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </form>
+        )}
 
         {isLoggedIn ? (
           <img
@@ -227,6 +337,18 @@ const Navbar = () => {
           <span className="bar"></span>
         </button>
         <div className={`nav-links mobile-menu${isMenuOpen ? " open" : ""}`} onClick={() => setIsMenuOpen(false)}>
+          {/* 340px 이하에서만 보이게 */}
+          {isUltraNarrow && (
+            <a
+              href="#"
+              onClick={e => {
+                e.preventDefault();
+                setShowMobileSearch(true);
+              }}
+            >
+              종목 검색
+            </a>
+          )}
           <a href="/">홈</a>
           <a href="/ai-analysis">AI 투자 분석</a>
           <a href="/report">리포트</a>

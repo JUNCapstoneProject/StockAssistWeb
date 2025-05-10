@@ -40,7 +40,7 @@ function Home() {
 
   useEffect(() => {
     fetchStockData();
-  }, []);
+  }, [fetchStockData]);
 
   return (
     <>
