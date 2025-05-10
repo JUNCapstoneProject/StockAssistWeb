@@ -18,6 +18,8 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  const baseURL = import.meta.env.VITE_API_BASE_URL;
+
 
   // Redux 상태 관리
   const isLoggedIn = useSelector(selectIsLoggedIn);
@@ -64,7 +66,7 @@ const Navbar = () => {
     }
 
     try {
-      const url = `http://localhost:8080/api/stocks/search?query=${encodeURIComponent(query)}`;
+      const url = `${baseURL}/api/stocks/search?query=${encodeURIComponent(query)}`;
       console.log("🌐 API 요청:", url);
 
       const res = await fetch(url);

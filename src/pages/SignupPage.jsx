@@ -3,6 +3,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import zxcvbn from "zxcvbn";
 import "./SignupPage.css";
 
+const baseURL = import.meta.env.VITE_API_BASE_URL;
+
 const SignupPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -106,7 +108,7 @@ const SignupPage = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:8080/api/auth/register", {
+      const response = await fetch(`${baseURL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nickname, email, password }),

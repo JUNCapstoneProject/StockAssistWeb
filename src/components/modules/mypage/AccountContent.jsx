@@ -102,6 +102,7 @@ const AccountContent = () => {
   const [userInfo, setUserInfo] = useState({ nickname: '', email: '' });
   const [isEditing, setIsEditing] = useState(false);
   const [editedNickname, setEditedNickname] = useState('');
+  const [deleteError, setDeleteError] = useState('');
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -134,6 +135,30 @@ const AccountContent = () => {
       }
     } else {
       setIsEditing(true);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeleteError('');
+    if (!window.confirm('정말로 회원 탈퇴하시겠습니까?\n모든 데이터가 삭제되며 복구할 수 없습니다.')) return;
+    try {
+      const res = await axiosInstance.delete('/api/users/me');
+      if (res.data.success) {
+        // 로그아웃 처리: 토큰 삭제 및 메인 페이지로 이동
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        window.location.href = '/';
+      } else {
+        setDeleteError('회원 탈퇴에 실패했습니다.');
+      }
+    } catch (err) {
+      if (err.response?.status === 401) {
+        setDeleteError('인증 정보가 유효하지 않습니다. 다시 로그인 해주세요.');
+      } else if (err.response?.status === 403) {
+        setDeleteError('권한이 없습니다.');
+      } else {
+        setDeleteError('서버 오류로 회원 탈퇴에 실패했습니다.');
+      }
     }
   };
 
@@ -172,7 +197,8 @@ const AccountContent = () => {
         <SectionTitle>계정 관리</SectionTitle>
         <AccountManagement>
           회원 탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다.
-          <DeleteAccountButton>회원 탈퇴</DeleteAccountButton>
+          <DeleteAccountButton onClick={handleDeleteAccount}>회원 탈퇴</DeleteAccountButton>
+          {deleteError && <div style={{ color: 'red', marginTop: '0.5rem' }}>{deleteError}</div>}
         </AccountManagement>
       </Section>
     </>
