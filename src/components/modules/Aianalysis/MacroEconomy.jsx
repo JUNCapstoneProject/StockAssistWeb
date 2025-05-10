@@ -5,6 +5,8 @@ const MacroEconomy = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [macroValues, setMacroValues] = useState({});
   const [isLoading, setIsLoading] = useState(true);
+  const baseURL = import.meta.env.VITE_API_BASE_URL;
+
 
   const baseData = [
     { title: '국내총생산', tag: 'GDP', description: '미국 경제 규모' },
@@ -26,7 +28,7 @@ const MacroEconomy = () => {
     const fetchMacroData = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch('http://localhost:8080/api/economy/indicators');
+        const response = await fetch(`${baseURL}/api/economy/indicators`);
         const result = await response.json();
         if (result.success) {
           setMacroValues(result.response);

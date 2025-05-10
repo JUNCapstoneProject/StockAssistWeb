@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+const baseURL = import.meta.env.VITE_API_BASE_URL;
+
 const EmailVerification = () => {
   const [message, setMessage] = useState("인증 중...");
   const location = useLocation();
@@ -15,7 +17,7 @@ const EmailVerification = () => {
       return;
     }
 
-    fetch(`http://localhost:8080/api/auth/verify?token=${token}`)
+    fetch(`${baseURL}/api/auth/verify?token=${token}`)
       .then(async (response) => {
         if (response.ok) {
           const data = await response.json();

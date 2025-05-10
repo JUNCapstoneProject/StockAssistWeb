@@ -11,6 +11,8 @@ import ContentList from "../components/common/ContentList";
 import FinancialStatement from "../components/modules/Aianalysis/FinancialStatement";
 import MacroEconomy from "../components/modules/Aianalysis/MacroEconomy";
 
+const baseURL = import.meta.env.VITE_API_BASE_URL;
+
 // 페이지 새로고침 여부를 확인하는 함수
 const isPageReloaded = () => {
   const navEntries = performance.getEntriesByType("navigation");
@@ -67,7 +69,7 @@ const AiAnalysis = () => {
       try {
         setIsLoading(true);
         const response = await fetch(
-          `http://localhost:8080/api/news?page=${newsPage}&limit=6`,
+          `${baseURL}/api/news?page=${newsPage}&limit=6`,
           { credentials: "include" }
         );
         const result = await response.json();

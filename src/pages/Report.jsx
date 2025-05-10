@@ -4,6 +4,8 @@ import ReportHeader from "../components/modules/Report/ReportHeader";
 import ReportTab from "../components/modules/Report/ReportTab";
 import ContentList from "../components/common/ContentList";
 
+const baseURL = import.meta.env.VITE_API_BASE_URL;
+
 const Report = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -25,7 +27,7 @@ const Report = () => {
         setIsLoading(true);
         const reportType = currentTab === "전문가 리포트" ? "expert" : "user";
         const response = await fetch(
-          `http://localhost:8080/api/reports?page=${reportPage}&limit=6&type=${reportType}`,
+          `${baseURL}/api/reports?page=${reportPage}&limit=6&type=${reportType}`,
           { credentials: "include" }
         );
         const result = await response.json();
