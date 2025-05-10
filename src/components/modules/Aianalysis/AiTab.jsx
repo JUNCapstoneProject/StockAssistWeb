@@ -24,6 +24,7 @@ const AiTab = ({ onTabChange, currentTab }) => {
 const TabContainer = styled.div`
   display: flex;
   justify-content: center;
+  padding: 0 20px;
 `;
 
 const TabWrapper = styled.div`

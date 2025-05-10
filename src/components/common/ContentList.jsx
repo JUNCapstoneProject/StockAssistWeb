@@ -230,14 +230,17 @@ const Description = styled.p`
 
 const CardFooter = styled.div`
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   margin-top: 12px;
 `;
 
 const Source = styled.span`
   font-size: 14px;
   color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const Date = styled.span`

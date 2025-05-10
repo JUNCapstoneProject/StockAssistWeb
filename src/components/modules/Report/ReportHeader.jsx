@@ -54,6 +54,8 @@ const CreateButton = styled.button`
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
+  align-self: flex-start;
+  white-space: nowrap;
   
   &:hover {
     background-color: #3D32E6;

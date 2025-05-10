@@ -29,7 +29,7 @@ const MacroEconomy = () => {
         const response = await fetch('http://localhost:8080/api/economy/indicators');
         const result = await response.json();
         if (result.success) {
-          setMacroValues(result.response); // ✅ 'data' → 'response'
+          setMacroValues(result.response);
         }
       } catch (error) {
         console.error('거시경제 데이터 로딩 실패:', error);
@@ -43,12 +43,9 @@ const MacroEconomy = () => {
 
   const getUnit = (tag) => {
     switch (tag) {
-      case 'GDP':
-        return '조 달러';
-      case 'GDPC':
-        return ' 달러';
-      case 'TRADE_BALANCE':
-        return 'B 달러';
+      case 'GDP': return '조 달러';
+      case 'GDPC': return ' 달러';
+      case 'TRADE_BALANCE': return 'B 달러';
       case 'CPI':
       case 'UNRATE':
       case 'FEDFUNDS':
@@ -64,66 +61,77 @@ const MacroEconomy = () => {
   };
 
   const getChangeUnit = (tag) => {
-    // 단위 없이 보여야 할 항목
     const unitlessTags = ['PMI', 'CCI'];
     return unitlessTags.includes(tag) ? '' : '%';
   };
-  
+
   return (
-    <Container>
-      <Header onClick={() => setIsExpanded(!isExpanded)}>
-        <Title>거시경제지표</Title>
-        <ExpandButton>{isExpanded ? '접기 ∧' : '더보기 ∨'}</ExpandButton>
-      </Header>
-      
-      <Content $expanded={isExpanded}>
-        <Grid>
-          {isLoading ? (
-            <LoadingMessage>데이터를 불러오는 중...</LoadingMessage>
-          ) : (
-            baseData.map((item, index) => {
-              const macro = macroValues[item.tag];
-              return (
-                <MacroItem key={index}>
-                  <ItemHeader>
-                    <ItemTitle>{item.title}</ItemTitle>
-                    <Tag>{item.tag}</Tag>
-                  </ItemHeader>
-                  <Value>
-                    {macro?.value !== undefined
-                      ? `${macro.value.toLocaleString()}${getUnit(item.tag)}`
-                      : '-'}
-                  </Value>
-                  <Change $positive={macro?.change > 0}>
-                    {macro?.change !== undefined
-                      ? `${macro.change > 0 ? '+' : ''}${macro.change}${getChangeUnit(item.tag)}`
-                      : '-'}
-                  </Change>
-                  <Description>{item.description}</Description>
-                </MacroItem>
-              );
-            })
-          )}
-        </Grid>
-      </Content>
-    </Container>
+    <OuterContainer>
+      <InnerContainer>
+        <Header onClick={() => setIsExpanded(!isExpanded)}>
+          <Title>거시경제지표</Title>
+          <ExpandButton>{isExpanded ? '접기 ∧' : '더보기 ∨'}</ExpandButton>
+        </Header>
+
+        <Content $expanded={isExpanded}>
+          <Grid>
+            {isLoading ? (
+              <LoadingMessage>데이터를 불러오는 중...</LoadingMessage>
+            ) : (
+              baseData.map((item, index) => {
+                const macro = macroValues[item.tag];
+                return (
+                  <MacroItem key={index}>
+                    <ItemHeader>
+                      <ItemTitle>{item.title}</ItemTitle>
+                      <Tag>{item.tag}</Tag>
+                    </ItemHeader>
+                    <Value>
+                      {macro?.value !== undefined
+                        ? `${macro.value.toLocaleString()}${getUnit(item.tag)}`
+                        : '-'}
+                    </Value>
+                    <Change $positive={macro?.change > 0}>
+                      {macro?.change !== undefined
+                        ? `${macro.change > 0 ? '+' : ''}${macro.change}${getChangeUnit(item.tag)}`
+                        : '-'}
+                    </Change>
+                    <Description>{item.description}</Description>
+                  </MacroItem>
+                );
+              })
+            )}
+          </Grid>
+        </Content>
+      </InnerContainer>
+    </OuterContainer>
   );
 };
 
+export default MacroEconomy;
+
 // ✅ 스타일 컴포넌트
-const Container = styled.div`
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  background: white;
-  margin: 10px auto;
-  min-height: 100px;
-  max-width: 960px;
+const OuterContainer = styled.div`
+  width: 100%;
+  padding: 0 20px; /* 뷰포트 기준 좌우 여백 고정 */
+  box-sizing: border-box;
 `;
 
-const Header = styled.div`  display: flex;
+const InnerContainer = styled.div`
+  max-width: 960px;
+  margin: 10px auto;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  box-sizing: border-box;
+`;
+
+const Header = styled.div`
+  display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 20px;
+  padding-bottom: 10px;
   cursor: pointer;
 `;
 
@@ -143,13 +151,34 @@ const Content = styled.div.withConfig({
   max-height: ${({ $expanded }) => ($expanded ? '1000px' : '150px')};
   overflow: hidden;
   transition: max-height 0.3s ease-in-out;
+
+  @media (max-width: 768px) {
+    max-height: ${({ $expanded }) => ($expanded ? '600px' : '120px')};
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  @media (max-width: 480px) {
+    max-height: ${({ $expanded }) => ($expanded ? '400px' : '100px')};
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 `;
 
 const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
-  padding: 20px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
 `;
 
 const MacroItem = styled.div`
@@ -203,6 +232,3 @@ const LoadingMessage = styled.div`
   padding: 20px;
   color: #666;
 `;
-
-export default MacroEconomy;
-
