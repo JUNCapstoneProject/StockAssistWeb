@@ -41,7 +41,7 @@ const MacroEconomy = () => {
     };
 
     fetchMacroData();
-  }, []);
+  }, [baseURL]);
 
   const getUnit = (tag) => {
     switch (tag) {

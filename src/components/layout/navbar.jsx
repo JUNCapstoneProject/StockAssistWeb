@@ -30,14 +30,12 @@ const Navbar = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [isVeryNarrow, setIsVeryNarrow] = useState(window.innerWidth <= 500);
-  const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [isUltraNarrow, setIsUltraNarrow] = useState(window.innerWidth <= 340);
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
       setIsVeryNarrow(window.innerWidth <= 500);
       setIsUltraNarrow(window.innerWidth <= 340);
     };
