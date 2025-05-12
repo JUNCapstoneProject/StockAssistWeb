@@ -52,14 +52,13 @@ export const checkLoginStatusAPI = async () => {
             response: refreshResponse.data?.response
           });
           
-          if (refreshResponse.data?.success && refreshResponse.data?.response?.accessToken) {
-            // 새로운 토큰 저장
-            const newAccessToken = refreshResponse.data.response.accessToken;
+          if (refreshResponse.data?.success && refreshResponse.data?.response) {
+            // Bearer 접두사가 포함된 토큰을 그대로 저장
+            const newAccessToken = refreshResponse.data.response;
             localStorage.setItem("accessToken", newAccessToken);
-            
-            // 새로운 토큰으로 한 번만 다시 시도
-            const retryResponse = await axiosInstance.get("/api/auth/check");
-            return retryResponse.data?.response?.isLogin || false;
+            // check API를 다시 호출
+            const checkResponse = await axiosInstance.get("/api/auth/check");
+            return checkResponse.data?.success && checkResponse.data?.response?.isLogin;
           } else {
             throw new Error(refreshResponse.data?.message || "토큰 갱신 실패");
           }
@@ -100,14 +99,13 @@ export const checkLoginStatusAPI = async () => {
           response: refreshResponse.data?.response
         });
         
-        if (refreshResponse.data?.success && refreshResponse.data?.response?.accessToken) {
-          // 새로운 토큰 저장
-          const newAccessToken = refreshResponse.data.response.accessToken;
+        if (refreshResponse.data?.success && refreshResponse.data?.response) {
+          // Bearer 접두사가 포함된 토큰을 그대로 저장
+          const newAccessToken = refreshResponse.data.response;
           localStorage.setItem("accessToken", newAccessToken);
-          
-          // 새로운 토큰으로 한 번만 다시 시도
-          const retryResponse = await axiosInstance.get("/api/auth/check");
-          return retryResponse.data?.response?.isLogin || false;
+          // check API를 다시 호출
+          const checkResponse = await axiosInstance.get("/api/auth/check");
+          return checkResponse.data?.success && checkResponse.data?.response?.isLogin;
         } else {
           console.error("🚨 토큰 갱신 실패:", refreshResponse.data?.message || "알 수 없는 오류");
         }
