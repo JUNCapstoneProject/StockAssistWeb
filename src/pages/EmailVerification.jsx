@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
@@ -70,7 +70,7 @@ const EmailVerification = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  useEffect(() => {
+  const fetchStockData = useCallback(() => {
     const params = new URLSearchParams(location.search);
     const token = params.get("token");
 
@@ -111,6 +111,14 @@ const EmailVerification = () => {
 
     return () => clearTimeout(timer);
   }, [location.search]);
+
+  useEffect(() => {
+    fetchStockData();
+  }, [fetchStockData]);
+
+  if (msgType === "error") {
+    return <div>에러 발생: {message}</div>;
+  }
 
   return (
     <PageWrapper>
