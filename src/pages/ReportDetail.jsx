@@ -61,6 +61,7 @@ const ReportDetail = () => {
           localStorage.setItem(`report_${reportId}`, JSON.stringify(updated));
         }
       } catch (error) {
+        alert("리포트 상세 정보를 불러오는 중 오류:", error);
         console.error("리포트 상세 정보를 불러오는 중 오류:", error);
       } finally {
         setIsLoading(false);

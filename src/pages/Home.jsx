@@ -15,32 +15,33 @@ function Home() {
   const baseURL = import.meta.env.VITE_API_BASE_URL;
 
   // API로 데이터 불러오기
-  const fetchStockData = async () => {
-    try {
-      const [newsRes, financialRes] = await Promise.all([
-        fetch(`${baseURL}/api/stock-analysis?type=news`),
-        fetch(`${baseURL}/api/stock-analysis?type=financial`),
-      ]);
-
-      const newsData = await newsRes.json();
-      const financialData = await financialRes.json();
-
-      if (newsData.success) {
-        setStocks(newsData.response);
-      }
-      if (financialData.success) {
-        setFinancialStocks(financialData.response);
-      }
-    } catch (error) {
-      console.error("데이터 로딩 실패:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchStockData();
-  }, [fetchStockData]);
+    const fetchStockData = async () => {
+      try {
+        const [newsRes, financialRes] = await Promise.all([
+          fetch(`${baseURL}/api/stock-analysis?type=news`),
+          fetch(`${baseURL}/api/stock-analysis?type=financial`),
+        ]);
+  
+        const newsData = await newsRes.json();
+        const financialData = await financialRes.json();
+  
+        if (newsData.success) {
+          setStocks(newsData.response);
+        }
+        if (financialData.success) {
+          setFinancialStocks(financialData.response);
+        }
+      } catch (error) {
+        console.error("데이터 로딩 실패:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchStockData(); // 함수 내부에서 바로 호출
+  }, [baseURL]);
+  
 
   return (
     <>
