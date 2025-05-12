@@ -7,6 +7,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import axiosInstance from '../api/axiosInstance';
 
 const ReportDetail = () => {
   // URL 파라미터와 라우팅 관련 훅
@@ -28,11 +29,22 @@ const ReportDetail = () => {
     }
   
     const baseURL = import.meta.env.VITE_API_BASE_URL;
+    let accessToken = localStorage.getItem("accessToken");
+    // accessToken이 'Bearer '로 시작하면 앞부분 제거
+    if (accessToken && accessToken.startsWith("Bearer ")) {
+      accessToken = accessToken.slice(7);
+    }
     const fetchReportDetail = async () => {
       try {
         const response = await fetch(
           `${baseURL}/api/reports/${reportId}`,
-          { credentials: "include" }
+          {
+            credentials: "include",
+            headers: {
+              "Authorization": `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            }
+          }
         );
         const data = await response.json();
         console.log('API 응답 데이터:', data);
@@ -79,22 +91,14 @@ const ReportDetail = () => {
     if (!window.confirm("정말로 이 리포트를 삭제하시겠습니까?")) return;
 
     try {
-      const response = await fetch(
-        `http://localhost:8080/api/reports/${reportId}`,
-        {
-          method: "DELETE",
-          credentials: "include",
-        }
-      );
-
-      if (response.ok) {
+      const response = await axiosInstance.delete(`/api/reports/${reportId}`);
+      if (response.data.success) {
         localStorage.removeItem(`report_${reportId}`);
         navigate("/report");
       } else {
         alert("리포트 삭제에 실패했습니다.");
       }
     } catch (error) {
-      console.error("리포트 삭제 중 오류:", error);
       alert("리포트 삭제 중 오류가 발생했습니다.");
     }
   };

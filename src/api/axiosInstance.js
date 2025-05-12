@@ -41,54 +41,7 @@ function addRefreshSubscriber(callback) {
 // 갱신된 토큰으로 원래 요청을 재시도합니다.
 axiosInstance.interceptors.response.use(
   (response) => {
-    // loggedIn: false 응답 체크
-    if (response.data?.success && response.data?.response?.isLogin === false) {
-      const originalRequest = response.config;
-      
-      // 현재 refresh 요청이 없으면 refresh 요청을 보냄
-      if (!isRefreshing) {
-        isRefreshing = true;
-        console.log("refresh 요청 (loggedIn: false)");
-        return axios.post(
-          baseURL + "/api/auth/refresh",
-          {},
-          { 
-            withCredentials: true,
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-            },
-            credentials: 'include'
-          }
-        ).then((res) => {
-          console.log("refresh API 응답 전체:", res);
-          console.log("refresh API 응답 데이터:", res.data);
-          console.log("refresh API 응답 구조:", {
-            success: res.data?.success,
-            accessToken: res.data?.accessToken,
-            response: res.data?.response
-          });
-
-          if (res.data?.success && res.data?.response?.accessToken) {
-            const newAccessToken = res.data.response.accessToken;
-            localStorage.setItem("accessToken", newAccessToken);
-            onRefreshed(newAccessToken);
-            isRefreshing = false;
-            
-            // 원래 요청 재시도
-            originalRequest.headers.Authorization = newAccessToken;
-            return axiosInstance(originalRequest);
-          } else {
-            throw new Error(res.data?.message || "토큰 갱신 실패");
-          }
-        }).catch((refreshError) => {
-          console.error("❌ refreshToken도 만료됨: 로그아웃 처리 필요");
-          localStorage.removeItem("accessToken");
-          isRefreshing = false;
-          return Promise.reject(refreshError);
-        });
-      }
-    }
+    // 성공적인 응답은 그대로 반환
     return response;
   },
   async (error) => {
@@ -130,13 +83,14 @@ axiosInstance.interceptors.response.use(
             response: res.data?.response
           });
 
-          if (res.data?.success && res.data?.response?.accessToken) {
-            const newAccessToken = res.data.response.accessToken;
+          if (res.data?.success && res.data?.response) {
+            // Bearer 접두사가 포함된 토큰을 그대로 저장
+            const newAccessToken = res.data.response;
             localStorage.setItem("accessToken", newAccessToken);
             onRefreshed(newAccessToken);
             isRefreshing = false;
             
-            // 원래 요청 재시도
+            // 원래 요청 재시도 (Bearer 접두사 포함)
             originalRequest.headers.Authorization = newAccessToken;
             return axiosInstance(originalRequest);
           } else {

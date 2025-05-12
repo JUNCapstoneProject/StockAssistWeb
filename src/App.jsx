@@ -25,7 +25,7 @@ import ReportDetail from "./pages/ReportDetail";
 import ReportEdit from "./pages/ReportEdit";
 import ReportCreate from "./pages/ReportCreate";
 import MyPage from "./pages/MyPage";
-
+import Test from "./pages/test";
 // Redux 관련 import
 import {
   setLoginStatus,
@@ -95,6 +95,7 @@ function App() {
           <Route path="/report/create" element={<ReportCreate />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/test" element={<Test />} />
         </Routes>
       </div>
     </Router>
