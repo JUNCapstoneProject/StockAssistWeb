@@ -100,6 +100,7 @@ const ReportDetail = () => {
         alert("리포트 삭제에 실패했습니다.");
       }
     } catch (error) {
+      console.error("리포트 삭제 중 오류:", error);
       alert("리포트 삭제 중 오류가 발생했습니다.");
     }
   };
