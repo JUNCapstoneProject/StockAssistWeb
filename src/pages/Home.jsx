@@ -19,8 +19,8 @@ function Home() {
     const fetchStockData = async () => {
       try {
         const [newsRes, financialRes] = await Promise.all([
-          fetch(`${baseURL}/api/stock-analysis?type=news`),
-          fetch(`${baseURL}/api/stock-analysis?type=financial`),
+          fetch(`${baseURL}/api/stocks/analysis?type=news`),
+          fetch(`${baseURL}/api/stocks/analysis?type=financial`),
         ]);
   
         const newsData = await newsRes.json();
