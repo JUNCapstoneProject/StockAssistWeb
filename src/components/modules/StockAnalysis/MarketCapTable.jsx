@@ -21,7 +21,6 @@ const MarketCapTable = () => {
   const totalPages = Math.ceil(total / itemsPerPage);
   const pageGroup = Math.floor((page - 1) / 10);
   const startPage = pageGroup * 10 + 1;
-  const endPage = startPage + totalPages - 1;
 
   useEffect(() => {
     const fetchData = async () => {

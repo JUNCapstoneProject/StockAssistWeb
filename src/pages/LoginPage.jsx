@@ -22,7 +22,7 @@ const LoginPage = () => {
     };
     window.addEventListener("focus", syncLoginStatus);
     return () => window.removeEventListener("focus", syncLoginStatus);
-  }, []);
+  }, [dispatch]);
 
   const handleLogin = async (e) => {
     e.preventDefault();

@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import axiosInstance from '../../../api/axiosInstance';
 
 const MyStock = ({ stocks, loading, error }) => {
   if (loading) return <StockContainer>로딩 중...</StockContainer>;
