@@ -8,6 +8,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import axiosInstance from '../api/axiosInstance';
+import fetchWithAssist from '../fetchWithAssist';
 
 const ReportDetail = () => {
   // URL 파라미터와 라우팅 관련 훅
@@ -28,7 +29,6 @@ const ReportDetail = () => {
       setReport(parsed);
     }
   
-    const baseURL = import.meta.env.VITE_API_BASE_URL;
     let accessToken = localStorage.getItem("accessToken");
     // accessToken이 'Bearer '로 시작하면 앞부분 제거
     if (accessToken && accessToken.startsWith("Bearer ")) {
@@ -36,13 +36,14 @@ const ReportDetail = () => {
     }
     const fetchReportDetail = async () => {
       try {
-        const response = await fetch(
-          `${baseURL}/api/reports/${reportId}`,
+        const response = await fetchWithAssist(
+          `/api/reports/${reportId}`,
           {
             credentials: "include",
             headers: {
               "Authorization": `Bearer ${accessToken}`,
               "Content-Type": "application/json",
+              "destination": "assist",
             }
           }
         );

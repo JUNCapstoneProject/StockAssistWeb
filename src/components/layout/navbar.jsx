@@ -13,13 +13,12 @@ import {
 } from "../../redux/features/auth/authSelectors";
 import { logoutAPI } from "../../redux/features/auth/authAPI";
 import "./navbar.css";
+import fetchWithAssist from '../../fetchWithAssist';
 
 const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const baseURL = import.meta.env.VITE_API_BASE_URL;
-
 
   // Redux 상태 관리
   const isLoggedIn = useSelector(selectIsLoggedIn);
@@ -70,9 +69,20 @@ const Navbar = () => {
   // 검색 제출 처리 함수
   const handleSearch = (e) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
+    if (
+      searchQuery.trim() &&
+      suggestions.some(
+        (item) =>
+          item.ticker.toLowerCase() === searchQuery.trim().toLowerCase() ||
+          item.nameKr === searchQuery.trim() ||
+          (item.nameEn && item.nameEn.toLowerCase() === searchQuery.trim().toLowerCase())
+      )
+    ) {
+      // 검색어가 자동완성 결과에 있을 때만 이동
       navigate(`/stock/${searchQuery}`);
       setShowMobileSearch(false); // 검색 성공 시 닫기
+    } else {
+      // 없으면 아무 동작도 하지 않음 (또는 안내 메시지 추가 가능)
     }
   };
 
@@ -91,10 +101,10 @@ const Navbar = () => {
     }
 
     try {
-      const url = `${baseURL}/api/stocks/search?query=${encodeURIComponent(query)}`;
+      const url = `/api/stocks/search?query=${encodeURIComponent(query)}`;
       console.log("🌐 API 요청:", url);
 
-      const res = await fetch(url);
+      const res = await fetchWithAssist(url);
       console.log("📡 API 응답 상태:", res.status);
 
       if (res.ok) {

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useLocation } from 'react-router-dom';
+import fetchWithAssist from '../../../fetchWithAssist';
 
 const StockNews = ({ ticker }) => {
   const { state } = useLocation();
@@ -15,8 +16,7 @@ const StockNews = ({ ticker }) => {
     const fetchNews = async () => {
       setIsLoading(true);
       try {
-        const baseURL = import.meta.env.VITE_API_BASE_URL;
-        const res = await fetch(`${baseURL}/api/news?page=1&limit=100&category=${encodeURIComponent(stockName)}`);
+        const res = await fetchWithAssist(`/api/news?page=1&limit=100&category=TSLA`);
         if (!res.ok) throw new Error("뉴스 데이터를 가져오지 못했습니다.");
         const result = await res.json();
 

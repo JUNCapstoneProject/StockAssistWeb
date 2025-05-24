@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
 import axiosInstance from "../api/axiosInstance";
@@ -15,50 +15,45 @@ const LoginPage = () => {
 
   const from = location.state?.from || "/";
 
+  useEffect(() => {
+    const syncLoginStatus = () => {
+      const token = localStorage.getItem("accessToken");
+      dispatch(setLoginStatus(!!token));
+    };
+    window.addEventListener("focus", syncLoginStatus);
+    return () => window.removeEventListener("focus", syncLoginStatus);
+  }, [dispatch]);
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
-
+  
     try {
       const urlParams = new URLSearchParams(window.location.search);
-      const redirect = urlParams.get("redirect");
-
-      const params = { email, password };
-      if (redirect) params.redirect = redirect;
-
+      const redirectUrl = urlParams.get("redirectUrl") || "/";
+  
+      const requestBody = { email, password };
+  
       const response = await axiosInstance.post(
-        "/api/auth/login",
-        params,
+        `/api/auth/login?redirectUrl=${encodeURIComponent(redirectUrl)}`, // ✅ 쿼리스트링으로 전달
+        requestBody,
         { withCredentials: true }
       );
-
+  
       const { success, response: responseData, error: apiError } = response.data;
-
+  
       if (success && responseData) {
-        localStorage.setItem("accessToken", responseData);
+        localStorage.setItem("accessToken", responseData.accessToken);
         dispatch(setLoginStatus(true));
-        const redirectTo = response.data.redirect || from;
-        try {
-          const url = new URL(redirectTo);
-          const authCode = url.searchParams.get("code");
-          console.log("authCode:", authCode);
-        } catch (e) {
-          console.log("authCode 추출 실패:", e);
-        }
-        if (
-          redirectTo.startsWith("http://") ||
-          redirectTo.startsWith("https://")
-        ) {
-          setTimeout(() => {
-            window.location.href = redirectTo;
-          }, 1500);
+        const redirectTo = responseData.redirectUrl || "/";
+  
+        if (redirectTo.startsWith("http://") || redirectTo.startsWith("https://")) {
+          setTimeout(() => (window.location.href = redirectTo), 1500);
         } else {
-          setTimeout(() => {
-            navigate(redirectTo);
-          }, 1500);
+          setTimeout(() => navigate(redirectTo), 1500);
         }
       } else {
-        setError(apiError.message || "아이디나 비밀번호가 일치하지 않습니다.");
+        setError(apiError?.message || "아이디나 비밀번호가 일치하지 않습니다.");
       }
     } catch (error) {
       if (error.response?.data?.error?.message) {
@@ -68,6 +63,7 @@ const LoginPage = () => {
       }
     }
   };
+  
 
   return (
     <div className="login-page">
@@ -109,6 +105,14 @@ const LoginPage = () => {
             className="signup-link-button"
           >
             회원가입
+          </button>
+        </p>
+        <p className="findpw-link">
+          <button
+            onClick={() => navigate("/find-password")}
+            className="findpw-link-button"
+          >
+            비밀번호를 잊으셨나요?
           </button>
         </p>
       </div>
