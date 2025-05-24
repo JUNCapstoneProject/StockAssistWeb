@@ -12,7 +12,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useParams, useLocation } from 'react-router-dom';
 import FinancialCard from '../../../components/common/FinancialCard';
-const baseURL = import.meta.env.VITE_API_BASE_URL;
+import fetchWithAssist from '../../../fetchWithAssist';
 
 
 const StockFinancial = () => {
@@ -31,7 +31,7 @@ const StockFinancial = () => {
       setIsLoading(true);
       setStock(null);
       try {
-        const res = await fetch(`${baseURL}/api/financial?ticker=${cleanSymbol}`);
+        const res = await fetchWithAssist(`/api/financial?ticker=${cleanSymbol}`, { headers: { destination: 'assist' } });
         const json = await res.json();
 
         if (json.success && json.response && Object.keys(json.response).length > 0) {

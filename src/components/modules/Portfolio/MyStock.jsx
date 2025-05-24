@@ -1,53 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
+import axiosInstance from '../../../api/axiosInstance';
 
-const MyStock = () => {
-  const stockData = [
-    {
-      name: '테슬라',
-      symbol: 'TSLA',
-      broker: '미래증권',
-      currentPrice: 175.21,
-      priceChange: 208.15,
-      quantity: 15,
-      purchaseAmount: 2420.00,
-      currentAmount: 2628.15,
-      returnRate: 8.4
-    },
-    {
-      name: '엔비디아',
-      symbol: 'NVDA',
-      broker: '한국증권',
-      currentPrice: 824.18,
-      priceChange: 1593.44,
-      quantity: 8,
-      purchaseAmount: 5000.00,
-      currentAmount: 6593.44,
-      returnRate: 32.1
-    },
-    {
-      name: '애플',
-      symbol: 'AAPL',
-      broker: '글로벌증권',
-      currentPrice: 182.52,
-      priceChange: 135.36,
-      quantity: 18,
-      purchaseAmount: 3150.00,
-      currentAmount: 3285.36,
-      returnRate: 4.2
-    },
-    {
-      name: '알파벳',
-      symbol: 'GOOGL',
-      broker: '대신증권',
-      currentPrice: 142.65,
-      priceChange: -78.63,
-      quantity: 10,
-      purchaseAmount: 1505.13,
-      currentAmount: 1426.50,
-      returnRate: -5.2
-    }
-  ];
+const MyStock = ({ stocks, loading, error }) => {
+  if (loading) return <StockContainer>로딩 중...</StockContainer>;
+  if (error) return <StockContainer>{error}</StockContainer>;
+  if (!stocks.length) return <StockContainer>보유 주식이 없습니다.</StockContainer>;
 
   return (
     <StockContainer>
@@ -56,7 +14,6 @@ const MyStock = () => {
         <thead>
           <tr>
             <th>종목명</th>
-            <th>증권사</th>
             <th>현재가</th>
             <th>평가 손익</th>
             <th>보유수량</th>
@@ -66,27 +23,26 @@ const MyStock = () => {
           </tr>
         </thead>
         <tbody>
-          {stockData.map((stock) => (
+          {stocks.map((stock) => (
             <tr key={stock.symbol}>
               <td>
                 <StockName>{stock.name}</StockName>
                 <StockSymbol>{stock.symbol}</StockSymbol>
               </td>
-              <td>{stock.broker}</td>
-              <td>${stock.currentPrice.toFixed(2)}</td>
+              <td>${Number(stock.currentPrice).toLocaleString()}</td>
               <td>
-                <PriceChange $positive={stock.priceChange >= 0}>
-                  {stock.priceChange >= 0 ? '+' : ''}
-                  ${Math.abs(stock.priceChange).toFixed(2)}
+                <PriceChange $positive={Number(stock.evalProfit) >= 0}>
+                  {Number(stock.evalProfit) >= 0 ? '+' : ''}
+                  {Number(stock.evalProfit).toLocaleString()}원
                 </PriceChange>
               </td>
               <td>{stock.quantity}주</td>
-              <td>${stock.purchaseAmount.toFixed(2)}</td>
-              <td>${stock.currentAmount.toFixed(2)}</td>
+              <td>${Number(stock.purchaseAmount).toLocaleString()}</td>
+              <td>${Number(stock.evalAmount).toLocaleString()}</td>
               <td>
-                <ReturnRate $positive={stock.returnRate >= 0}>
-                  {stock.returnRate >= 0 ? '+' : ''}
-                  {stock.returnRate}%
+                <ReturnRate $positive={Number(stock.profitRate) >= 0}>
+                  {Number(stock.profitRate) >= 0 ? '+' : ''}
+                  {Number(stock.profitRate).toFixed(2)}%
                 </ReturnRate>
               </td>
             </tr>

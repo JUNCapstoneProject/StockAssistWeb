@@ -95,4 +95,23 @@
   border-radius: 4px;
   margin-bottom: 1.5rem;
   text-align: center;
+}
+
+.findpw-link {
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.findpw-link-button {
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  font-size: inherit;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.findpw-link-button:hover {
+  color: #0056b3;
 } 

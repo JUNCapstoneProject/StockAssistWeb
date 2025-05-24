@@ -25,6 +25,10 @@ import ReportDetail from "./pages/ReportDetail";
 import ReportEdit from "./pages/ReportEdit";
 import ReportCreate from "./pages/ReportCreate";
 import MyPage from "./pages/MyPage";
+import FindPassword from "./pages/FindPassword";
+import ResetPassword from "./pages/ResetPassword";
+import StockAnalysis from "./pages/StockAnalysis";
+import Test from "./pages/test";
 // Redux 관련 import
 import {
   setLoginStatus,
@@ -88,12 +92,16 @@ function App() {
           <Route path="/stock/:symbol" element={<IndividualStock />} />
           <Route path="/ai-analysis" element={<AiAnalysis />} />
           <Route path="/verify" element={<EmailVerification />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/report" element={<Report />} />
           <Route path="/report/:reportId" element={<ReportDetail />} />
           <Route path="/report/:reportId/edit" element={<ReportEdit />} />
           <Route path="/report/create" element={<ReportCreate />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/find-password" element={<FindPassword />} />
+          <Route path="/stock-analysis" element={<StockAnalysis />} />
+          <Route path="/test" element={<Test />} />
         </Routes>
       </div>
     </Router>
