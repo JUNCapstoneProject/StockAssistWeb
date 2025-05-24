@@ -70,9 +70,20 @@ const Navbar = () => {
   // 검색 제출 처리 함수
   const handleSearch = (e) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
+    if (
+      searchQuery.trim() &&
+      suggestions.some(
+        (item) =>
+          item.ticker.toLowerCase() === searchQuery.trim().toLowerCase() ||
+          item.nameKr === searchQuery.trim() ||
+          (item.nameEn && item.nameEn.toLowerCase() === searchQuery.trim().toLowerCase())
+      )
+    ) {
+      // 검색어가 자동완성 결과에 있을 때만 이동
       navigate(`/stock/${searchQuery}`);
       setShowMobileSearch(false); // 검색 성공 시 닫기
+    } else {
+      // 없으면 아무 동작도 하지 않음 (또는 안내 메시지 추가 가능)
     }
   };
 

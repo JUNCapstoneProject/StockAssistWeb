@@ -2,12 +2,16 @@ import React from 'react';
 import styled from 'styled-components';
 import refresh from '../../../../public/images/refresh.svg';
 
-const MyAccount = () => {
+const MyAccount = ({ account, loading, error }) => {
+  if (loading) return <Container>로딩 중...</Container>;
+  if (error) return <Container>{error}</Container>;
+  if (!account) return null;
+
   return (
     <Container>
       <Header>
         <Title>나의 잔고</Title>
-        <RefreshButton>
+        <RefreshButton onClick={() => window.location.reload()}>
           <img src={refresh} alt="refresh" /> 새로고침
         </RefreshButton>
       </Header>
@@ -15,28 +19,30 @@ const MyAccount = () => {
       <AccountGrid>
         <AccountItem>
           <Label>총 자산</Label>
-          <Value>$12,458.32</Value>
-          <Change $positive>
-            +2.4% ($293.45)
+          <Value>${Number(account.totalAsset).toLocaleString()}</Value>
+          <Change $positive={Number(account.evaluationProfit) >= 0}>
+            {Number(account.profitRate) >= 0 ? '+' : ''}{Number(account.profitRate).toFixed(2)}% ({Number(account.evaluationProfit).toLocaleString()}원)
           </Change>
         </AccountItem>
 
         <AccountItem>
           <Label>투자 금액</Label>
-          <Value>$11,200.00</Value>
+          <Value>${Number(account.investmentAmount).toLocaleString()}</Value>
         </AccountItem>
 
         <AccountItem>
           <Label>평가 손익</Label>
-          <Value className="profit">+$1,258.32</Value>
+          <Value className={Number(account.evaluationProfit) >= 0 ? 'profit' : ''}>
+            {Number(account.evaluationProfit) >= 0 ? '+' : ''}{Number(account.evaluationProfit).toLocaleString()}원
+          </Value>
           <ProfitRate>
-            <Highlight>수익률 +11.2%</Highlight>
+            <Highlight>수익률 {Number(account.profitRate) >= 0 ? '+' : ''}{Number(account.profitRate).toFixed(2)}%</Highlight>
           </ProfitRate>
         </AccountItem>
 
         <AccountItem>
           <Label>예수금</Label>
-          <Value>$3,245.67</Value>
+          <Value>${Number(account.cash).toLocaleString()}</Value>
         </AccountItem>
       </AccountGrid>
     </Container>
