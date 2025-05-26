@@ -2,6 +2,8 @@
 import axiosInstance from "../../../api/axiosInstance";
 import axios from "axios";
 
+const baseURL = import.meta.env.VITE_API_BASE_URL;
+
 /**
  * ✅ 로그인 상태 확인 API
  * - 클라이언트에 저장된 accessToken을 헤더에 포함해 서버에 요청
@@ -30,7 +32,7 @@ export const checkLoginStatusAPI = async () => {
           console.log("현재 쿠키:", document.cookie);
           // refresh API 호출 (직접 axios 사용)
           const refreshResponse = await axios.post(
-            "/api/auth/refresh",
+            baseURL + "/api/auth/refresh",
             {},
             { 
               withCredentials: true,
@@ -77,7 +79,7 @@ export const checkLoginStatusAPI = async () => {
         console.log("현재 쿠키:", document.cookie);
         // refresh API 호출 (직접 axios 사용)
         const refreshResponse = await axios.post(
-          "/api/auth/refresh",
+          baseURL + "/api/auth/refresh",
           {},
           { 
             withCredentials: true,

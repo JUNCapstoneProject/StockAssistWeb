@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import fetchWithAssist from '../fetchWithAssist';
+
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 const PageWrapper = styled.div`
   min-height: 100vh;
@@ -80,7 +81,7 @@ const EmailVerification = () => {
     }
 
     const timer = setTimeout(() => {
-      fetchWithAssist(`/api/auth/verify?token=${token}`)
+      fetch(`${baseURL}/api/auth/verify?token=${token}`)
         .then(async (response) => {
           if (response.ok) {
             const data = await response.json();

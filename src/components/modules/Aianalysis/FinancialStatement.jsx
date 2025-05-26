@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import FinancialCard from "../../../components/common/FinancialCard";
 import styled from "styled-components";
-import fetchWithAssist from '../../../fetchWithAssist';
 
 const FinancialStatementPage = ({ initialPage, onPageChange }) => {
   const [activeTabs, setActiveTabs] = useState({});
@@ -17,11 +16,11 @@ const FinancialStatementPage = ({ initialPage, onPageChange }) => {
   const fetchFinancialData = async (page) => {
     try {
       console.log("Fetching data for page:", page); // 디버깅용 로그
-      const response = await fetchWithAssist(
-        `/api/financial?page=${page}&size=${itemsPerPage}`,
+      const baseURL = import.meta.env.VITE_API_BASE_URL;
+      const response = await fetch(
+        `${baseURL}/api/financial?page=${page}&size=${itemsPerPage}`,
         {
           credentials: "include",
-          headers: { destination: "assist" }
         }
       );
       const result = await response.json();

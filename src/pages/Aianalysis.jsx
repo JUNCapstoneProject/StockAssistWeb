@@ -10,7 +10,8 @@ import AiTab from "../components/modules/Aianalysis/AiTab";
 import ContentList from "../components/common/ContentList";
 import FinancialStatement from "../components/modules/Aianalysis/FinancialStatement";
 import MacroEconomy from "../components/modules/Aianalysis/MacroEconomy";
-import fetchWithAssist from '../fetchWithAssist';
+
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 // 페이지 새로고침 여부를 확인하는 함수
 const isPageReloaded = () => {
@@ -67,9 +68,9 @@ const AiAnalysis = () => {
     const fetchNewsData = async () => {
       try {
         setIsLoading(true);
-        const response = await fetchWithAssist(
-          `/api/news?page=${newsPage}&limit=6`,
-          { credentials: "include", headers: { destination: "assist" } }
+        const response = await fetch(
+          `${baseURL}/api/news?page=${newsPage}&limit=6`,
+          { credentials: "include" }
         );
         const result = await response.json();
 

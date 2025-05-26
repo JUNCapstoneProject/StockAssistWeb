@@ -36,7 +36,7 @@ const fetchStockData = async (symbol, period) => {
     outputsize = 90;
   }
   const url = `https://api.twelvedata.com/time_series?symbol=${symbol}&interval=${interval}&outputsize=${outputsize}&apikey=${API_KEY}`;
-  const res = await fetch(url, { headers: { destination: 'assist' } });
+  const res = await fetch(url);
   const data = await res.json();
   if (!data.values) return [];
   return data.values.reverse().map(item => ({
@@ -47,7 +47,7 @@ const fetchStockData = async (symbol, period) => {
 
 const fetchStockMeta = async (symbol) => {
   const url = `https://api.twelvedata.com/quote?symbol=${symbol}&apikey=${API_KEY}`;
-  const res = await fetch(url, { headers: { destination: 'assist' } });
+  const res = await fetch(url);
   const data = await res.json();
   return {
     name: data.name,

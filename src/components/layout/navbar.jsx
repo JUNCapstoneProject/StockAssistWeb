@@ -13,12 +13,13 @@ import {
 } from "../../redux/features/auth/authSelectors";
 import { logoutAPI } from "../../redux/features/auth/authAPI";
 import "./navbar.css";
-import fetchWithAssist from '../../fetchWithAssist';
 
 const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  const baseURL = import.meta.env.VITE_API_BASE_URL;
+
 
   // Redux 상태 관리
   const isLoggedIn = useSelector(selectIsLoggedIn);
@@ -101,10 +102,10 @@ const Navbar = () => {
     }
 
     try {
-      const url = `/api/stocks/search?query=${encodeURIComponent(query)}`;
+      const url = `${baseURL}/api/stocks/search?query=${encodeURIComponent(query)}`;
       console.log("🌐 API 요청:", url);
 
-      const res = await fetchWithAssist(url);
+      const res = await fetch(url);
       console.log("📡 API 응답 상태:", res.status);
 
       if (res.ok) {
