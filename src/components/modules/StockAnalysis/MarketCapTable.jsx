@@ -20,7 +20,7 @@ const MarketCapTable = () => {
   const totalPages = Math.ceil(total / itemsPerPage);
   const pageGroup = Math.floor((page - 1) / 10);
   const startPage = pageGroup * 10 + 1;
-  const endPage = startPage + totalPages - 1;
+  // const endPage = startPage + totalPages - 1; // 사용하지 않으므로 주석 처리 또는 삭제
 
   useEffect(() => {
     const fetchData = async () => {

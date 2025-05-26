@@ -19,7 +19,6 @@ const MyPortfolioLink = () => {
         const fetchPortfolio = async () => {
             try {
                 setLoading(true);
-                setError(null);
                 const res = await axiosInstance.get('/api/portfolio');
                 setData(res.data);
             } catch (err) {
