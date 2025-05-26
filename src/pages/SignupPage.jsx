@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import zxcvbn from "zxcvbn";
-import fetchWithAssist from '../fetchWithAssist';
 import "./SignupPage.css";
+
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 const SignupPage = () => {
   const navigate = useNavigate();
@@ -107,7 +108,7 @@ const SignupPage = () => {
     }
 
     try {
-      const response = await fetchWithAssist(`/api/auth/register`, {
+      const response = await fetch(`${baseURL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nickname, email, password }),

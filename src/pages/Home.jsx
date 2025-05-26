@@ -12,13 +12,19 @@ function Home() {
   const [financialStocks, setFinancialStocks] = useState([]); // 재무제표 기반 AI 분석 종목
   const [loading, setLoading] = useState(true);
 
+  const baseURL = import.meta.env.VITE_API_BASE_URL;
+
   // API로 데이터 불러오기
   useEffect(() => {
     const fetchStockData = async () => {
       try {
         const [newsRes, financialRes] = await Promise.all([
-          fetch(`/api/stocks/analysis?type=news`, { headers: { destination: "assist" } }),
-          fetch(`/api/stocks/analysis?type=financial`, { headers: { destination: "assist" } }),
+          fetch(`${baseURL}/api/stocks/analysis?type=news`, {
+            headers: { destination: "assist" },
+          }),
+          fetch(`${baseURL}/api/stocks/analysis?type=financial`, {
+            headers: { destination: "assist" },
+          }),
         ]);
   
         const newsData = await newsRes.json();
@@ -38,7 +44,7 @@ function Home() {
     };
   
     fetchStockData(); // 함수 내부에서 바로 호출
-  }, []);
+  }, [baseURL]);
   
 
   return (

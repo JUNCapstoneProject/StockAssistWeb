@@ -1,6 +1,5 @@
-import fetchWithAssist from '../fetchWithAssist';
 // 비밀번호 재설정(ResetPassword) 페이지 - 토큰 기반 비밀번호 재설정 UI 및 로직 구현
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import zxcvbn from "zxcvbn";
@@ -209,7 +208,7 @@ const ResetPassword = () => {
   
     setSubmitting(true);
     try {
-      const response = await fetchWithAssist(`${baseURL}api/auth/password-reset`, {
+      const response = await fetch(`${baseURL}/api/auth/password-reset`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token, newPassword: password }),
@@ -230,7 +229,8 @@ const ResetPassword = () => {
         setMessage(data.message || "⚠️ 알 수 없는 오류가 발생했습니다.");
         setMsgType("error");
       }
-    } catch {
+    } catch (err) {
+      setMessage("⚠️ 네트워크 오류가 발생했습니다. 다시 시도해주세요.");
       setMsgType("error");
     } finally {
       setSubmitting(false);

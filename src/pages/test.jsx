@@ -36,7 +36,7 @@ const fetchStockData = async (symbol, period) => {
     outputsize = 90;
   }
   const url = `https://api.twelvedata.com/time_series?symbol=${symbol}&interval=${interval}&outputsize=${outputsize}&apikey=${API_KEY}`;
-  const res = await fetch(url, { headers: { destination: 'assist' } });
+  const res = await fetch(url);
   const data = await res.json();
   if (!data.values) return [];
   return data.values.reverse().map(item => ({
@@ -47,7 +47,7 @@ const fetchStockData = async (symbol, period) => {
 
 const fetchStockMeta = async (symbol) => {
   const url = `https://api.twelvedata.com/quote?symbol=${symbol}&apikey=${API_KEY}`;
-  const res = await fetch(url, { headers: { destination: 'assist' } });
+  const res = await fetch(url);
   const data = await res.json();
   return {
     name: data.name,
@@ -78,10 +78,12 @@ const StockComparison = () => {
   const [period, setPeriod] = useState('1Y');
   const [chartData, setChartData] = useState([]);
   const [metaData, setMetaData] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   // 데이터 fetch
   useEffect(() => {
     if (selectedStocks.length === 0) return;
+    setLoading(true);
     Promise.all(selectedStocks.map(s => fetchStockData(s.value, period)))
       .then(allData => {
         // 날짜 기준으로 병합
@@ -105,6 +107,7 @@ const StockComparison = () => {
           const months = PERIODS.find(p => p.label === period).months;
           setChartData(months ? merged.slice(-months) : merged);
         }
+        setLoading(false);
       });
   }, [selectedStocks, indicator, period]);
 

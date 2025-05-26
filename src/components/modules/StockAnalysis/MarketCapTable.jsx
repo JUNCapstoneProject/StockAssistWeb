@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useSearchParams } from 'react-router-dom';
-import fetchWithAssist from '../../../fetchWithAssist';
 
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
@@ -21,12 +20,13 @@ const MarketCapTable = () => {
   const totalPages = Math.ceil(total / itemsPerPage);
   const pageGroup = Math.floor((page - 1) / 10);
   const startPage = pageGroup * 10 + 1;
+  const endPage = startPage + totalPages - 1;
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const res = await fetchWithAssist(`${baseURL}api/stocks/marketcap?page=${page}&size=${itemsPerPage}`);
+        const res = await fetch(`${baseURL}/api/stocks/marketcap?page=${page}&size=${itemsPerPage}`);
         const json = await res.json();
         if (json.success) {
           setData(json.response.data);

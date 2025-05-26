@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import fetchWithAssist from '../../../fetchWithAssist';
 
 const MacroEconomy = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [macroValues, setMacroValues] = useState({});
   const [isLoading, setIsLoading] = useState(true);
+  const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 
   const baseData = [
@@ -28,7 +28,7 @@ const MacroEconomy = () => {
     const fetchMacroData = async () => {
       try {
         setIsLoading(true);
-        const response = await fetchWithAssist('/api/economy/indicators');
+        const response = await fetch(`${baseURL}/api/economy/indicators`);
         const result = await response.json();
         if (result.success) {
           setMacroValues(result.response);
@@ -41,7 +41,7 @@ const MacroEconomy = () => {
     };
 
     fetchMacroData();
-  }, []);
+  }, [baseURL]);
 
   const getUnit = (tag) => {
     switch (tag) {
