@@ -21,7 +21,7 @@ const MyPortfolioLink = () => {
                 setLoading(true);
                 const res = await axiosInstance.get('/api/portfolio');
                 setData(res.data);
-            } catch (err) {
+            } catch (_) {
                 setError('포트폴리오 정보를 불러오지 못했습니다.');
             } finally {
                 setLoading(false);

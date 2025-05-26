@@ -27,7 +27,7 @@ const FindPassword = () => {
       } else {
         setErrorMessage(data.error || "오류가 발생했습니다. 다시 시도해주세요.");
       }
-    } catch (error) {
+    } catch {
       setErrorMessage("서버와의 연결에 문제가 발생했습니다.");
     }
   };

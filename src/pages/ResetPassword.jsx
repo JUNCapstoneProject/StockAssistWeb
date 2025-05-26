@@ -229,7 +229,7 @@ const ResetPassword = () => {
         setMessage(data.message || "⚠️ 알 수 없는 오류가 발생했습니다.");
         setMsgType("error");
       }
-    } catch (error) {
+    } catch (_) {
       setMessage("⚠️ 네트워크 오류가 발생했습니다. 다시 시도해주세요.");
       setMsgType("error");
     } finally {
