@@ -10,6 +10,7 @@ import AiTab from "../components/modules/Aianalysis/AiTab";
 import ContentList from "../components/common/ContentList";
 import FinancialStatement from "../components/modules/Aianalysis/FinancialStatement";
 import MacroEconomy from "../components/modules/Aianalysis/MacroEconomy";
+import fetchWithAssist from '../fetchWithAssist';
 
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
@@ -68,7 +69,7 @@ const AiAnalysis = () => {
     const fetchNewsData = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch(
+        const response = await fetchWithAssist(
           `${baseURL}/api/news?page=${newsPage}&limit=6`,
           { credentials: "include" }
         );

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import fetchWithAssist from '../../../fetchWithAssist';
 
 const MacroEconomy = () => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -28,7 +29,7 @@ const MacroEconomy = () => {
     const fetchMacroData = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch(`${baseURL}/api/economy/indicators`);
+        const response = await fetchWithAssist(`${baseURL}/api/economy/indicators`);
         const result = await response.json();
         if (result.success) {
           setMacroValues(result.response);
@@ -218,7 +219,12 @@ const Value = styled.div`
 const Change = styled.div.withConfig({
   shouldForwardProp: (prop) => prop !== '$positive',
 })`
-  color: ${({ $positive }) => ($positive ? '#2ecc71' : '#e74c3c')};
+  color: ${({ $positive, children }) => {
+    if (typeof children === 'string' && (children === '0%' || children === '+0%' || children === '-0%')) {
+      return '#888';
+    }
+    return $positive ? '#2ecc71' : '#e74c3c';
+  }};
   font-size: 14px;
 `;
 

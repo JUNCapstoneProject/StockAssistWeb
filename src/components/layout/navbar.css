@@ -200,7 +200,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 815px) {
   .nav-links.desktop-menu {
     display: none;
   }

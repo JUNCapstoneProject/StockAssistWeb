@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useLocation } from 'react-router-dom';
+import fetchWithAssist from '../../../fetchWithAssist';
 
 const StockNews = ({ ticker }) => {
   const { state } = useLocation();
@@ -16,7 +17,7 @@ const StockNews = ({ ticker }) => {
       setIsLoading(true);
       try {
         const baseURL = import.meta.env.VITE_API_BASE_URL;
-        const res = await fetch(`${baseURL}/api/news?page=1&limit=100&category=TSLA`);
+        const res = await fetchWithAssist(`${baseURL}/api/news?page=1&limit=100&category=${ticker}`);
         if (!res.ok) throw new Error("뉴스 데이터를 가져오지 못했습니다.");
         const result = await res.json();
 
@@ -91,9 +92,10 @@ const StockNews = ({ ticker }) => {
 
 // 전체 뉴스 영역 컨테이너
 const NewsContainer = styled.div`
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
-  padding: 20px;
+  margin-top: 0;
+  padding: 4px 24px 20px 24px;
 `;
 
 // 뉴스 하나의 카드 스타일
@@ -201,6 +203,22 @@ const NewsSection = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
+`;
+
+const HeaderContainer = styled.div`
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 28px 24px 20px 24px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  min-width: 0;
+  box-sizing: border-box;
+
+  @media (max-width: 600px) {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
 `;
 
 export default StockNews;

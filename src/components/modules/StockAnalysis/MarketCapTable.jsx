@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useSearchParams } from 'react-router-dom';
+import fetchWithAssist from '../../../fetchWithAssist';   
 
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
@@ -26,7 +27,7 @@ const MarketCapTable = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`${baseURL}/api/stocks/marketcap?page=${page}&size=${itemsPerPage}`);
+        const res = await fetchWithAssist(`${baseURL}/api/stocks/marketcap?page=${page}&size=${itemsPerPage}`);
         const json = await res.json();
         if (json.success) {
           setData(json.response.data);
@@ -63,6 +64,21 @@ const MarketCapTable = () => {
     if (hasNext) setPage(startPage + 10);
   };
 
+  // marketCap 단위 변환 함수 추가
+  const formatMarketCap = (value) => {
+    if (value >= 1_000_000_000_000) {
+      return `$${(value / 1_000_000_000_000).toFixed(2)}T`;
+    } else if (value >= 1_000_000_000) {
+      return `$${(value / 1_000_000_000).toFixed(2)}B`;
+    } else if (value >= 1_000_000) {
+      return `$${(value / 1_000_000).toFixed(2)}M`;
+    } else if (value >= 1_000) {
+      return `$${(value / 1_000).toFixed(2)}K`;
+    } else {
+      return `$${value}`;
+    }
+  };
+
   return (
     <TableContainer>
       <HeaderRow>
@@ -75,43 +91,45 @@ const MarketCapTable = () => {
         <p style={{ color: 'red' }}>❌ 오류: {error}</p>
       ) : (
         <>
-          <StyledTable>
-            <thead>
-              <tr>
-                <th style={{ width: 48 }}>순위</th>
-                <th style={{ minWidth: 120 }}>종목</th>
-                <th>시가총액</th>
-                <th>주가</th>
-                <th>변화율</th>
-                <th>거래량</th>
-                <th>P/E</th>
-                <th>EPS</th>
-                <th>배당수익</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((item, idx) => (
-                <tr key={item.symbol}>
-                  <td style={{ textAlign: 'center' }}>{(page - 1) * itemsPerPage + idx + 1}</td>
-                  <td>
-                    <Name>{item.symbol}</Name>
-                    <Symbol>{item.name}</Symbol>
-                  </td>
-                  <td style={{ textAlign: 'right' }}>${(item.marketCap / 1000).toFixed(2)}T</td>
-                  <td style={{ textAlign: 'right' }}>${item.price.toLocaleString()}</td>
-                  <td style={{ textAlign: 'right' }}>
-                    <Change $positive={item.change >= 0}>
-                      {item.change >= 0 ? '+' : ''}{item.change}%
-                    </Change>
-                  </td>
-                  <td style={{ textAlign: 'right' }}>{item.volume >= 1_000_000 ? (item.volume / 1_000_000).toFixed(1) + 'M' : item.volume.toLocaleString()}</td>
-                  <td style={{ textAlign: 'right' }}>{item.pe}</td>
-                  <td style={{ textAlign: 'right' }}>${item.eps}</td>
-                  <td style={{ textAlign: 'right' }}>{item.dividend}%</td>
+          <TableScrollWrapper>
+            <StyledTable>
+              <thead>
+                <tr>
+                  <th style={{ width: 48 }}>순위</th>
+                  <th style={{ minWidth: 120 }}>종목</th>
+                  <th>시가총액</th>
+                  <th>주가</th>
+                  <th>변화율</th>
+                  <th>거래량</th>
+                  <th>P/E</th>
+                  <th>EPS</th>
+                  <th>배당수익</th>
                 </tr>
-              ))}
-            </tbody>
-          </StyledTable>
+              </thead>
+              <tbody>
+                {data.map((item, idx) => (
+                  <tr key={item.symbol}>
+                    <td style={{ textAlign: 'center' }}>{(page - 1) * itemsPerPage + idx + 1}</td>
+                    <td>
+                      <Name>{item.symbol}</Name>
+                      <Symbol>{item.name}</Symbol>
+                    </td>
+                    <td style={{ textAlign: 'right' }}>{formatMarketCap(item.marketCap)}</td>
+                    <td style={{ textAlign: 'right' }}>${item.price.toLocaleString()}</td>
+                    <td style={{ textAlign: 'right' }}>
+                      <Change $positive={item.change >= 0}>
+                        {item.change >= 0 ? '+' : ''}{item.change}%
+                      </Change>
+                    </td>
+                    <td style={{ textAlign: 'right' }}>{item.volume >= 1_000_000 ? (item.volume / 1_000_000).toFixed(1) + 'M' : item.volume.toLocaleString()}</td>
+                    <td style={{ textAlign: 'right' }}>{item.pe}</td>
+                    <td style={{ textAlign: 'right' }}>${item.eps}</td>
+                    <td style={{ textAlign: 'right' }}>{item.dividend}%</td>
+                  </tr>
+                ))}
+              </tbody>
+            </StyledTable>
+          </TableScrollWrapper>
 
           <PaginationContainer>
             <PageBtn onClick={handlePrevGroup} disabled={page <= 10}>
@@ -142,9 +160,15 @@ const TableContainer = styled.div`
   border-radius: 14px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.07);
   margin-bottom: 32px;
-  max-width: 1000px;
+  max-width: 100%;
   margin-left: auto;
   margin-right: auto;
+
+  @media (max-width: 768px) {
+    padding: 12px 4px 8px 4px;
+    max-width: 100vw;
+    border-radius: 8px;
+  }
 `;
 
 const HeaderRow = styled.div`
@@ -152,16 +176,33 @@ const HeaderRow = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
 `;
 
 const Title = styled.h3`
   font-size: 18px;
   font-weight: 700;
   margin: 0;
+  @media (max-width: 600px) {
+    font-size: 15px;
+  }
+`;
+
+const TableScrollWrapper = styled.div`
+  width: 100%;
+  overflow-x: auto;
+  @media (max-width: 600px) {
+    margin-bottom: 8px;
+  }
 `;
 
 const StyledTable = styled.table`
   width: 100%;
+  min-width: 700px;
   border-collapse: collapse;
   font-size: 15px;
   th, td {
@@ -184,15 +225,34 @@ const StyledTable = styled.table`
   th:nth-child(2), td:nth-child(2) {
     text-align: left;
   }
+  @media (max-width: 900px) {
+    font-size: 13px;
+    th, td {
+      padding: 7px 4px;
+    }
+  }
+  @media (max-width: 600px) {
+    font-size: 12px;
+    th, td {
+      padding: 6px 2px;
+      min-width: 70px;
+    }
+  }
 `;
 
 const Name = styled.div`
   font-weight: 600;
   font-size: 15px;
+  @media (max-width: 600px) {
+    font-size: 13px;
+  }
 `;
 const Symbol = styled.div`
   color: #888;
   font-size: 12px;
+  @media (max-width: 600px) {
+    font-size: 10px;
+  }
 `;
 const Change = styled.span.withConfig({ shouldForwardProp: (prop) => prop !== '$positive' })`
   color: ${({ $positive }) => $positive ? '#2ecc71' : '#e74c3c'};
@@ -204,6 +264,10 @@ const PaginationContainer = styled.div`
   align-items: center;
   gap: 4px;
   margin-top: 16px;
+  @media (max-width: 600px) {
+    gap: 2px;
+    margin-top: 8px;
+  }
 `;
 const PageBtn = styled.button.withConfig({ shouldForwardProp: (prop) => prop !== '$active' })`
   background: ${({ $active }) => $active ? '#2ecc71' : '#f4f6fa'};
@@ -222,6 +286,11 @@ const PageBtn = styled.button.withConfig({ shouldForwardProp: (prop) => prop !==
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+  @media (max-width: 600px) {
+    font-size: 11px;
+    padding: 2px 6px;
+    min-width: 22px;
   }
 `;
 

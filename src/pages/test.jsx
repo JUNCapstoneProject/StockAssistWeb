@@ -3,6 +3,7 @@ import Select from 'react-select';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
+import fetchWithAssist from '../fetchWithAssist';
 
 const API_KEY = '708d0bdadea9457d879286ff483ef8b4';
 
@@ -36,7 +37,7 @@ const fetchStockData = async (symbol, period) => {
     outputsize = 90;
   }
   const url = `https://api.twelvedata.com/time_series?symbol=${symbol}&interval=${interval}&outputsize=${outputsize}&apikey=${API_KEY}`;
-  const res = await fetch(url);
+  const res = await fetchWithAssist(url);
   const data = await res.json();
   if (!data.values) return [];
   return data.values.reverse().map(item => ({
@@ -47,7 +48,7 @@ const fetchStockData = async (symbol, period) => {
 
 const fetchStockMeta = async (symbol) => {
   const url = `https://api.twelvedata.com/quote?symbol=${symbol}&apikey=${API_KEY}`;
-  const res = await fetch(url);
+  const res = await fetchWithAssist(url);
   const data = await res.json();
   return {
     name: data.name,

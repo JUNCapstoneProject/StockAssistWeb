@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import ReportCard from "./MainReportCard.jsx";
 import ReportTabs from "./MainReportTabs.jsx";
 import "./MainInvestmentReports.css";
+import fetchWithAssist from '../../../fetchWithAssist';
 
 const InvestmentReports = ({ defaultTab = "expert" }) => {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ const InvestmentReports = ({ defaultTab = "expert" }) => {
     try {
       const reportType = tab === "user" ? "user" : "expert";
       const baseURL = import.meta.env.VITE_API_BASE_URL;
-      const response = await fetch(
+      const response = await fetchWithAssist(
         `${baseURL}/api/reports?page=1&limit=3&type=${reportType}`,
         { credentials: "include" }
       );

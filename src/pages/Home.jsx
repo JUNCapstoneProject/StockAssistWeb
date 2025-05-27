@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import HomeHero from "../components/layout/mainsection";
 import MainStockCard from "../components/modules/Main/MainStockCard";
 import MainInvestmentReports from "../components/modules/Main/MainInvestmentReports";
+import fetchWithAssist from '../fetchWithAssist';
 
 function Home() {
   const [stocks, setStocks] = useState([]); // 뉴스 기반 AI 분석 종목
@@ -19,11 +20,9 @@ function Home() {
     const fetchStockData = async () => {
       try {
         const [newsRes, financialRes] = await Promise.all([
-          fetch(`${baseURL}/api/stocks/analysis?type=news`, {
-            headers: { destination: "assist" },
+          fetchWithAssist(`${baseURL}/api/stocks/analysis?type=news`, {
           }),
-          fetch(`${baseURL}/api/stocks/analysis?type=financial`, {
-            headers: { destination: "assist" },
+          fetchWithAssist(`${baseURL}/api/stocks/analysis?type=financial`, {
           }),
         ]);
   

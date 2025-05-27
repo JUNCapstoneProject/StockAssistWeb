@@ -16,7 +16,7 @@ const FinancialCard = ({ stock, activeTab, onTabChange }) => {
           <Price>
             ${stock.price}{' '}
             <Change $change={stock.change}>
-              {stock.change >= 0 ? '▲' : '▼'} {stock.change}%
+              {stock.change >= 0 ? '▲' : '▼'} {Number(stock.change).toFixed(2)}%
             </Change>
           </Price>
         </Info>
@@ -45,7 +45,7 @@ const FinancialCard = ({ stock, activeTab, onTabChange }) => {
               <RightGroup>
                 <span>{item.value}</span>
                 <Change $change={item.change}>
-                  {item.change >= 0 ? '+' : ''}{item.change}%
+                  {item.change >= 0 ? '+' : ''}{Number(item.change).toFixed(2)}%
                 </Change>
               </RightGroup>
             </Col>
