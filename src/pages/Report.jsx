@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import ReportHeader from "../components/modules/Report/ReportHeader";
 import ReportTab from "../components/modules/Report/ReportTab";
 import ContentList from "../components/common/ContentList";
+import fetchWithAssist from '../fetchWithAssist';
 
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
@@ -26,7 +27,7 @@ const Report = () => {
       try {
         setIsLoading(true);
         const reportType = currentTab === "전문가 리포트" ? "expert" : "user";
-        const response = await fetch(
+        const response = await fetchWithAssist(
           `${baseURL}/api/reports?page=${reportPage}&limit=6&type=${reportType}`,
           { credentials: "include" }
         );

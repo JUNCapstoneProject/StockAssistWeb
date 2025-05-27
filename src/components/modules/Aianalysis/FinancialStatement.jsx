@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import FinancialCard from "../../../components/common/FinancialCard";
 import styled from "styled-components";
+import fetchWithAssist from '../../../fetchWithAssist';
 
 const FinancialStatementPage = ({ initialPage, onPageChange }) => {
   const [activeTabs, setActiveTabs] = useState({});
@@ -17,7 +18,7 @@ const FinancialStatementPage = ({ initialPage, onPageChange }) => {
     try {
       console.log("Fetching data for page:", page); // 디버깅용 로그
       const baseURL = import.meta.env.VITE_API_BASE_URL;
-      const response = await fetch(
+      const response = await fetchWithAssist(
         `${baseURL}/api/financial?page=${page}&size=${itemsPerPage}`,
         {
           credentials: "include",

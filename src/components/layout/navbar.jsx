@@ -13,6 +13,7 @@ import {
 } from "../../redux/features/auth/authSelectors";
 import { logoutAPI } from "../../redux/features/auth/authAPI";
 import "./navbar.css";
+import fetchWithAssist from '../../fetchWithAssist';
 
 const Navbar = () => {
   const dispatch = useDispatch();
@@ -105,7 +106,7 @@ const Navbar = () => {
       const url = `${baseURL}/api/stocks/search?query=${encodeURIComponent(query)}`;
       console.log("🌐 API 요청:", url);
 
-      const res = await fetch(url);
+      const res = await fetchWithAssist(url);
       console.log("📡 API 응답 상태:", res.status);
 
       if (res.ok) {
@@ -167,6 +168,7 @@ const Navbar = () => {
         <div className="nav-links desktop-menu">
           <a href="/">홈</a>
           <a href="/ai-analysis">AI 투자 분석</a>
+          <a href="/stock-analysis">주식 분석</a>
           <a href="/report">리포트</a>
           <a href="/portfolio">나의 포트폴리오</a>
         </div>
@@ -362,6 +364,7 @@ const Navbar = () => {
           )}
           <a href="/">홈</a>
           <a href="/ai-analysis">AI 투자 분석</a>
+          <a href="/stock-analysis">주식 분석</a> 
           <a href="/report">리포트</a>
           <a href="/portfolio">나의 포트폴리오</a>
         </div>

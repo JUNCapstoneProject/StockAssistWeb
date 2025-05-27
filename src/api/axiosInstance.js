@@ -18,6 +18,10 @@ axiosInstance.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `${token}`; // accessToken을 Authorization 헤더에 추가
   }
+  // 로컬 환경이 아닐 때만 destination: assist 헤더 추가
+  if (import.meta.env.MODE !== 'development') {
+    config.headers.destination = 'assist';
+  }
   return config;
 });
 

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import zxcvbn from "zxcvbn";
+import fetchWithAssist from '../fetchWithAssist';
 
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
@@ -208,7 +209,7 @@ const ResetPassword = () => {
   
     setSubmitting(true);
     try {
-      const response = await fetch(`${baseURL}/api/auth/password-reset`, {
+      const response = await fetchWithAssist(`${baseURL}/api/auth/password-reset`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token, newPassword: password }),

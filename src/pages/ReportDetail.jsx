@@ -8,6 +8,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import axiosInstance from '../api/axiosInstance';
+import fetchWithAssist from '../fetchWithAssist';
 
 const ReportDetail = () => {
   // URL 파라미터와 라우팅 관련 훅
@@ -36,7 +37,7 @@ const ReportDetail = () => {
     }
     const fetchReportDetail = async () => {
       try {
-        const response = await fetch(
+        const response = await fetchWithAssist(
           `${baseURL}/api/reports/${reportId}`,
           {
             credentials: "include",

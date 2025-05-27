@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import zxcvbn from "zxcvbn";
 import "./SignupPage.css";
+import fetchWithAssist from '../fetchWithAssist';
 
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
@@ -108,7 +109,7 @@ const SignupPage = () => {
     }
 
     try {
-      const response = await fetch(`${baseURL}/api/auth/register`, {
+      const response = await fetchWithAssist(`${baseURL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nickname, email, password }),

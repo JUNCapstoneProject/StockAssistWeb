@@ -20,45 +20,65 @@ const ReportHeader = () => {
   return (
     <>
       <HeaderWrapper>
-        <ContentWrapper>
-          <div>
-            <Title>리포트 센터</Title>
-            <Description>전문가 분석과 사용자 리포트를 확인하고 공유하세요</Description>
-          </div>
+        <Row>
+          <Title>리포트 센터</Title>
           <CreateButton onClick={handleCreateClick}>+ 리포트 작성</CreateButton>
-        </ContentWrapper>
+        </Row>
+        <Description>전문가 분석과 사용자 리포트를 확인하고 공유하세요</Description>
       </HeaderWrapper>
     </>
   );
 };
 
 const HeaderWrapper = styled.div`
-  padding: 40px 20px 24px;
+  padding: 40px 0;
+  text-align: center;
 `;
 
-const ContentWrapper = styled.div`
+const Row = styled.div`
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: flex-end;
+  position: relative;
+  width: 100%;
+  margin-bottom: 0;
+  padding-right: 24px;
+  min-height: 56px;
+
+  @media (max-width: 600px) {
+    padding-right: 12px;
+    min-height: 40px;
+  }
 `;
 
 const CreateButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 8px;
   padding: 12px 20px;
   background-color: #4B3FFF;
   color: white;
   border: none;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
   cursor: pointer;
   align-self: flex-start;
   white-space: nowrap;
-  
+  transition: all 0.2s;
+  margin-top: 0;
+  min-width: 100px;
+  min-height: 40px;
+
   &:hover {
     background-color: #3D32E6;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 11px;
+    padding: 6px 10px;
+    border-radius: 5px;
+    margin-top: 12px;
+    align-self: center;
+    min-width: unset;
+    min-height: unset;
   }
 `;
 
@@ -68,10 +88,21 @@ const PlusIcon = styled.span`
 `;
 
 const Title = styled.h1`
-  font-size: 24px;
+  font-size: 32px;
   font-weight: 700;
-  color: #111111;
-  margin-bottom: 8px;
+  color: #1a1a1a;
+  margin-bottom: 16px;
+  text-align: center;
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  pointer-events: none;
+
+  @media (max-width: 600px) {
+    font-size: 32px;
+  }
 `;
 
 const Description = styled.p`
