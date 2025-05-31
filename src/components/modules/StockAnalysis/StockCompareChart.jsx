@@ -5,29 +5,6 @@ import fetchWithAssist from '../../../fetchWithAssist';
 
 const { Option } = Select;
 
-const allStocks = [
-  { value: "TSLA", label: "TSLA" },
-  { value: "AAPL", label: "AAPL" },
-  { value: "GOOGL", label: "GOOGL" },
-  { value: "MSFT", label: "MSFT" },
-  // 필요시 더 추가
-];
-
-const chartData = [
-  { month: "1월", TSLA: 160, AAPL: 170 },
-  { month: "2월", TSLA: 170, AAPL: 175 },
-  { month: "3월", TSLA: 175, AAPL: 178 },
-  { month: "4월", TSLA: 172, AAPL: 180 },
-  { month: "5월", TSLA: 165, AAPL: 182 },
-  { month: "6월", TSLA: 170, AAPL: 178 },
-  { month: "7월", TSLA: 178, AAPL: 175 },
-  { month: "8월", TSLA: 182, AAPL: 172 },
-  { month: "9월", TSLA: 176, AAPL: 168 },
-  { month: "10월", TSLA: 180, AAPL: 170 },
-  { month: "11월", TSLA: 185, AAPL: 173 },
-  { month: "12월", TSLA: 180, AAPL: 173 },
-];
-
 const PERIODS = [
   { key: '1M', label: '1M' },
   { key: '6M', label: '6M' },
@@ -129,10 +106,6 @@ const StockCompareChart = () => {
 
   useEffect(() => {
     const { start, end } = getDateRangeByPeriod(period);
-    const newStocks = selectedStocks.filter(s => !loadedStocks.includes(s));
-    const needFullReload =
-      chartData.length === 0 || // 초기 렌더링
-      period || metric;         // 기간이나 metric 변경 시 재요청
   
     const fetchAndMerge = async (symbol) => {
       const url = `${baseURL}/api/stocks/prices?symbols=${symbol}&start=${start}&end=${end}&period=${period}`;
@@ -155,18 +128,16 @@ const StockCompareChart = () => {
             return prev.map((row, i) => ({ ...row, [symbol]: stockData[i]?.[symbol] }));
           });
         }
-      } catch (err) {
-        console.error('주가 데이터 fetch 실패:', err);
+      } catch (error) {
+        console.error('주가 데이터 fetch 실패:', error);
       }
     };
   
-    // 전체 리로드 (기간 변경, metric 변경, 초기 렌더링)
     setChartData([]); // 기존 chartData 비움
     Promise.all(selectedStocks.map(fetchAndMerge)).then(() => {
       setLoadedStocks(selectedStocks);
     });
   
-    // 종목 제거 시 chartData에서 해당 종목 제거
     if (loadedStocks.some(s => !selectedStocks.includes(s))) {
       setChartData(prev => prev.map(row => {
         const newRow = { ...row };
@@ -176,15 +147,12 @@ const StockCompareChart = () => {
         return newRow;
       }));
     }
-  }, [selectedStocks, period, metric]);
+  }, [selectedStocks, period, metric, baseURL, loadedStocks]);
   
   useEffect(() => {
-    // 새로 추가된 종목만 찾기
     const newStocks = selectedStocks.filter(s => !loadedStocks.includes(s));
-    // 제거된 종목 찾기
     const removedStocks = loadedStocks.filter(s => !selectedStocks.includes(s));
 
-    // 종목 제거 시 stockInfo에서도 제거
     if (removedStocks.length > 0) {
       setStockInfo(prev =>
         prev.filter(item => !removedStocks.includes(item.key))
@@ -194,7 +162,6 @@ const StockCompareChart = () => {
       );
     }
 
-    // 새로 추가된 종목만 fetch
     if (newStocks.length === 0) return;
     const fetchStockInfo = async () => {
       try {
@@ -216,17 +183,17 @@ const StockCompareChart = () => {
               dividend: item.dividend !== undefined ? `${item.dividend}%` : '-',
             }));
           setStockInfo(prev => [
-            ...prev.filter(item => !newStocks.includes(item.key)), // 기존 중복 제거
+            ...prev.filter(item => !newStocks.includes(item.key)),
             ...info
           ]);
           setLoadedStocks(prev => [...prev, ...newStocks]);
         }
-      } catch (err) {
-        // 에러 시 무시
+      } catch (error) {
+        console.error('주식 정보 fetch 실패:', error);
       }
     };
     fetchStockInfo();
-  }, [selectedStocks]);
+  }, [selectedStocks, baseURL, loadedStocks]);
 
   function formatMarketCapValue(value) {
     if (value >= 1_000_000_000_000) {
