@@ -1,200 +1,320 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import axios from 'axios';
-import {
-  LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid
-} from 'recharts';
+import React, { useState, useEffect } from "react";
+import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, CartesianGrid, ResponsiveContainer } from "recharts";
+import { Table, Select, Input, Tag } from "antd";
+import fetchWithAssist from '../../../fetchWithAssist';
 
-// 예시 종목
+const { Option } = Select;
+
 const allStocks = [
-  { symbol: 'TSLA', name: 'Tesla Inc.' },
-  { symbol: 'AAPL', name: 'Apple Inc.' },
-  { symbol: 'GOOGL', name: 'Alphabet Inc.' }
+  { value: "TSLA", label: "TSLA" },
+  { value: "AAPL", label: "AAPL" },
+  { value: "GOOGL", label: "GOOGL" },
+  { value: "MSFT", label: "MSFT" },
+  // 필요시 더 추가
 ];
 
-// 색상 배열
-const colors = ['#3366CC', '#DC3912', '#FF9900', '#109618', '#990099'];
+const chartData = [
+  { month: "1월", TSLA: 160, AAPL: 170 },
+  { month: "2월", TSLA: 170, AAPL: 175 },
+  { month: "3월", TSLA: 175, AAPL: 178 },
+  { month: "4월", TSLA: 172, AAPL: 180 },
+  { month: "5월", TSLA: 165, AAPL: 182 },
+  { month: "6월", TSLA: 170, AAPL: 178 },
+  { month: "7월", TSLA: 178, AAPL: 175 },
+  { month: "8월", TSLA: 182, AAPL: 172 },
+  { month: "9월", TSLA: 176, AAPL: 168 },
+  { month: "10월", TSLA: 180, AAPL: 170 },
+  { month: "11월", TSLA: 185, AAPL: 173 },
+  { month: "12월", TSLA: 180, AAPL: 173 },
+];
+
+const PERIODS = [
+  { key: '1M', label: '1M' },
+  { key: '6M', label: '6M' },
+  { key: 'YTD', label: 'YTD' },
+  { key: '1Y', label: '1Y' },
+  { key: '5Y', label: '5Y' },
+  { key: '10Y', label: '10Y' },
+  { key: 'MAX', label: 'MAX' },
+  { key: 'ALL', label: 'ALL' },
+];
+// ✅ utils: 기간(period)에 따른 start, end 날짜 계산 유틸 함수
+const getDateRangeByPeriod = (period) => {
+  const endDate = new Date();
+  const startDate = new Date();
+  switch (period) {
+    case '1M': startDate.setMonth(endDate.getMonth() - 1); break;
+    case '6M': startDate.setMonth(endDate.getMonth() - 6); break;
+    case 'YTD': startDate.setMonth(0); startDate.setDate(1); break;
+    case '1Y': startDate.setFullYear(endDate.getFullYear() - 1); break;
+    case '5Y': startDate.setFullYear(endDate.getFullYear() - 5); break;
+    case '10Y': startDate.setFullYear(endDate.getFullYear() - 10); break;
+    case 'MAX':
+    case 'ALL': startDate.setFullYear(endDate.getFullYear() - 20); break;
+    default: startDate.setFullYear(endDate.getFullYear() - 1);
+  }
+  return {
+    start: startDate.toISOString().slice(0, 10),
+    end: endDate.toISOString().slice(0, 10)
+  };
+};
 
 const StockCompareChart = () => {
-  const [selectedStocks, setSelectedStocks] = useState(['TSLA', 'AAPL']);
-  const [searchInput, setSearchInput] = useState('');
+  const [selectedStocks, setSelectedStocks] = useState([]);
+  const [metric, setMetric] = useState("주가");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [period, setPeriod] = useState('10Y');
   const [chartData, setChartData] = useState([]);
-  const [range, setRange] = useState('1M');
+  const [loadedStocks, setLoadedStocks] = useState([]);
+  const [stockInfo, setStockInfo] = useState([]);
+  const baseURL = import.meta.env.VITE_API_BASE_URL;
 
-  // 날짜 계산 유틸
-  const getStartDate = (range) => {
-    const today = new Date();
-    const d = new Date(today);
-    if (range === '1M') d.setMonth(d.getMonth() - 1);
-    else if (range === '3M') d.setMonth(d.getMonth() - 3);
-    else if (range === '6M') d.setMonth(d.getMonth() - 6);
-    else if (range === '1Y') d.setFullYear(d.getFullYear() - 1);
-    return d.toISOString().slice(0, 10);
+  // 테이블 컬럼 정의 (컴포넌트 내부에 위치해야 함)
+  const columns = [
+    { title: "종목", dataIndex: "name", key: "name" },
+    { title: "현재가", dataIndex: "price", key: "price" },
+    { title: "변화율", dataIndex: "change", key: "change" },
+    { title: "시가총액", dataIndex: "marketCap", key: "marketCap" },
+    { title: "거래량", dataIndex: "volume", key: "volume" },
+    { title: "P/E", dataIndex: "pe", key: "pe" },
+    { title: "EPS", dataIndex: "eps", key: "eps" },
+    { title: "배당수익", dataIndex: "dividend", key: "dividend" },
+  ];
+
+  const handleClose = (removedStock) => {
+    setSelectedStocks(selectedStocks.filter((stock) => stock !== removedStock));
   };
 
-// 차트 데이터 fetch
-useEffect(() => {
-  const fetchData = async () => {
+  const handleSearchChange = async (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    if (!query.trim()) {
+      setSearchQuery("");
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
     try {
-      const start = getStartDate(range);
-      const end = new Date().toISOString().slice(0, 10); // 오늘 날짜
-      const symbols = selectedStocks.join(',');
-      const res = await axios.get(`http://localhost:8080/api/stocks/prices?symbols=${symbols}&start=${start}&end=${end}`);
-      setChartData(res.data);
-    } catch (e) {
-      console.error(e);
+      const url = `${baseURL}/api/stocks/search?query=${encodeURIComponent(query)}`;
+      const res = await fetchWithAssist(url);
+      if (res.ok) {
+        const data = await res.json();
+        const list = Array.isArray(data.response?.searchData) ? data.response.searchData : [];
+        setSuggestions(list);
+        setShowSuggestions(true);
+      } else {
+        setSuggestions([]);
+        setShowSuggestions(false);
+      }
+    } catch (err) {
+      setSuggestions([]);
+      setShowSuggestions(false);
     }
   };
-  fetchData();
-}, [selectedStocks, range]);
 
-
-  const addStock = (symbol) => {
-    if (!selectedStocks.includes(symbol)) setSelectedStocks([...selectedStocks, symbol]);
-    setSearchInput('');
+  const handleSuggestionClick = (ticker) => {
+    setSelectedStocks(prev => prev.includes(ticker) ? prev : [...prev, ticker]);
+    setSearchQuery("");
+    setSuggestions([]);
+    setShowSuggestions(false);
   };
-  const removeStock = (symbol) => setSelectedStocks(selectedStocks.filter(s => s !== symbol));
 
-  const filteredStocks = allStocks.filter(
-    s => (s.name + s.symbol).toLowerCase().includes(searchInput.toLowerCase()) && !selectedStocks.includes(s.symbol)
-  );
+  const clearSearch = () => {
+    setSearchQuery("");
+    setSuggestions([]);
+    setShowSuggestions(false);
+  };
+
+  useEffect(() => {
+    const { start, end } = getDateRangeByPeriod(period);
+    const newStocks = selectedStocks.filter(s => !loadedStocks.includes(s));
+    const needFullReload =
+      chartData.length === 0 || // 초기 렌더링
+      period || metric;         // 기간이나 metric 변경 시 재요청
+  
+    const fetchAndMerge = async (symbol) => {
+      const url = `${baseURL}/api/stocks/prices?symbols=${symbol}&start=${start}&end=${end}&period=${period}`;
+      try {
+        const res = await fetchWithAssist(url);
+        if (res.ok) {
+          const data = await res.json();
+          let stockData = data.response?.data || [];
+          if (metric === '주가변화율') {
+            stockData = stockData.map((row) => {
+              const first = stockData[0]?.[symbol];
+              return {
+                ...row,
+                [symbol]: (first && row[symbol] != null) ? ((row[symbol] - first) / first) * 100 : null
+              };
+            });
+          }
+          setChartData(prev => {
+            if (prev.length === 0) return stockData;
+            return prev.map((row, i) => ({ ...row, [symbol]: stockData[i]?.[symbol] }));
+          });
+        }
+      } catch (err) {
+        console.error('주가 데이터 fetch 실패:', err);
+      }
+    };
+  
+    // 전체 리로드 (기간 변경, metric 변경, 초기 렌더링)
+    setChartData([]); // 기존 chartData 비움
+    Promise.all(selectedStocks.map(fetchAndMerge)).then(() => {
+      setLoadedStocks(selectedStocks);
+    });
+  
+    // 종목 제거 시 chartData에서 해당 종목 제거
+    if (loadedStocks.some(s => !selectedStocks.includes(s))) {
+      setChartData(prev => prev.map(row => {
+        const newRow = { ...row };
+        loadedStocks.forEach(s => {
+          if (!selectedStocks.includes(s)) delete newRow[s];
+        });
+        return newRow;
+      }));
+    }
+  }, [selectedStocks, period, metric]);
+  
+  useEffect(() => {
+    // 새로 추가된 종목만 찾기
+    const newStocks = selectedStocks.filter(s => !loadedStocks.includes(s));
+    // 제거된 종목 찾기
+    const removedStocks = loadedStocks.filter(s => !selectedStocks.includes(s));
+
+    // 종목 제거 시 stockInfo에서도 제거
+    if (removedStocks.length > 0) {
+      setStockInfo(prev =>
+        prev.filter(item => !removedStocks.includes(item.key))
+      );
+      setLoadedStocks(prev =>
+        prev.filter(s => !removedStocks.includes(s))
+      );
+    }
+
+    // 새로 추가된 종목만 fetch
+    if (newStocks.length === 0) return;
+    const fetchStockInfo = async () => {
+      try {
+        const symbols = newStocks.join(',');
+        const url = `${baseURL}/api/stocks/summary?symbols=${symbols}`;
+        const res = await fetchWithAssist(url);
+        const json = await res.json();
+        if (json.success && Array.isArray(json.response?.data)) {
+          const info = json.response.data
+            .map(item => ({
+              key: item.symbol,
+              name: <a href="#">{item.name || item.symbol}</a>,
+              price: `$${item.price?.toLocaleString()}`,
+              change: <span style={{ color: item.change >= 0 ? "#1dc186" : "#e74c3c" }}>{item.change >= 0 ? "+" : ""}{item.change}%</span>,
+              marketCap: item.marketCap ? `$${formatMarketCapValue(item.marketCap)}` : '-',
+              volume: item.volume ? (item.volume >= 1_000_000 ? (item.volume / 1_000_000).toFixed(1) + 'M' : item.volume.toLocaleString()) : '-',
+              pe: item.pe ?? '-',
+              eps: item.eps ? `$${item.eps}` : '-',
+              dividend: item.dividend !== undefined ? `${item.dividend}%` : '-',
+            }));
+          setStockInfo(prev => [
+            ...prev.filter(item => !newStocks.includes(item.key)), // 기존 중복 제거
+            ...info
+          ]);
+          setLoadedStocks(prev => [...prev, ...newStocks]);
+        }
+      } catch (err) {
+        // 에러 시 무시
+      }
+    };
+    fetchStockInfo();
+  }, [selectedStocks]);
+
+  function formatMarketCapValue(value) {
+    if (value >= 1_000_000_000_000) {
+      return (value / 1_000_000_000_000).toFixed(2) + 'T';
+    } else if (value >= 1_000_000_000) {
+      return (value / 1_000_000_000).toFixed(2) + 'B';
+    } else if (value >= 1_000_000) {
+      return (value / 1_000_000).toFixed(2) + 'M';
+    } else if (value >= 1_000) {
+      return (value / 1_000).toFixed(2) + 'K';
+    } else {
+      return value;
+    }
+  }
 
   return (
-    <Container>
-      <Title>📈 주식 비교 차트</Title>
-      <TopBar>
-        {selectedStocks.map(symbol => (
-          <Tag key={symbol}>
-            {symbol} <RemoveBtn onClick={() => removeStock(symbol)}>×</RemoveBtn>
-          </Tag>
+    <div style={{ background: "#fff", borderRadius: 12, padding: 32, minWidth: 700 }}>
+      <h2 style={{ fontWeight: 700, fontSize: 22, marginBottom: 20 }}>주식 비교</h2>
+      <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+        {selectedStocks.map((stock) => (
+          <Tag key={stock} closable onClose={() => handleClose(stock)}>{stock}</Tag>
         ))}
-        <SearchBox>
+      </div>
+      <div style={{ marginBottom: 12, position: 'relative', width: 400 }}>
+        <div className="search-container">
           <input
-            value={searchInput}
-            onChange={e => setSearchInput(e.target.value)}
-            placeholder="종목 추가..."
+            type="text"
+            placeholder="종목 검색"
+            value={searchQuery}
+            onChange={handleSearchChange}
+            onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+            style={{ width: 400, background: "#f6f8fa", borderRadius: 8, border: "none" }}
+            autoComplete="off"
           />
-          {searchInput && (
-            <Dropdown>
-              {filteredStocks.map(s => (
-                <DropdownItem key={s.symbol} onClick={() => addStock(s.symbol)}>
-                  {s.symbol} {s.name}
-                </DropdownItem>
-              ))}
-            </Dropdown>
+          {searchQuery && (
+            <button onClick={clearSearch} style={{ position: "absolute", right: 40 }}>✕</button>
           )}
-        </SearchBox>
-        <RangeSelector>
-          {['1M', '3M', '6M', '1Y'].map(r => (
-            <RangeBtn key={r} active={range === r} onClick={() => setRange(r)}>
-              {r}
-            </RangeBtn>
-          ))}
-        </RangeSelector>
-      </TopBar>
-
-      <ResponsiveContainer width="100%" height={400}>
-        <LineChart data={chartData} margin={{ top: 20, right: 30, left: 10, bottom: 0 }}>
-          <CartesianGrid stroke="#eee" strokeDasharray="3 3" />
-          <XAxis
-            dataKey="date"
-            tickFormatter={date => new Date(date).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}
-          />
-          <YAxis domain={['auto', 'auto']} />
-          <Tooltip formatter={(v) => `$${v.toFixed(2)}`} />
+          {showSuggestions && (
+            <ul className="suggestions-dropdown">
+              {suggestions.filter(item => !selectedStocks.includes(item.ticker)).map((item) => (
+                <li key={item.ticker} onMouseDown={() => handleSuggestionClick(item.ticker)}>
+                  {item.nameKr} ({item.ticker}) {item.nameEn && ` - ${item.nameEn}`}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+      <div style={{ marginBottom: 16 }}>
+        <Select value={metric} onChange={setMetric} style={{ width: 140 }}>
+          <Option value="주가">주가</Option>
+          <Option value="주가변화율">주가 변화율</Option>
+        </Select>
+      </div>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+        {PERIODS.map((p) => (
+          <button key={p.key} onClick={() => setPeriod(p.key)}>{p.label}</button>
+        ))}
+      </div>
+      <ResponsiveContainer width="100%" height={300}>
+        <LineChart data={chartData}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="date" />
+          <YAxis domain={["auto", "auto"]} />
+          <Tooltip />
           <Legend />
-          {selectedStocks.map((symbol, idx) => (
+          {selectedStocks.map((stock, idx) => (
             <Line
-              key={symbol}
+              key={stock}
               type="monotone"
-              dataKey={symbol}
-              stroke={colors[idx % colors.length]}
-              strokeWidth={2.5}
+              dataKey={stock}
+              stroke={idx === 0 ? "#3498ff" : "#ff4d4f"}
+              activeDot={false}
               dot={false}
-              isAnimationActive={true}
-              animationDuration={800}
             />
           ))}
         </LineChart>
       </ResponsiveContainer>
-    </Container>
+      <Table
+        columns={columns}
+        dataSource={stockInfo}
+        pagination={false}
+        style={{ marginTop: 24 }}
+        rowKey="key"
+      />
+    </div>
   );
 };
-
-const Container = styled.div`
-  background: #fff;
-  padding: 24px;
-  border-radius: 14px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  max-width: 1000px;
-  margin: 0 auto 40px;
-`;
-
-const Title = styled.h3`
-  margin-bottom: 16px;
-  font-size: 22px;
-`;
-
-const TopBar = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
-`;
-
-const Tag = styled.span`
-  background-color: #f0f0f0;
-  padding: 6px 12px;
-  border-radius: 15px;
-  font-size: 14px;
-`;
-
-const RemoveBtn = styled.button`
-  margin-left: 6px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 14px;
-  color: #888;
-`;
-
-const SearchBox = styled.div`
-  position: relative;
-`;
-
-const Dropdown = styled.div`
-  position: absolute;
-  background-color: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  top: 100%;
-  width: 250px;
-`;
-
-const DropdownItem = styled.div`
-  padding: 8px 12px;
-  cursor: pointer;
-  &:hover {
-    background-color: #f8f8f8;
-  }
-`;
-
-const RangeSelector = styled.div`
-  display: flex;
-  gap: 6px;
-  margin-left: auto;
-`;
-
-const RangeBtn = styled.button`
-  padding: 5px 10px;
-  font-size: 13px;
-  background: ${props => props.active ? '#0077cc' : '#eee'};
-  color: ${props => props.active ? 'white' : '#333'};
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-`;
 
 export default StockCompareChart;

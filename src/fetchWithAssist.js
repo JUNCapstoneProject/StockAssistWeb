@@ -4,5 +4,13 @@ export default function fetchWithAssist(url, options = {}) {
   if (import.meta.env.MODE !== 'development') {
     headers = { ...headers, destination: 'assist' };
   }
-  return fetch(url, { ...options, headers });
+  const defaultOptions = {
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    cache: 'no-store', // 캐시 비활성화
+    ...options,
+  };
+  return fetch(url, defaultOptions);
 } 
