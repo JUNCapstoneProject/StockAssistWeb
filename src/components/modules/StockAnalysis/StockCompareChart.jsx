@@ -85,7 +85,8 @@ const StockCompareChart = () => {
         setSuggestions([]);
         setShowSuggestions(false);
       }
-    } catch (err) {
+    } catch (error) {
+      console.error('검색 결과 fetch 실패:', error);
       setSuggestions([]);
       setShowSuggestions(false);
     }
