@@ -9,6 +9,11 @@ const baseURL = import.meta.env.VITE_API_BASE_URL;
 const axiosInstance = axios.create({
   baseURL,
   withCredentials: true, // ✅ 쿠키 전송 허용 (refreshToken 쿠키 포함됨)
+  headers: {
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0'
+  }
 });
 
 // ✅ 2. 요청 인터셉터: accessToken 자동으로 Authorization 헤더에 추가
