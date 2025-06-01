@@ -109,7 +109,7 @@ const StockCompareChart = () => {
     const { start, end } = getDateRangeByPeriod(period);
   
     const fetchAndMerge = async (symbol) => {
-      const url = `${baseURL}/api/stocks/prices?symbols=${symbol}&start=${start}&end=${end}&period=${period}`;
+      const url = `${baseURL}/api/stocks/prices?symbol=${symbol}&start=${start}&end=${end}&period=${period}`;
       try {
         const res = await fetchWithAssist(url);
         if (res.ok) {
