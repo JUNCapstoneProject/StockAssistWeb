@@ -28,7 +28,6 @@ import MyPage from "./pages/MyPage";
 import FindPassword from "./pages/FindPassword";
 import ResetPassword from "./pages/ResetPassword";
 import StockAnalysis from "./pages/StockAnalysis";
-import Test from "./pages/test";
 // Redux 관련 import
 import {
   setLoginStatus,
@@ -101,7 +100,6 @@ function App() {
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/find-password" element={<FindPassword />} />
           <Route path="/stock-analysis" element={<StockAnalysis />} />
-          <Route path="/test" element={<Test />} />
         </Routes>
       </div>
     </Router>
