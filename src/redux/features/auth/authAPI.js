@@ -18,7 +18,37 @@ export const checkLoginStatusAPI = async () => {
   const token = localStorage.getItem("accessToken");
   console.log("token:", token);
 
-  if (!token) return false;
+  if (!token) {
+    // accessToken이 없으면 refreshToken(쿠키)로 바로 갱신 시도
+    try {
+      const refreshResponse = await axios.post(
+        baseURL + "/api/auth/refresh",
+        {},
+        { 
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'destination': 'assist'
+          },
+          credentials: 'include'
+        }
+      );
+      if (refreshResponse.data?.success && refreshResponse.data?.response) {
+        const newAccessToken = refreshResponse.data.response;
+        localStorage.setItem("accessToken", newAccessToken);
+        // accessToken을 얻었으니 다시 check API 호출
+        const checkResponse = await axiosInstance.get("/api/auth/check");
+        return checkResponse.data?.success && checkResponse.data?.response?.isLogin;
+      } else {
+        throw new Error(refreshResponse.data?.message || "토큰 갱신 실패");
+      }
+    } catch (refreshError) {
+      console.error("🚨 토큰 갱신 실패:", refreshError.response?.data || refreshError);
+      localStorage.removeItem("accessToken");
+      return false;
+    }
+  }
 
   try {
     const response = await axiosInstance.get("/api/auth/check");
