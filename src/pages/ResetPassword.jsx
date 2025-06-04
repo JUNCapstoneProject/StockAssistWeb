@@ -5,8 +5,6 @@ import styled from "styled-components";
 import zxcvbn from "zxcvbn";
 import fetchWithAssist from '../fetchWithAssist';
 
-const baseURL = import.meta.env.VITE_API_BASE_URL;
-
 const PageWrapper = styled.div`
   min-height: 100vh;
   background: #f5f8ff;
