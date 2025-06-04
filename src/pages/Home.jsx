@@ -67,6 +67,7 @@ function Home() {
                 stockName={stock.name}
                 aiAnalysis={stock.status}
                 imageSrc={`https://static.toss.im/png-icons/securities/icn-sec-fill-${stock.ticker}.png?20240617`}
+                type="news"
                 />
             ))}
           </div>
@@ -98,6 +99,7 @@ function Home() {
                 stockName={stock.name}
                 aiAnalysis={stock.status}
                 imageSrc={`https://static.toss.im/png-icons/securities/icn-sec-fill-${stock.ticker}.png?20240617`}
+                type="financial"
                 />
             ))}
           </div>

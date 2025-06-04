@@ -18,12 +18,23 @@ const StockNews = ({ ticker }) => {
       try {
         const baseURL = import.meta.env.VITE_API_BASE_URL;
         const res = await fetchWithAssist(`${baseURL}/api/news?page=1&limit=100&category=${ticker}`);
-        if (!res.ok) throw new Error("뉴스 데이터를 가져오지 못했습니다.");
         const result = await res.json();
 
+        // 뉴스 데이터가 있으면 무조건 보여주기
         const newsList = result.response?.news || [];
-        setNewsData(newsList);
-        setCurrentIndex(0);
+        if (newsList.length > 0) {
+          setNewsData(newsList.filter(news => news?.title && news?.link));
+          setCurrentIndex(0);
+          setError(null);
+        } else if (!res.ok) {
+          // 뉴스 데이터가 없고, 응답도 실패면 에러
+          throw new Error("뉴스 데이터를 가져오지 못했습니다.");
+        } else {
+          // 뉴스 데이터가 아예 없는 경우
+          setNewsData([]);
+          setCurrentIndex(0);
+          setError(null);
+        }
       } catch (err) {
         console.error("❌ 뉴스 요청 오류:", err);
         setError(err.message);
@@ -31,9 +42,10 @@ const StockNews = ({ ticker }) => {
         setIsLoading(false);
       }
     };
-
+  
     if (ticker) fetchNews();
-  }, [ticker, stockName]);
+  }, [ticker]);
+  
 
   const handlePrev = () => {
     setCurrentIndex((prev) => Math.max(prev - 3, 0));
@@ -57,10 +69,27 @@ const StockNews = ({ ticker }) => {
             onClick={() => window.open(news.link, '_blank')}
           >
             <NewsHeader>
-              <CategoryInfo>
-                <Category>{news.category}</Category>
-                <StatusBadge $status={news.status}>{news.status}</StatusBadge>
-              </CategoryInfo>
+              {news.categories && news.categories.length > 0 ? (
+                news.categories.map((cat, idx) => (
+                  <CategoryInfo key={idx}>
+                    <Category>{cat.name}</Category>
+                    <StatusBadge $status={cat.status}>
+                      {cat.status === "0"
+                        ? "부정"
+                        : cat.status === "1"
+                        ? "중립"
+                        : cat.status === "2"
+                        ? "긍정"
+                        : "알수없음"}
+                    </StatusBadge>
+                  </CategoryInfo>
+                ))
+              ) : (
+                <CategoryInfo>
+                  <Category>카테고리 없음</Category>
+                  <StatusBadge $status={"0"}>중립</StatusBadge>
+                </CategoryInfo>
+              )}
               <Title>{news.title}</Title>
             </NewsHeader>
             <Description>{news.description}</Description>
@@ -135,9 +164,9 @@ const StatusBadge = styled.span`
   border-radius: 16px;
   font-size: 12px;
   background-color: ${({ $status }) =>
-    $status === '긍정' ? '#4CAF50' :
-    $status === '부정' ? '#FF5252' :
-    $status === '중립' ? '#757575' : '#757575'};
+    $status === '2' ? '#4CAF50' :
+    $status === '0' ? '#FF5252' :
+    $status === '1' ? '#757575' : '#757575'};
   color: white;
 `;
 
