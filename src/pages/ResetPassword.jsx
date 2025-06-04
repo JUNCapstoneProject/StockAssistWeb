@@ -209,9 +209,11 @@ const ResetPassword = () => {
   
     setSubmitting(true);
     try {
-      const response = await fetchWithAssist(`${baseURL}/api/auth/password-reset`, {
+      const response = await fetchWithAssist(`https://www.tuzain.com/api/auth/password-reset`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json",
+          destination: "assist", // ✅ 직접 지정
+        },
         body: JSON.stringify({ token, newPassword: password }),
       });
   
