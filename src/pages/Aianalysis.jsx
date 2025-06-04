@@ -29,7 +29,7 @@ const getInitialTab = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const tabParam = urlParams.get('tab');
     const hasFinancialPage = urlParams.has('financialPage');
-    const hasNewsPage = urlParams.has('newsPage');
+    //const hasNewsPage = urlParams.has('newsPage');
 
     let initialTab;
 
