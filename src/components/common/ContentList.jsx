@@ -163,6 +163,10 @@ const TopSection = styled.div`
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
+
+  @media (max-width: 769px) {
+    flex-direction: column;
+  }
 `;
 
 const BottomSection = styled.div`
@@ -183,6 +187,10 @@ const ContentCard = styled.div`
   max-width: 100%;
   cursor: pointer;
   transition: transform 0.15s ease;
+
+  @media (max-width: 769px) {
+    min-width: 100%;
+  }
 
   &:hover {
     transform: translateY(-4px);

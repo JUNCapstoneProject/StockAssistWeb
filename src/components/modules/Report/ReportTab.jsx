@@ -24,6 +24,7 @@ const ReportTab = ({ onTabChange, currentTab }) => {
 const TabContainer = styled.div`
   display: flex;
   justify-content: center;
+  padding: 0 20px;
 `;
 
 const TabWrapper = styled.div`
@@ -31,13 +32,18 @@ const TabWrapper = styled.div`
   background: #eef2f7;
   border-radius: 8px;
   overflow: hidden;
-  width: 100%;
-  max-width: 800px;
+  width: 800px;
   justify-content: space-between;
+
+  @media (max-width: 840px) {
+    width: 100%;
+    max-width: 800px;
+  }
 `;
 
 const TabItem = styled.div`
   flex: 1;
+  min-width: 400px;
   text-align: center;
   padding: 14px 20px;
   cursor: pointer;
@@ -46,6 +52,11 @@ const TabItem = styled.div`
   background: ${({ $active }) => ($active ? '#ffffff' : 'transparent')};
   border-radius: 8px;
   transition: all 0.3s ease;
+
+  @media (max-width: 840px) {
+    min-width: auto;
+    padding: 14px 10px;
+  }
 
   &:hover {
     background: ${({ $active }) => ($active ? '#ffffff' : '#dfe6ee')};

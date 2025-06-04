@@ -156,29 +156,33 @@ const MarketCapTable = () => {
 
 const TableContainer = styled.div`
   background: #fff;
-  padding: 24px 24px 12px 24px;
+  padding: 32px 24px 16px 24px;
   border-radius: 14px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.07);
   margin-bottom: 32px;
-  max-width: 100%;
+  max-width: 1100px;
+  width: 100%;
   margin-left: auto;
   margin-right: auto;
 
-  @media (max-width: 768px) {
-    padding: 12px 4px 8px 4px;
-    max-width: 100vw;
+  @media (max-width: 1200px) {
+    max-width: 98vw;
+    padding: 24px 8px 12px 8px;
+  }
+  @media (max-width: 600px) {
+    padding: 12px 2vw 8px 2vw;
     border-radius: 8px;
   }
 `;
 
 const HeaderRow = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   margin-bottom: 10px;
   @media (max-width: 600px) {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     gap: 6px;
   }
 `;
@@ -187,6 +191,7 @@ const Title = styled.h3`
   font-size: 18px;
   font-weight: 700;
   margin: 0;
+  text-align: center;
   @media (max-width: 600px) {
     font-size: 15px;
   }

@@ -50,14 +50,14 @@ const StockCompareChart = () => {
 
   // 테이블 컬럼 정의 (컴포넌트 내부에 위치해야 함)
   const columns = [
-    { title: "종목", dataIndex: "name", key: "name" },
-    { title: "현재가", dataIndex: "price", key: "price" },
-    { title: "변화율", dataIndex: "change", key: "change" },
-    { title: "시가총액", dataIndex: "marketCap", key: "marketCap" },
-    { title: "거래량", dataIndex: "volume", key: "volume" },
-    { title: "P/E", dataIndex: "pe", key: "pe" },
-    { title: "EPS", dataIndex: "eps", key: "eps" },
-    { title: "배당수익", dataIndex: "dividend", key: "dividend" },
+    { title: "종목", dataIndex: "name", key: "name", ellipsis: true },
+    { title: "현재가", dataIndex: "price", key: "price", ellipsis: true },
+    { title: "변화율", dataIndex: "change", key: "change", ellipsis: true },
+    { title: "시가총액", dataIndex: "marketCap", key: "marketCap", ellipsis: true },
+    { title: "거래량", dataIndex: "volume", key: "volume", ellipsis: true },
+    { title: "P/E", dataIndex: "pe", key: "pe", ellipsis: true },
+    { title: "EPS", dataIndex: "eps", key: "eps", ellipsis: true },
+    { title: "배당수익", dataIndex: "dividend", key: "dividend", ellipsis: true },
   ];
 
   const handleClose = (removedStock) => {
@@ -211,8 +211,18 @@ const StockCompareChart = () => {
   }
 
   return (
-    <div style={{ background: "#fff", borderRadius: 12, padding: 32, minWidth: 700 }}>
-      <h2 style={{ fontWeight: 700, fontSize: 22, marginBottom: 20 }}>주식 비교</h2>
+    <div
+      style={{
+        background: "#fff",
+        borderRadius: 14,
+        padding: "32px 24px 16px 24px",
+        maxWidth: "1100px",
+        width: "100%",
+        margin: "0 auto",
+        boxSizing: "border-box",
+      }}
+    >
+      <h2 style={{ fontWeight: 700, fontSize: 22, marginBottom: 20, textAlign: 'center' }}>주식 비교</h2>
       <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
         {selectedStocks.map((stock) => (
           <Tag key={stock} closable onClose={() => handleClose(stock)}>{stock}</Tag>
@@ -278,8 +288,9 @@ const StockCompareChart = () => {
         columns={columns}
         dataSource={stockInfo}
         pagination={false}
-        style={{ marginTop: 24 }}
+        style={{ marginTop: 24, width: '100%' }}
         rowKey="key"
+        scroll={{ x: 'max-content' }}
       />
     </div>
   );

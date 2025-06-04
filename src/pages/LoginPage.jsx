@@ -45,7 +45,7 @@ const LoginPage = () => {
       if (success && responseData) {
         localStorage.setItem("accessToken", responseData.accessToken);
         dispatch(setLoginStatus(true));
-        const redirectTo = responseData.redirectUrl || "/";
+        const redirectTo = from || responseData.redirectUrl || "/";
   
         if (redirectTo.startsWith("http://") || redirectTo.startsWith("https://")) {
           setTimeout(() => (window.location.href = redirectTo), 1500);

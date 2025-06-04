@@ -25,7 +25,7 @@ const Title = styled.h1`
 `;
 
 const Description = styled.p`
-  font-size: 16px;
+  font-size: clamp(12px, 2vw, 16px);
   color: #666666;
   line-height: 1.5;
 `;
