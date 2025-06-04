@@ -28,7 +28,19 @@ const getInitialTab = () => {
   } else {
     const urlParams = new URLSearchParams(window.location.search);
     const tabParam = urlParams.get('tab');
-    const initialTab = tabParam || "뉴스";
+    const hasFinancialPage = urlParams.has('financialPage');
+    //const hasNewsPage = urlParams.has('newsPage');
+
+    let initialTab;
+
+    if (tabParam) {
+      initialTab = tabParam;
+    } else if (hasFinancialPage) {
+      initialTab = "재무제표";
+    } else {
+      initialTab = "뉴스";
+    }
+
     sessionStorage.setItem("aiAnalysisTab", initialTab);
     return initialTab;
   }
@@ -82,10 +94,26 @@ const AiAnalysis = () => {
             return;
           }
 
-          const newData = result.response.news.map(news => ({
-            ...news,
-            link: news.url || news.link
-          }));
+          const newData = result.response.news.map(news => {
+            // 종목명과 상태 변환
+            let category = '';
+            let status = '';
+            if (Array.isArray(news.categories) && news.categories.length > 0) {
+              category = news.categories.map(c => c.name).join(', ');
+              status = news.categories.map(c => {
+                if (c.status === '0' || c.status === 0) return '부정';
+                if (c.status === '1' || c.status === 1) return '보류';
+                if (c.status === '2' || c.status === 2) return '긍정';
+                return '중립';
+              }).join(', ');
+            }
+            return {
+              ...news,
+              link: news.url || news.link,
+              category,
+              status,
+            };
+          });
           setNewsData((prevData) =>
             JSON.stringify(prevData) === JSON.stringify(newData) ? prevData : newData
           );

@@ -2,17 +2,50 @@ import React from "react";
 import { useNavigate } from "react-router-dom"; // navigate 추가
 import "./MainStockCard.css";
 
-const MainStockCard = ({ stockName, aiAnalysis, imageSrc, ticker }) => {
+const MainStockCard = ({ stockName, aiAnalysis, imageSrc, ticker, type = "news" }) => {
   const navigate = useNavigate();
 
-  // 추천 상태에 따른 CSS 클래스
+  // 추천 상태에 따른 CSS 클래스와 표시 텍스트
   let analysisClass = "";
-  if (aiAnalysis === "긍정") {
-    analysisClass = "buy";
-  } else if (aiAnalysis === "부정") {
-    analysisClass = "sell";
-  } else if (aiAnalysis === "보류") {
+  let displayText = "";
+
+  if (aiAnalysis === "분석 결과 없음") {
     analysisClass = "hold";
+    displayText = "분석 결과 없음";
+  } else if (type === "news") {
+    // 뉴스 분석 결과 처리
+    switch (aiAnalysis) {
+      case "0":
+        analysisClass = "sell";
+        displayText = "부정";
+        break;
+      case "1":
+        analysisClass = "hold";
+        displayText = "중립";
+        break;
+      case "2":
+        analysisClass = "buy";
+        displayText = "긍정";
+        break;
+      default:
+        analysisClass = "hold";
+        displayText = "분석 결과 없음";
+    }
+  } else {
+    // 재무제표 분석 결과 처리
+    switch (aiAnalysis) {
+      case "0":
+        analysisClass = "sell";
+        displayText = "부정";
+        break;
+      case "1":
+        analysisClass = "buy";
+        displayText = "긍정";
+        break;
+      default:
+        analysisClass = "hold";
+        displayText = "분석 결과 없음";
+    }
   }
 
   // 클릭 시 개별 종목 페이지로 이동
@@ -27,7 +60,7 @@ const MainStockCard = ({ stockName, aiAnalysis, imageSrc, ticker }) => {
       </div>
       <h2 className="stock-card-title">{stockName}</h2>
       <p className={`stock-card-analysis ${analysisClass}`}>
-        {aiAnalysis}
+        {displayText}
       </p>
     </div>
   );

@@ -5,10 +5,20 @@
 
 import React from 'react';
 import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 
 const FinancialCard = ({ stock, activeTab, onTabChange }) => {
+  const navigate = useNavigate();
+  // status 변환
+  const statusText = stock.status === 1 ? "긍정" : "부정";
+
+  // 카드 클릭 시 개별 종목 페이지로 이동
+  const handleCardClick = () => {
+    navigate(`/stock/${stock.ticker}`, { state: { name: stock.name } });
+  };
+
   return (
-    <CardContainer>
+    <CardContainer onClick={handleCardClick} style={{ cursor: 'pointer' }}>
       {/* 종목 정보 헤더 */}
       <Header>
         <Info>
@@ -20,7 +30,7 @@ const FinancialCard = ({ stock, activeTab, onTabChange }) => {
             </Change>
           </Price>
         </Info>
-        <Badge $status={stock.status}>{stock.status}</Badge>
+        <Badge $status={statusText}>{statusText}</Badge>
       </Header>
 
       {/* 재무 정보 탭 */}
@@ -29,7 +39,7 @@ const FinancialCard = ({ stock, activeTab, onTabChange }) => {
           <Tab
             key={tab}
             $active={activeTab === tab}
-            onClick={() => onTabChange(stock.ticker, tab)}
+            onClick={e => { e.stopPropagation(); onTabChange(stock.ticker, tab); }}
           >
             {tab}
           </Tab>
@@ -74,7 +84,7 @@ const CardContainer = styled.div`
 const Header = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   margin-bottom: 8px;
 `;
 
