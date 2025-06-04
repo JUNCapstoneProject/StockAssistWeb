@@ -109,9 +109,12 @@ const SignupPage = () => {
     }
 
     try {
-      const response = await fetchWithAssist(`${baseURL}/api/auth/register`, {
+     const response = await fetchWithAssist(`${baseURL}/api/auth/register`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          destination: "assist", // ✅ 직접 지정
+        },
         body: JSON.stringify({ nickname, email, password }),
       });
       const data = await response.json();
