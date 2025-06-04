@@ -40,41 +40,26 @@ import "./App.css";
 function App() {
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    const navigationEntries = performance.getEntriesByType("navigation");
-    const isPageRefresh = navigationEntries[0]?.type === "reload";
-    const token = localStorage.getItem("accessToken");
+useEffect(() => {
+  const token = localStorage.getItem("accessToken");
 
-    (async () => {
-      if (isPageRefresh) {
-        if (token) {
-          dispatch(setAccessToken(token));
-        }
+  (async () => {
+    if (token) {
+      dispatch(setAccessToken(token));
+    }
 
-        try {
-          console.log("새로고침: 로그인 상태 체크 시작");
-          const loggedIn = await checkLoginStatusAPI(); // ✅ 토큰 없어도 실행
-          console.log("새로고침: 로그인 상태 체크 결과:", loggedIn);
-          dispatch(setLoginStatus(loggedIn));
-        } catch (err) {
-          console.error("새로고침: 로그인 상태 확인 실패:", err);
-          dispatch(setLoginStatus(false));
-        }
-      } else {
-        // 페이지 이동: accessToken 있는 경우만 신뢰
-        if (token) {
-          dispatch(setAccessToken(token));
-          dispatch(setLoginStatus(true));
-          console.log(
-            "페이지 이동: localStorage 토큰 존재하여 로그인 상태 유지"
-          );
-        } else {
-          dispatch(setLoginStatus(false));
-          console.log("페이지 이동: localStorage 토큰 없음");
-        }
-      }
-    })();
-  }, [dispatch]);
+    try {
+      console.log("로그인 상태 체크 시작");
+      const loggedIn = await checkLoginStatusAPI();
+      console.log("로그인 상태:", loggedIn);
+      dispatch(setLoginStatus(loggedIn));
+    } catch (err) {
+      console.error("로그인 상태 확인 실패:", err);
+      dispatch(setLoginStatus(false));
+    }
+  })();
+}, [dispatch]);
+
 
   return (
     <Router>
