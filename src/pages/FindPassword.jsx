@@ -19,6 +19,7 @@ const FindPassword = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "destination": "assist",
         },
         body: JSON.stringify({ email }),
       });

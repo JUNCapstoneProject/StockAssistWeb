@@ -211,7 +211,10 @@ const ResetPassword = () => {
     try {
       const response = await fetchWithAssist(`${baseURL}/api/auth/password-reset`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "destination": "assist",
+        },
         body: JSON.stringify({ token, newPassword: password }),
       });
   
