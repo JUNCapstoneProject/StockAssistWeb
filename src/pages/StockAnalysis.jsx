@@ -5,7 +5,7 @@ import IndividualHeader from '../components/modules/StockAnalysis/IndividualHead
 
 const StockAnalysis = () => {
   return (
-    <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0px 0' }}>
+    <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px', boxSizing: 'border-box' }}>
       <IndividualHeader />
       <MarketCapTable />
       <StockCompareChart />

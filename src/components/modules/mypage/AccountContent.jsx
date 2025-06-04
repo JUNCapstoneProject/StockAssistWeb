@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axiosInstance from '../../../api/axiosInstance';
 import BrokerageContent from './BrokerageContent';
 import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 
 const Section = styled.div`
   background: white;
@@ -98,11 +99,29 @@ const DeleteAccountButton = styled.button`
   }
 `;
 
+const LogoutButton = styled.button`
+  padding: 0.75rem 0.75rem;
+  background: #666;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+  width: fit-content;
+  margin-right: 1rem;
+
+  &:hover {
+    background: #555;
+  }
+`;
+
 const AccountContent = () => {
   const [userInfo, setUserInfo] = useState({ nickname: '', email: '' });
   const [isEditing, setIsEditing] = useState(false);
   const [editedNickname, setEditedNickname] = useState('');
   const [deleteError, setDeleteError] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -138,16 +157,21 @@ const AccountContent = () => {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    navigate('/');
+  };
+
   const handleDeleteAccount = async () => {
     setDeleteError('');
     if (!window.confirm('정말로 회원 탈퇴하시겠습니까?\n모든 데이터가 삭제되며 복구할 수 없습니다.')) return;
     try {
       const res = await axiosInstance.delete('/api/users/me');
       if (res.data.success) {
-        // 로그아웃 처리: 토큰 삭제 및 메인 페이지로 이동
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
-        window.location.href = '/';
+        navigate('/');
       } else {
         setDeleteError('회원 탈퇴에 실패했습니다.');
       }
@@ -196,6 +220,9 @@ const AccountContent = () => {
       <Section>
         <SectionTitle>계정 관리</SectionTitle>
         <AccountManagement>
+          <div style={{ marginBottom: '1rem' }}>
+            <LogoutButton onClick={handleLogout}>로그아웃</LogoutButton>
+          </div>
           회원 탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다.
           <DeleteAccountButton onClick={handleDeleteAccount}>회원 탈퇴</DeleteAccountButton>
           {deleteError && <div style={{ color: 'red', marginTop: '0.5rem' }}>{deleteError}</div>}

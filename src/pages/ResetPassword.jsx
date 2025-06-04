@@ -223,6 +223,7 @@ const ResetPassword = () => {
       if (response.ok && (data.success === true || data.success === "true")) {
         setMessage("✅ 비밀번호가 성공적으로 재설정되었습니다. 로그인 해주세요.");
         setMsgType("success");
+        setTimeout(() => navigate("/login"), 1500);
       } else if (response.status === 401) {
         setMessage("⛔ 인증 토큰이 만료되었거나 유효하지 않습니다.");
         setMsgType("error");
