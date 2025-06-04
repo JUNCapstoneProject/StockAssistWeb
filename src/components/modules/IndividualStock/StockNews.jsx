@@ -23,7 +23,14 @@ const StockNews = ({ ticker }) => {
         // 뉴스 데이터가 있으면 무조건 보여주기
         const newsList = result.response?.news || [];
         if (newsList.length > 0) {
-          setNewsData(newsList.filter(news => news?.title && news?.link));
+          const convertedNewsData = newsList.filter(news => news?.title && news?.link).map(news => ({
+            ...news,
+            categories: news.categories.map(cat => ({
+              ...cat,
+              status: String(cat.aiScore) // aiScore를 문자열로 변환해서 status에 할당
+            }))
+          }));
+          setNewsData(convertedNewsData);
           setCurrentIndex(0);
           setError(null);
         } else if (!res.ok) {

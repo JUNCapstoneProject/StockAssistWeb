@@ -98,20 +98,18 @@ const AiAnalysis = () => {
             // 종목명과 상태 변환
             let category = '';
             let status = '';
+            let aiScore = '';
             if (Array.isArray(news.categories) && news.categories.length > 0) {
               category = news.categories.map(c => c.name).join(', ');
-              status = news.categories.map(c => {
-                if (c.status === '0' || c.status === 0) return '부정';
-                if (c.status === '1' || c.status === 1) return '보류';
-                if (c.status === '2' || c.status === 2) return '긍정';
-                return '중립';
-              }).join(', ');
+              status = news.categories.map(c => c.status).join(', ');
+              aiScore = news.categories.map(c => c.aiScore).join(', ');
             }
             return {
               ...news,
               link: news.url || news.link,
               category,
               status,
+              aiScore,
             };
           });
           setNewsData((prevData) =>
