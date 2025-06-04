@@ -16,32 +16,30 @@ const baseURL = import.meta.env.VITE_API_BASE_URL;
  */
 export const checkLoginStatusAPI = async () => {
   const token = localStorage.getItem("accessToken");
-  const hasRefreshToken = document.cookie.includes("refreshToken="); // ✅ 쿠키에 refreshToken 존재 여부 확인
+  const hasRefreshToken = document.cookie.includes("refreshToken=");
 
-  console.log("accessToken:", token);
-  console.log("refreshToken 존재 여부:", hasRefreshToken);
+  console.log("token:", token);
 
-  // ✅ accessToken이 없고 refreshToken이 있는 경우에만 refresh 시도
   if (!token && hasRefreshToken) {
+    // accessToken이 없으면 refreshToken(쿠키)로 바로 갱신 시도
     try {
       const refreshResponse = await axios.post(
         baseURL + "/api/auth/refresh",
         {},
-        {
+        { 
           withCredentials: true,
           headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            "destination": "assist",
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'destination': 'assist'
           },
-          credentials: "include",
+          credentials: 'include'
         }
       );
-
       if (refreshResponse.data?.success && refreshResponse.data?.response) {
         const newAccessToken = refreshResponse.data.response;
         localStorage.setItem("accessToken", newAccessToken);
-
+        // accessToken을 얻었으니 다시 check API 호출
         const checkResponse = await axiosInstance.get("/api/auth/check");
         return checkResponse.data?.success && checkResponse.data?.response?.isLogin;
       } else {
@@ -54,69 +52,103 @@ export const checkLoginStatusAPI = async () => {
     }
   }
 
-  // ✅ accessToken이 있는 경우 → /check 요청
   try {
     const response = await axiosInstance.get("/api/auth/check");
-
+    console.log("api/auth/check 응답:", response.data);
+    
+    // 새로운 응답 구조 처리
     if (response.data?.success && response.data?.response?.isLogin !== undefined) {
-      if (!response.data.response.isLogin && hasRefreshToken) {
-        // accessToken 있지만 서버는 만료되었다고 판단 → refresh 시도
-        const refreshResponse = await axios.post(
-          baseURL + "/api/auth/refresh",
-          {},
-          {
-            withCredentials: true,
-            headers: {
-              "Content-Type": "application/json",
-              "Accept": "application/json",
-              "destination": "assist",
-            },
-            credentials: "include",
+      if (!response.data.response.isLogin) {
+        console.warn("⛔ 로그인되지 않은 상태입니다. 토큰 갱신을 시도합니다.");
+        try {
+          console.log("현재 쿠키:", document.cookie);
+          // refresh API 호출 (직접 axios 사용)
+          const refreshResponse = await axios.post(
+            baseURL + "/api/auth/refresh",
+            {},
+            { 
+              withCredentials: true,
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'destination': 'assist'
+              },
+              credentials: 'include'
+            }
+          );
+          
+          console.log("refresh API 응답 전체:", refreshResponse);
+          console.log("refresh API 응답 데이터:", refreshResponse.data);
+          console.log("refresh API 응답 구조:", {
+            success: refreshResponse.data?.success,
+            accessToken: refreshResponse.data?.accessToken,
+            response: refreshResponse.data?.response
+          });
+          
+          if (refreshResponse.data?.success && refreshResponse.data?.response) {
+            // Bearer 접두사가 포함된 토큰을 그대로 저장
+            const newAccessToken = refreshResponse.data.response;
+            localStorage.setItem("accessToken", newAccessToken);
+            // check API를 다시 호출
+            const checkResponse = await axiosInstance.get("/api/auth/check");
+            return checkResponse.data?.success && checkResponse.data?.response?.isLogin;
+          } else {
+            throw new Error(refreshResponse.data?.message || "토큰 갱신 실패");
           }
-        );
-
-        if (refreshResponse.data?.success && refreshResponse.data?.response) {
-          const newAccessToken = refreshResponse.data.response;
-          localStorage.setItem("accessToken", newAccessToken);
-          const checkResponse = await axiosInstance.get("/api/auth/check");
-          return checkResponse.data?.success && checkResponse.data?.response?.isLogin;
+        } catch (refreshError) {
+          console.error("🚨 토큰 갱신 실패:", refreshError.response?.data || refreshError);
+          localStorage.removeItem("accessToken");
+          return false;
         }
       }
-
       return response.data.response.isLogin;
     }
 
     return false;
   } catch (error) {
-    if (error.response?.status === 401 && hasRefreshToken) {
-      // 유효하지 않은 accessToken → refresh 시도
+    if (error.response?.status === 401) {
+      console.warn("⛔ 유효하지 않은 토큰입니다. 토큰 갱신을 시도합니다.");
       try {
+        console.log("현재 쿠키:", document.cookie);
+        // refresh API 호출 (직접 axios 사용)
         const refreshResponse = await axios.post(
           baseURL + "/api/auth/refresh",
           {},
-          {
+          { 
             withCredentials: true,
             headers: {
-              "Content-Type": "application/json",
-              "Accept": "application/json",
-              "destination": "assist",
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'destination': 'assist'
             },
-            credentials: "include",
+            credentials: 'include'
           }
         );
-
+        
+        console.log("refresh API 응답 전체:", refreshResponse);
+        console.log("refresh API 응답 데이터:", refreshResponse.data);
+        console.log("refresh API 응답 구조:", {
+          success: refreshResponse.data?.success,
+          accessToken: refreshResponse.data?.accessToken,
+          response: refreshResponse.data?.response
+        });
+        
         if (refreshResponse.data?.success && refreshResponse.data?.response) {
+          // Bearer 접두사가 포함된 토큰을 그대로 저장
           const newAccessToken = refreshResponse.data.response;
           localStorage.setItem("accessToken", newAccessToken);
+          // check API를 다시 호출
           const checkResponse = await axiosInstance.get("/api/auth/check");
           return checkResponse.data?.success && checkResponse.data?.response?.isLogin;
+        } else {
+          console.error("🚨 토큰 갱신 실패:", refreshResponse.data?.message || "알 수 없는 오류");
         }
       } catch (refreshError) {
-        console.error("🚨 refreshToken 만료 또는 오류:", refreshError);
+        console.error("🚨 토큰 갱신 실패:", refreshError);
       }
+    } else {
+      console.error("🚨 서버 오류 발생:", error);
     }
-
-    console.error("🚨 로그인 상태 확인 실패:", error);
     return false;
   }
 };
