@@ -14,38 +14,34 @@ const baseURL = import.meta.env.VITE_API_BASE_URL;
  * - App.jsx (앱 시작 시)
  * - Navbar.jsx (처음 렌더링 시)
  */
-export const checkLoginStatusAPI = async () => {
+export const checkLoginStatusAPI = async ({ allowRefresh = false } = {}) => {
   const token = localStorage.getItem("accessToken");
-  console.log("token:", token);
 
   if (!token) {
-    // accessToken이 없으면 refreshToken(쿠키)로 바로 갱신 시도
+    if (!allowRefresh) {
+      console.log("🚫 accessToken 없음 & refresh 비허용 → false 반환");
+      return false;
+    }
+
     try {
-      const refreshResponse = await axios.post(
-        baseURL + "/api/auth/refresh",
-        {},
-        { 
-          withCredentials: true,
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'destination': 'assist'
-          },
-          credentials: 'include'
-        }
-      );
+      const refreshResponse = await axios.post(baseURL + "/api/auth/refresh", {}, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'destination': 'assist'
+        },
+        credentials: 'include'
+      });
+
       if (refreshResponse.data?.success && refreshResponse.data?.response) {
         const newAccessToken = refreshResponse.data.response;
         localStorage.setItem("accessToken", newAccessToken);
-        // accessToken을 얻었으니 다시 check API 호출
         const checkResponse = await axiosInstance.get("/api/auth/check");
         return checkResponse.data?.success && checkResponse.data?.response?.isLogin;
-      } else {
-        throw new Error(refreshResponse.data?.message || "토큰 갱신 실패");
       }
-    } catch (refreshError) {
-      console.error("🚨 토큰 갱신 실패:", refreshError.response?.data || refreshError);
-      localStorage.removeItem("accessToken");
+    } catch (err) {
+      console.error("🚨 refresh 실패:", err);
       return false;
     }
   }

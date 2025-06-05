@@ -42,7 +42,7 @@ function App() {
     const token = localStorage.getItem("accessToken");
 
     const cameFromExternal =
-      document.referrer && !document.referrer.includes(location.origin);
+      document.referrer === "" || !document.referrer.includes(location.origin);
 
     (async () => {
       if (isPageRefresh) {
@@ -53,7 +53,7 @@ function App() {
         if (cameFromExternal || token) {
           try {
             console.log("새로고침 + 외부 유입 or token 존재: 로그인 상태 체크 시작");
-            const loggedIn = await checkLoginStatusAPI();
+            const loggedIn = await checkLoginStatusAPI({ allowRefresh: cameFromExternal });
             console.log("로그인 상태 체크 결과:", loggedIn);
             dispatch(setLoginStatus(loggedIn));
           } catch (err) {
@@ -65,7 +65,6 @@ function App() {
           dispatch(setLoginStatus(false));
         }
       } else {
-        // 페이지 이동: accessToken 있는 경우만 신뢰
         if (token) {
           dispatch(setAccessToken(token));
           dispatch(setLoginStatus(true));
@@ -81,8 +80,8 @@ function App() {
   return (
     <Router>
       <div className="App">
-        <RouteWatcher /> {/* 라우트 변경 감시 컴포넌트 */}
-        <Navbar /> {/* 네비게이션 바 컴포넌트 */}
+        <RouteWatcher />
+        <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/mypage" element={<MyPage />} />
