@@ -1,11 +1,13 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import RouteWatcher from "./components/common/RouterWatcher";
-import LoginPage from "./pages/LoginPage";
-import SignupPage from "./pages/SignupPage";
+import {
+  setLoginStatus,
+  setAccessToken,
+} from "./redux/features/auth/authSlice";
+import { checkLoginStatusAPI } from "./redux/features/auth/authAPI";
 
-// 레이아웃 컴포넌트
+import RouteWatcher from "./components/common/RouterWatcher";
 import Navbar from "./components/layout/navbar";
 
 // 페이지 컴포넌트들
@@ -23,57 +25,53 @@ import MyPage from "./pages/MyPage";
 import FindPassword from "./pages/FindPassword";
 import ResetPassword from "./pages/ResetPassword";
 import StockAnalysis from "./pages/StockAnalysis";
-
-// Redux 관련 import
-import {
-  setLoginStatus,
-  setAccessToken,
-} from "./redux/features/auth/authSlice";
-import { checkLoginStatusAPI } from "./redux/features/auth/authAPI";
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
 
 import "./App.css";
 
 function App() {
   const dispatch = useDispatch();
 
-useEffect(() => {
-  const navigationEntries = performance.getEntriesByType("navigation");
-  const navigationType = navigationEntries[0]?.type;
-  const isPageRefresh = navigationType === "reload";
-  const token = localStorage.getItem("accessToken");
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
 
-  const cameFromExternal =
-    document.referrer === "" || !document.referrer.includes(location.origin);
+    // 외부 유입인지 판단
+    const cameFromExternal =
+      document.referrer === "" || !document.referrer.includes(location.origin);
 
-  (async () => {
-    if (cameFromExternal || isPageRefresh) {
-      // ✅ 외부 유입이든 새로고침이든 검사 수행
-      if (token) {
-        dispatch(setAccessToken(token));
-      }
+    // 브라우저 새로고침 여부 확인
+    const navigationEntries = performance.getEntriesByType("navigation");
+    const isPageRefresh = navigationEntries[0]?.type === "reload";
 
-      try {
-        console.log("외부 유입 or 새로고침: 로그인 상태 체크 시작");
-        const loggedIn = await checkLoginStatusAPI({ allowRefresh: cameFromExternal });
-        console.log("로그인 상태 체크 결과:", loggedIn);
+    (async () => {
+      if (cameFromExternal) {
+        console.log("✅ 외부 유입 감지 → refresh 허용 상태로 로그인 체크");
+        const loggedIn = await checkLoginStatusAPI({ allowRefresh: true });
         dispatch(setLoginStatus(loggedIn));
-      } catch (err) {
-        console.error("로그인 상태 확인 실패:", err);
-        dispatch(setLoginStatus(false));
+        if (token) dispatch(setAccessToken(token));
+        return;
       }
-    } else {
-      // 내부 페이지 이동
+
+      if (isPageRefresh) {
+        console.log("🔄 새로고침 감지 → 로그인 체크");
+        if (token) dispatch(setAccessToken(token));
+        const loggedIn = await checkLoginStatusAPI({ allowRefresh: false });
+        dispatch(setLoginStatus(loggedIn));
+        return;
+      }
+
+      // 내부 라우팅
       if (token) {
         dispatch(setAccessToken(token));
         dispatch(setLoginStatus(true));
-        console.log("페이지 이동: localStorage 토큰 존재 → 로그인 상태 유지");
+        console.log("➡️ 내부 이동 → 토큰으로 로그인 유지");
       } else {
         dispatch(setLoginStatus(false));
-        console.log("페이지 이동: localStorage 토큰 없음 → 비로그인 상태");
+        console.log("🚫 내부 이동 → 토큰 없음, 로그인 false");
       }
-    }
-  })();
-}, [dispatch]);
+    })();
+  }, [dispatch]);
 
   return (
     <Router>
