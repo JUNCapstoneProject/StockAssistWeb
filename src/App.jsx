@@ -36,46 +36,44 @@ import "./App.css";
 function App() {
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    const navigationEntries = performance.getEntriesByType("navigation");
-    const isPageRefresh = navigationEntries[0]?.type === "reload";
-    const token = localStorage.getItem("accessToken");
+useEffect(() => {
+  const navigationEntries = performance.getEntriesByType("navigation");
+  const navigationType = navigationEntries[0]?.type;
+  const isPageRefresh = navigationType === "reload";
+  const token = localStorage.getItem("accessToken");
 
-    const cameFromExternal =
-      document.referrer === "" || !document.referrer.includes(location.origin);
+  const cameFromExternal =
+    document.referrer === "" || !document.referrer.includes(location.origin);
 
-    (async () => {
-      if (isPageRefresh) {
-        if (token) {
-          dispatch(setAccessToken(token));
-        }
-
-        if (cameFromExternal || token) {
-          try {
-            console.log("새로고침 + 외부 유입 or token 존재: 로그인 상태 체크 시작");
-            const loggedIn = await checkLoginStatusAPI({ allowRefresh: cameFromExternal });
-            console.log("로그인 상태 체크 결과:", loggedIn);
-            dispatch(setLoginStatus(loggedIn));
-          } catch (err) {
-            console.error("로그인 상태 확인 실패:", err);
-            dispatch(setLoginStatus(false));
-          }
-        } else {
-          console.log("내부 새로고침 & accessToken 없음 → 로그인 상태 false로 설정");
-          dispatch(setLoginStatus(false));
-        }
-      } else {
-        if (token) {
-          dispatch(setAccessToken(token));
-          dispatch(setLoginStatus(true));
-          console.log("페이지 이동: localStorage 토큰 존재하여 로그인 상태 유지");
-        } else {
-          dispatch(setLoginStatus(false));
-          console.log("페이지 이동: localStorage 토큰 없음");
-        }
+  (async () => {
+    if (cameFromExternal || isPageRefresh) {
+      // ✅ 외부 유입이든 새로고침이든 검사 수행
+      if (token) {
+        dispatch(setAccessToken(token));
       }
-    })();
-  }, [dispatch]);
+
+      try {
+        console.log("외부 유입 or 새로고침: 로그인 상태 체크 시작");
+        const loggedIn = await checkLoginStatusAPI({ allowRefresh: cameFromExternal });
+        console.log("로그인 상태 체크 결과:", loggedIn);
+        dispatch(setLoginStatus(loggedIn));
+      } catch (err) {
+        console.error("로그인 상태 확인 실패:", err);
+        dispatch(setLoginStatus(false));
+      }
+    } else {
+      // 내부 페이지 이동
+      if (token) {
+        dispatch(setAccessToken(token));
+        dispatch(setLoginStatus(true));
+        console.log("페이지 이동: localStorage 토큰 존재 → 로그인 상태 유지");
+      } else {
+        dispatch(setLoginStatus(false));
+        console.log("페이지 이동: localStorage 토큰 없음 → 비로그인 상태");
+      }
+    }
+  })();
+}, [dispatch]);
 
   return (
     <Router>
