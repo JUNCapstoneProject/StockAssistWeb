@@ -16,11 +16,9 @@ const baseURL = import.meta.env.VITE_API_BASE_URL;
  */
 export const checkLoginStatusAPI = async () => {
   const token = localStorage.getItem("accessToken");
-  const hasRefreshToken = document.cookie.includes("refreshToken=");
-
   console.log("token:", token);
 
-  if (!token && hasRefreshToken) {
+  if (!token) {
     // accessToken이 없으면 refreshToken(쿠키)로 바로 갱신 시도
     try {
       const refreshResponse = await axios.post(
@@ -50,9 +48,6 @@ export const checkLoginStatusAPI = async () => {
       localStorage.removeItem("accessToken");
       return false;
     }
-  } else if (!token && !hasRefreshToken) {
-    // accessToken, refreshToken 모두 없으면 바로 false 반환
-    return false;
   }
 
   try {
@@ -62,10 +57,7 @@ export const checkLoginStatusAPI = async () => {
     // 새로운 응답 구조 처리
     if (response.data?.success && response.data?.response?.isLogin !== undefined) {
       if (!response.data.response.isLogin) {
-        if (!hasRefreshToken) {
-          // refreshToken 없으면 바로 false 반환
-          return false;
-        }
+        console.warn("⛔ 로그인되지 않은 상태입니다. 토큰 갱신을 시도합니다.");
         try {
           console.log("현재 쿠키:", document.cookie);
           // refresh API 호출 (직접 axios 사용)
@@ -113,10 +105,7 @@ export const checkLoginStatusAPI = async () => {
     return false;
   } catch (error) {
     if (error.response?.status === 401) {
-      if (!hasRefreshToken) {
-        // refreshToken 없으면 바로 false 반환
-        return false;
-      }
+      console.warn("⛔ 유효하지 않은 토큰입니다. 토큰 갱신을 시도합니다.");
       try {
         console.log("현재 쿠키:", document.cookie);
         // refresh API 호출 (직접 axios 사용)
