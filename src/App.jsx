@@ -2,9 +2,13 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import RouteWatcher from "./components/common/RouterWatcher";
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
+
+// 레이아웃 컴포넌트
 import Navbar from "./components/layout/navbar";
 
-// 페이지 컴포넌트
+// 페이지 컴포넌트들
 import Home from "./pages/Home";
 import MyPortfolioUnlink from "./pages/MyPortfolioUnlink";
 import MyPortfolioLink from "./pages/MyPortfolioLink";
@@ -16,12 +20,11 @@ import ReportDetail from "./pages/ReportDetail";
 import ReportEdit from "./pages/ReportEdit";
 import ReportCreate from "./pages/ReportCreate";
 import MyPage from "./pages/MyPage";
-import LoginPage from "./pages/LoginPage";
-import SignupPage from "./pages/SignupPage";
 import FindPassword from "./pages/FindPassword";
 import ResetPassword from "./pages/ResetPassword";
 import StockAnalysis from "./pages/StockAnalysis";
 
+// Redux 관련 import
 import {
   setLoginStatus,
   setAccessToken,
@@ -35,32 +38,41 @@ function App() {
 
   useEffect(() => {
     const navigationEntries = performance.getEntriesByType("navigation");
-    const navType = navigationEntries[0]?.type;
+    const isPageRefresh = navigationEntries[0]?.type === "reload";
     const token = localStorage.getItem("accessToken");
-    const isExternal = document.referrer && !document.referrer.startsWith(window.location.origin);
+
+    const cameFromExternal =
+      document.referrer && !document.referrer.includes(location.origin);
 
     (async () => {
-      if (navType === "navigate" && (isExternal || navType === "reload")) {
+      if (isPageRefresh) {
         if (token) {
           dispatch(setAccessToken(token));
         }
-        try {
-          console.log("외부 유입/새로고침: 로그인 상태 체크 시작");
-          const loggedIn = await checkLoginStatusAPI();
-          console.log("로그인 상태 체크 결과:", loggedIn);
-          dispatch(setLoginStatus(loggedIn));
-        } catch (err) {
-          console.error("로그인 상태 확인 실패:", err);
+
+        if (cameFromExternal || token) {
+          try {
+            console.log("새로고침 + 외부 유입 or token 존재: 로그인 상태 체크 시작");
+            const loggedIn = await checkLoginStatusAPI();
+            console.log("로그인 상태 체크 결과:", loggedIn);
+            dispatch(setLoginStatus(loggedIn));
+          } catch (err) {
+            console.error("로그인 상태 확인 실패:", err);
+            dispatch(setLoginStatus(false));
+          }
+        } else {
+          console.log("내부 새로고침 & accessToken 없음 → 로그인 상태 false로 설정");
           dispatch(setLoginStatus(false));
         }
       } else {
+        // 페이지 이동: accessToken 있는 경우만 신뢰
         if (token) {
           dispatch(setAccessToken(token));
           dispatch(setLoginStatus(true));
-          console.log("내부 이동: accessToken 존재, 로그인 상태 유지");
+          console.log("페이지 이동: localStorage 토큰 존재하여 로그인 상태 유지");
         } else {
           dispatch(setLoginStatus(false));
-          console.log("내부 이동: accessToken 없음, 로그인 상태 false");
+          console.log("페이지 이동: localStorage 토큰 없음");
         }
       }
     })();
@@ -69,8 +81,8 @@ function App() {
   return (
     <Router>
       <div className="App">
-        <RouteWatcher />
-        <Navbar />
+        <RouteWatcher /> {/* 라우트 변경 감시 컴포넌트 */}
+        <Navbar /> {/* 네비게이션 바 컴포넌트 */}
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/mypage" element={<MyPage />} />
