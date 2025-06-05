@@ -50,6 +50,9 @@ export const checkLoginStatusAPI = async () => {
       localStorage.removeItem("accessToken");
       return false;
     }
+  } else if (!token && !hasRefreshToken) {
+    // accessToken, refreshToken 모두 없으면 바로 false 반환
+    return false;
   }
 
   try {
@@ -59,7 +62,10 @@ export const checkLoginStatusAPI = async () => {
     // 새로운 응답 구조 처리
     if (response.data?.success && response.data?.response?.isLogin !== undefined) {
       if (!response.data.response.isLogin) {
-        console.warn("⛔ 로그인되지 않은 상태입니다. 토큰 갱신을 시도합니다.");
+        if (!hasRefreshToken) {
+          // refreshToken 없으면 바로 false 반환
+          return false;
+        }
         try {
           console.log("현재 쿠키:", document.cookie);
           // refresh API 호출 (직접 axios 사용)
@@ -107,7 +113,10 @@ export const checkLoginStatusAPI = async () => {
     return false;
   } catch (error) {
     if (error.response?.status === 401) {
-      console.warn("⛔ 유효하지 않은 토큰입니다. 토큰 갱신을 시도합니다.");
+      if (!hasRefreshToken) {
+        // refreshToken 없으면 바로 false 반환
+        return false;
+      }
       try {
         console.log("현재 쿠키:", document.cookie);
         // refresh API 호출 (직접 axios 사용)
