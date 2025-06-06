@@ -166,7 +166,6 @@ const Navbar = () => {
         </a>
         {/* 데스크탑용 메뉴 */}
         <div className="nav-links desktop-menu">
-          <a href="/">홈</a>
           <a href="/ai-analysis">AI 투자 분석</a>
           <a href="/stock-analysis">주식 분석</a>
           <a href="/report">리포트</a>
@@ -362,7 +361,6 @@ const Navbar = () => {
               종목 검색
             </a>
           )}
-          <a href="/">홈</a>
           <a href="/ai-analysis">AI 투자 분석</a>
           <a href="/stock-analysis">주식 분석</a> 
           <a href="/report">리포트</a>
