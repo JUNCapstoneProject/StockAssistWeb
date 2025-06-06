@@ -201,7 +201,7 @@ const AiAnalysis = () => {
         setStockSuggestions([]);
         setShowSuggestions(false);
       }
-    } catch (_) {
+    } catch (err) { // eslint-disable-line no-unused-vars
       setStockSuggestions([]);
       setShowSuggestions(false);
     }
