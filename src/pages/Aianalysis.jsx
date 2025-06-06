@@ -201,7 +201,7 @@ const AiAnalysis = () => {
         setStockSuggestions([]);
         setShowSuggestions(false);
       }
-    } catch (err) {
+    } catch (_) {
       setStockSuggestions([]);
       setShowSuggestions(false);
     }
