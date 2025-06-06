@@ -44,6 +44,7 @@ const ReportDetail = () => {
             headers: {
               "Authorization": `Bearer ${accessToken}`,
               "Content-Type": "application/json",
+              "Destination": "assist"
             }
           }
         );
