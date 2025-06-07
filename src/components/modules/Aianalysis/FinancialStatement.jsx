@@ -1,31 +1,51 @@
+// ✅ FinancialStatementPage.jsx
 import React, { useState, useEffect } from "react";
 import FinancialCard from "../../../components/common/FinancialCard";
 import styled from "styled-components";
 import fetchWithAssist from '../../../fetchWithAssist';
 
-const FinancialStatementPage = ({ initialPage, onPageChange }) => {
+const FinancialStatementPage = ({ initialPage, onPageChange, selectedSort, selectedSentiment }) => {
   const [activeTabs, setActiveTabs] = useState({});
   const [financialData, setFinancialData] = useState([]);
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [hasNext, setHasNext] = useState(false);
   const itemsPerPage = 3;
 
-  useEffect(() => {
-    fetchFinancialData(currentPage);
-  }, [currentPage]);
+  const [sortBy, setSortBy] = useState("");
+  const [sortOrder, setSortOrder] = useState("");
 
-  const fetchFinancialData = async (page) => {
+  // split selectedSort into sortBy and sortOrder
+  useEffect(() => {
+    if (selectedSort) {
+      const [by, order] = selectedSort.split("_");
+      setSortBy(by);
+      setSortOrder(order);
+    } else {
+      setSortBy("");
+      setSortOrder("");
+    }
+  }, [selectedSort]);
+
+  useEffect(() => {
+    fetchFinancialData(currentPage, sortBy, sortOrder, selectedSentiment);
+  }, [currentPage, sortBy, sortOrder, selectedSentiment]);
+
+  const fetchFinancialData = async (page, sortBy, sortOrder, sentiment) => {
     try {
-      console.log("Fetching data for page:", page); // 디버깅용 로그
       const baseURL = import.meta.env.VITE_API_BASE_URL;
+      const query = new URLSearchParams({
+        page: page.toString(),
+        size: itemsPerPage.toString(),
+        ...(sortBy && { sortBy }),
+        ...(sortOrder && { sort: sortOrder }),
+        ...(sentiment !== "all" && { sentiment })
+      }).toString();
+
       const response = await fetchWithAssist(
-        `${baseURL}/api/financial?page=${page}&size=${itemsPerPage}`,
-        {
-          credentials: "include",
-        }
+        `${baseURL}/api/financial?${query}`,
+        { credentials: "include" }
       );
       const result = await response.json();
-      console.log("API Response:", result); // 디버깅용 로그
 
       if (result.success && result.response) {
         const stocks = result.response.financials;
@@ -46,10 +66,7 @@ const FinancialStatementPage = ({ initialPage, onPageChange }) => {
   };
 
   const handleTabChange = (ticker, tab) => {
-    setActiveTabs((prev) => ({
-      ...prev,
-      [ticker]: tab,
-    }));
+    setActiveTabs((prev) => ({ ...prev, [ticker]: tab }));
   };
 
   const handlePageChange = (pageNumber) => {
