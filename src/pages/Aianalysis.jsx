@@ -205,7 +205,7 @@ const [selectedSort, setSelectedSort] = useState("");  // ✅ ""로 변경
         setStockSuggestions([]);
         setShowSuggestions(false);
       }
-    } catch (err) {
+    } catch (error) { // eslint-disable-line no-console
       setStockSuggestions([]);
       setShowSuggestions(false);
     }
