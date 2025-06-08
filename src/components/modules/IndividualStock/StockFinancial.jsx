@@ -6,7 +6,7 @@ import fetchWithAssist from '../../../fetchWithAssist';
 
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
-const StockFinancial = ({ ticker: propSymbol, name: propName, wishlist, setWishlist }) => {
+const StockFinancial = ({ ticker: propSymbol, name: propName }) => {
   const { symbol: routeSymbol } = useParams();
   const location = useLocation();
   const symbol = propSymbol || routeSymbol;
@@ -43,45 +43,6 @@ const StockFinancial = ({ ticker: propSymbol, name: propName, wishlist, setWishl
 
     fetchData();
   }, [cleanSymbol]);
-
-  const toggleWishlist = async () => {
-    const token = localStorage.getItem("accessToken");
-    const isFav = wishlist[cleanSymbol];
-
-    try {
-      if (!isFav) {
-        const res = await fetch('/api/wishlist', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `${token}`,
-            "Destination": "assist"
-          },
-          body: JSON.stringify({ symbol: cleanSymbol })
-        });
-        const result = await res.json();
-        if (result.success) {
-          setWishlist(prev => ({ ...prev, [cleanSymbol]: true }));
-          window.location.reload();
-        }
-      } else {
-        const res = await fetch(`/api/wishlist/${cleanSymbol}`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `${token}`,
-            "Destination": "assist"
-          }
-        });
-        const result = await res.json();
-        if (result.success) {
-          setWishlist(prev => ({ ...prev, [cleanSymbol]: false }));
-          window.location.reload();
-        }
-      }
-    } catch (err) {
-      console.error("📌 찜 처리 실패:", err);
-    }
-  };
 
   if (isLoading) return <Wrapper>로딩 중...</Wrapper>;
   if (!stock) {
