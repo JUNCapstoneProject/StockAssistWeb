@@ -17,6 +17,7 @@ const ContentList = ({ data, currentPage, hasNext, onPageChange, onItemClick }) 
   const listRef = useRef(null);
   const width = useWindowWidth();
   const isMobile = width <= 768;
+  const [, forceUpdate] = useState(0);
 
   const reportType = searchParams.get("type");
   const isReportPage = window.location.pathname === '/report';
@@ -53,6 +54,7 @@ const ContentList = ({ data, currentPage, hasNext, onPageChange, onItemClick }) 
     const symbol = item.id || (item.categories && item.categories[0]?.name);
     if (!symbol) return;
 
+    let wishedValue = !item.wished;
     try {
       if (!item.wished) {
         const res = await fetch('/api/wishlist', {
@@ -66,7 +68,7 @@ const ContentList = ({ data, currentPage, hasNext, onPageChange, onItemClick }) 
         });
         const result = await res.json();
         if (result.success) {
-          item.wished = true;
+          wishedValue = true;
         }
       } else {
         const res = await fetch(`/api/wishlist/${symbol}`, {
@@ -78,15 +80,26 @@ const ContentList = ({ data, currentPage, hasNext, onPageChange, onItemClick }) 
         });
         const result = await res.json();
         if (result.success) {
-          item.wished = false;
+          wishedValue = false;
         }
       }
     } catch (err) {
       console.error("찜 처리 오류:", err);
     }
+    // 같은 종목(카테고리)이면 모두 하트 상태 변경
+    if (item.category) {
+      data.forEach(news => {
+        if (news.category === item.category) {
+          news.wished = wishedValue;
+        }
+      });
+    } else {
+      item.wished = wishedValue;
+    }
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new Event('forceUpdate'));
     }
+    forceUpdate(n => n + 1);
   };
 
   return (
