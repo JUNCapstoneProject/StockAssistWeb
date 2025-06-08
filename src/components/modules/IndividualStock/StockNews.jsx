@@ -6,6 +6,7 @@ import fetchWithAssist from '../../../fetchWithAssist';
 const StockNews = ({ ticker, wishlist, setWishlist }) => {
   const { state } = useLocation();
   const stockName = state?.name || ticker;
+  const cleanSymbol = ticker?.replace(':', '');
 
   const [newsData, setNewsData] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -17,7 +18,7 @@ const StockNews = ({ ticker, wishlist, setWishlist }) => {
       setIsLoading(true);
       try {
         const baseURL = import.meta.env.VITE_API_BASE_URL;
-        const res = await fetchWithAssist(`${baseURL}/api/news?page=1&limit=100&category=${ticker}`);
+        const res = await fetchWithAssist(`${baseURL}/api/news?page=1&limit=100&category=${cleanSymbol}`);
         const result = await res.json();
 
         const newsList = result.response?.news || [];
@@ -48,13 +49,13 @@ const StockNews = ({ ticker, wishlist, setWishlist }) => {
       }
     };
 
-    if (ticker) fetchNews();
-  }, [ticker]);
+    if (cleanSymbol) fetchNews();
+  }, [cleanSymbol]);
 
   const toggleWishlist = async (e, symbol) => {
     e.stopPropagation();
     const token = localStorage.getItem("accessToken");
-    const isFav = wishlist[symbol];
+    const isFav = wishlist[cleanSymbol];
 
     try {
       if (!isFav) {
@@ -65,12 +66,12 @@ const StockNews = ({ ticker, wishlist, setWishlist }) => {
             'Authorization': `${token}`,
             "Destination": "assist"
           },
-          body: JSON.stringify({ symbol })
+          body: JSON.stringify({ symbol: cleanSymbol })
         });
         const result = await res.json();
-        if (result.success) setWishlist(prev => ({ ...prev, [symbol]: true }));
+        if (result.success) setWishlist(prev => ({ ...prev, [cleanSymbol]: true }));
       } else {
-        const res = await fetch(`/api/wishlist/${symbol}`, {
+        const res = await fetch(`/api/wishlist/${cleanSymbol}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `${token}`,
@@ -78,7 +79,7 @@ const StockNews = ({ ticker, wishlist, setWishlist }) => {
           }
         });
         const result = await res.json();
-        if (result.success) setWishlist(prev => ({ ...prev, [symbol]: false }));
+        if (result.success) setWishlist(prev => ({ ...prev, [cleanSymbol]: false }));
       }
     } catch (err) {
       console.error("찜 처리 오류:", err);
@@ -121,8 +122,8 @@ const StockNews = ({ ticker, wishlist, setWishlist }) => {
                         : "알수없음"}
                     </StatusBadge>
                     <HeartIcon
-                      $active={wishlist[cat.name] || cat.wished}
-                      onClick={(e) => toggleWishlist(e, cat.name)}
+                      $active={wishlist[cleanSymbol] || cat.wished}
+                      onClick={(e) => toggleWishlist(e, cleanSymbol)}
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 24 24"
                       strokeWidth="1.5"
@@ -143,6 +144,23 @@ const StockNews = ({ ticker, wishlist, setWishlist }) => {
                 <CategoryInfo>
                   <Category>카테고리 없음</Category>
                   <StatusBadge $status={"0"}>중립</StatusBadge>
+                  <HeartIcon
+                    $active={wishlist[cleanSymbol]}
+                    onClick={(e) => toggleWishlist(e, cleanSymbol)}
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5
+                        -1.935 0-3.597 1.126-4.312 2.733
+                        -.715-1.607-2.377-2.733-4.313-2.733
+                        C5.1 3.75 3 5.765 3 8.25
+                        c0 7.22 9 12 9 12s9-4.78 9-12Z"
+                    />
+                  </HeartIcon>
                 </CategoryInfo>
               )}
               <Title>{news.title}</Title>

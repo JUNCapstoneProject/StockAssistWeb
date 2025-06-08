@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 const useWindowWidth = () => {
@@ -14,6 +14,7 @@ const useWindowWidth = () => {
 
 const ContentList = ({ data, currentPage, hasNext, onPageChange, onItemClick }) => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const listRef = useRef(null);
   const width = useWindowWidth();
   const isMobile = width <= 768;
@@ -51,6 +52,13 @@ const ContentList = ({ data, currentPage, hasNext, onPageChange, onItemClick }) 
   const handleWishlistToggle = async (e, item) => {
     e.stopPropagation(); // 카드 클릭 방지
     const token = localStorage.getItem("accessToken");
+    
+    if (!token) {
+      const currentPath = window.location.pathname + window.location.search;
+      navigate(`/login?redirectUrl=${encodeURIComponent(currentPath)}`);
+      return;
+    }
+
     const symbol = item.id || (item.categories && item.categories[0]?.name);
     if (!symbol) return;
 

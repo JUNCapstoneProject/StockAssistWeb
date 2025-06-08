@@ -9,15 +9,15 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { selectIsLoggedIn } from '../../redux/features/auth/authSelectors';
 
-const FinancialCard = ({ stock, activeTab, onTabChange }) => {
+const FinancialCard = ({ stock, activeTab, onTabChange, wishlist, setWishlist }) => {
   const navigate = useNavigate();
   const isLoggedIn = useSelector(selectIsLoggedIn);
   const statusText = stock.status === 1 ? "긍정" : "부정";
-  const [isWishlisted, setIsWishlisted] = useState(stock.wished || false);
+  const [isWishlisted, setIsWishlisted] = useState(wishlist?.[stock.ticker] || stock.wished || false);
 
   useEffect(() => {
-    setIsWishlisted(stock.wished || false);
-  }, [stock.wished]);
+    setIsWishlisted(wishlist?.[stock.ticker] || stock.wished || false);
+  }, [wishlist, stock.ticker, stock.wished]);
 
   const handleCardClick = () => {
     navigate(`/stock/${stock.ticker}`, { state: { name: stock.name } });
@@ -46,7 +46,10 @@ const FinancialCard = ({ stock, activeTab, onTabChange }) => {
           body: JSON.stringify({ symbol }),
         });
         const result = await res.json();
-        if (result.success) setIsWishlisted(true);
+        if (result.success) {
+          setIsWishlisted(true);
+          setWishlist?.(prev => ({ ...prev, [symbol]: true }));
+        }
       } else {
         const res = await fetch(`/api/wishlist/${symbol}`, {
           method: 'DELETE',
@@ -56,7 +59,10 @@ const FinancialCard = ({ stock, activeTab, onTabChange }) => {
           },
         });
         const result = await res.json();
-        if (result.success) setIsWishlisted(false);
+        if (result.success) {
+          setIsWishlisted(false);
+          setWishlist?.(prev => ({ ...prev, [symbol]: false }));
+        }
       }
     } catch (err) {
       console.error("찜 처리 오류:", err);
