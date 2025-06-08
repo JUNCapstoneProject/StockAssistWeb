@@ -23,14 +23,16 @@ const StockNews = ({ ticker, wishlist, setWishlist }) => {
 
         const newsList = result.response?.news || [];
         if (newsList.length > 0) {
-          const convertedNewsData = newsList.filter(news => news?.title && news?.link).map(news => ({
-            ...news,
-            categories: news.categories.map(cat => ({
-              ...cat,
-              status: String(cat.aiScore),
-              wished: cat.wished || false
-            }))
-          }));
+          const convertedNewsData = newsList
+            .filter(news => news?.title && news?.link)
+            .map(news => ({
+              ...news,
+              categories: news.categories.map(cat => ({
+                ...cat,
+                status: String(cat.aiScore),
+                wished: cat.wished || false
+              }))
+            }));
           setNewsData(convertedNewsData);
           setCurrentIndex(0);
           setError(null);
@@ -55,41 +57,41 @@ const StockNews = ({ ticker, wishlist, setWishlist }) => {
   const toggleWishlist = async (e, symbol) => {
     e.stopPropagation();
     const token = localStorage.getItem("accessToken");
-    
+
     if (!token) {
       navigate('/login', { state: { from: window.location.pathname } });
       return;
     }
 
-    const isFav = wishlist[symbol];
+    const isAlreadyWished = wishlist?.[symbol];
 
     try {
-      if (!isFav) {
+      if (isAlreadyWished) {
+        const res = await fetch(`/api/wishlist/${symbol}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `${token}`,
+            'Destination': 'assist'
+          },
+        });
+        const result = await res.json();
+        if (result.success) {
+          setWishlist(prev => ({ ...prev, [symbol]: false }));
+          window.location.reload();
+        }
+      } else {
         const res = await fetch('/api/wishlist', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `${token}`,
-            "Destination": "assist"
+            'Destination': 'assist'
           },
-          body: JSON.stringify({ symbol })
+          body: JSON.stringify({ symbol }),
         });
         const result = await res.json();
         if (result.success) {
           setWishlist(prev => ({ ...prev, [symbol]: true }));
-          window.location.reload();
-        }
-      } else {
-        const res = await fetch(`/api/wishlist/${symbol}`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `${token}`,
-            "Destination": "assist"
-          }
-        });
-        const result = await res.json();
-        if (result.success) {
-          setWishlist(prev => ({ ...prev, [symbol]: false }));
           window.location.reload();
         }
       }
@@ -98,13 +100,8 @@ const StockNews = ({ ticker, wishlist, setWishlist }) => {
     }
   };
 
-  const handlePrev = () => {
-    setCurrentIndex((prev) => Math.max(prev - 3, 0));
-  };
-
-  const handleNext = () => {
-    setCurrentIndex((prev) => Math.min(prev + 3, newsData.length - 3));
-  };
+  const handlePrev = () => setCurrentIndex((prev) => Math.max(prev - 3, 0));
+  const handleNext = () => setCurrentIndex((prev) => Math.min(prev + 3, newsData.length - 3));
 
   if (isLoading) return <NewsContainer>로딩 중...</NewsContainer>;
   if (error) return <NewsContainer>에러 발생: {error}</NewsContainer>;
@@ -115,10 +112,7 @@ const StockNews = ({ ticker, wishlist, setWishlist }) => {
       <h2>{stockName} 관련 최신 뉴스</h2>
       <NewsSection>
         {newsData.slice(currentIndex, currentIndex + 3).map((news, index) => (
-          <NewsItem 
-            key={index}
-            onClick={() => window.open(news.link, '_blank')}
-          >
+          <NewsItem key={index} onClick={() => window.open(news.link, '_blank')}>
             <NewsHeader>
               {news.categories && news.categories.length > 0 ? (
                 news.categories.map((cat, idx) => (
@@ -134,7 +128,7 @@ const StockNews = ({ ticker, wishlist, setWishlist }) => {
                         : "알수없음"}
                     </StatusBadge>
                     <HeartIcon
-                      $active={wishlist[cat.name] || cat.wished}
+                      $active={cat.wished}
                       onClick={(e) => toggleWishlist(e, cat.name)}
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 24 24"
@@ -170,24 +164,17 @@ const StockNews = ({ ticker, wishlist, setWishlist }) => {
       </NewsSection>
 
       <PaginationContainer>
-        <PageButton
-          onClick={handlePrev}
-          disabled={currentIndex === 0}
-        >
-          이전
-        </PageButton>
-        <PageButton
-          onClick={handleNext}
-          disabled={currentIndex + 3 >= newsData.length}
-        >
-          다음
-        </PageButton>
+        <PageButton onClick={handlePrev} disabled={currentIndex === 0}>이전</PageButton>
+        <PageButton onClick={handleNext} disabled={currentIndex + 3 >= newsData.length}>다음</PageButton>
       </PaginationContainer>
     </NewsContainer>
   );
 };
 
-// 전체 뉴스 영역 컨테이너
+export default StockNews;
+
+// ───────────── Styled Components ─────────────
+
 const NewsContainer = styled.div`
   max-width: 900px;
   margin: 0 auto;
@@ -195,7 +182,12 @@ const NewsContainer = styled.div`
   padding: 4px 24px 20px 24px;
 `;
 
-// 뉴스 하나의 카드 스타일
+const NewsSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
 const NewsItem = styled.div`
   background: white;
   border-radius: 12px;
@@ -204,13 +196,9 @@ const NewsItem = styled.div`
   cursor: pointer;
   transition: transform 0.15s ease;
   width: 100%;
-
-  &:hover {
-    transform: translateY(-4px);
-  }
+  &:hover { transform: translateY(-4px); }
 `;
 
-// 뉴스 상단 (제목과 태그)
 const NewsHeader = styled.div`
   margin-bottom: 12px;
 `;
@@ -283,38 +271,13 @@ const PageButton = styled.button`
   background-color: white;
   cursor: pointer;
   font-size: 14px;
-
   &:disabled {
     background-color: #f5f5f5;
     cursor: not-allowed;
     opacity: 0.7;
   }
-
   &:hover:not(:disabled) {
     background-color: #f0f0f0;
-  }
-`;
-
-// 새로운 스타일 컴포넌트 추가
-const NewsSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-`;
-
-const HeaderContainer = styled.div`
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 28px 24px 20px 24px;
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  min-width: 0;
-  box-sizing: border-box;
-
-  @media (max-width: 600px) {
-    padding-left: 12px;
-    padding-right: 12px;
   }
 `;
 
@@ -325,15 +288,6 @@ const HeartIcon = styled.svg`
   stroke: ${({ $active }) => ($active ? '#e53935' : '#888')};
   fill: ${({ $active }) => ($active ? '#e53935' : 'none')};
   transition: all 0.3s ease;
-
-  &:hover {
-    transform: scale(1.2);
-    stroke: #e53935;
-  }
-
-  &:active {
-    transform: scale(1);
-  }
+  &:hover { transform: scale(1.2); stroke: #e53935; }
+  &:active { transform: scale(1); }
 `;
-
-export default StockNews;
