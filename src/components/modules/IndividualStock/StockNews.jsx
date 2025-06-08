@@ -30,17 +30,14 @@ const StockNews = ({ ticker, wishlist, setWishlist }) => {
               categories: news.categories.map(cat => ({
                 ...cat,
                 status: String(cat.aiScore),
-                wished: cat.wished || false
-              }))
+                wished: cat.wished || false,
+              })),
             }));
           setNewsData(convertedNewsData);
           setCurrentIndex(0);
           setError(null);
-        } else if (!res.ok) {
-          throw new Error("뉴스 데이터를 가져오지 못했습니다.");
         } else {
           setNewsData([]);
-          setCurrentIndex(0);
           setError(null);
         }
       } catch (err) {
@@ -54,7 +51,7 @@ const StockNews = ({ ticker, wishlist, setWishlist }) => {
     if (ticker) fetchNews();
   }, [ticker]);
 
-  const toggleWishlist = async (e, symbol) => {
+  const toggleWishlist = async (e, symbol, isWished) => {
     e.stopPropagation();
     const token = localStorage.getItem("accessToken");
 
@@ -63,15 +60,13 @@ const StockNews = ({ ticker, wishlist, setWishlist }) => {
       return;
     }
 
-    const isAlreadyWished = wishlist?.[symbol];
-
     try {
-      if (isAlreadyWished) {
+      if (isWished) {
         const res = await fetch(`/api/wishlist/${symbol}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `${token}`,
-            'Destination': 'assist'
+            'Destination': 'assist',
           },
         });
         const result = await res.json();
@@ -85,7 +80,7 @@ const StockNews = ({ ticker, wishlist, setWishlist }) => {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `${token}`,
-            'Destination': 'assist'
+            'Destination': 'assist',
           },
           body: JSON.stringify({ symbol }),
         });
@@ -114,7 +109,7 @@ const StockNews = ({ ticker, wishlist, setWishlist }) => {
         {newsData.slice(currentIndex, currentIndex + 3).map((news, index) => (
           <NewsItem key={index} onClick={() => window.open(news.link, '_blank')}>
             <NewsHeader>
-              {news.categories && news.categories.length > 0 ? (
+              {news.categories?.length > 0 ? (
                 news.categories.map((cat, idx) => (
                   <CategoryInfo key={idx}>
                     <Category>{cat.name}</Category>
@@ -129,7 +124,7 @@ const StockNews = ({ ticker, wishlist, setWishlist }) => {
                     </StatusBadge>
                     <HeartIcon
                       $active={cat.wished}
-                      onClick={(e) => toggleWishlist(e, cat.name)}
+                      onClick={(e) => toggleWishlist(e, cat.name, cat.wished)}
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 24 24"
                       strokeWidth="1.5"
@@ -178,7 +173,6 @@ export default StockNews;
 const NewsContainer = styled.div`
   max-width: 900px;
   margin: 0 auto;
-  margin-top: 0;
   padding: 4px 24px 20px 24px;
 `;
 
@@ -222,7 +216,7 @@ const StatusBadge = styled.span`
   background-color: ${({ $status }) =>
     $status === '2' ? '#4CAF50' :
     $status === '0' ? '#FF5252' :
-    $status === '1' ? '#757575' : '#757575'};
+    '#757575'};
   color: white;
 `;
 
