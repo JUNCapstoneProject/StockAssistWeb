@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useLocation, useNavigate } from 'react-router-dom';
 import fetchWithAssist from '../../../fetchWithAssist';
 
-const StockNews = ({ ticker, wishlist, setWishlist }) => {
+const StockNews = ({ ticker, setWishlist }) => {
   const { state } = useLocation();
   const navigate = useNavigate();
   const stockName = state?.name || ticker;
