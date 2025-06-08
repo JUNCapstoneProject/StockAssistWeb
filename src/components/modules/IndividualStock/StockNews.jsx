@@ -11,6 +11,7 @@ const StockNews = ({ ticker }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [wishlist, setWishlist] = useState({});
 
   useEffect(() => {
     const fetchNews = async () => {
@@ -20,24 +21,22 @@ const StockNews = ({ ticker }) => {
         const res = await fetchWithAssist(`${baseURL}/api/news?page=1&limit=100&category=${ticker}`);
         const result = await res.json();
 
-        // 뉴스 데이터가 있으면 무조건 보여주기
         const newsList = result.response?.news || [];
         if (newsList.length > 0) {
           const convertedNewsData = newsList.filter(news => news?.title && news?.link).map(news => ({
             ...news,
             categories: news.categories.map(cat => ({
               ...cat,
-              status: String(cat.aiScore) // aiScore를 문자열로 변환해서 status에 할당
+              status: String(cat.aiScore),
+              isFavorite: cat.isFavorite || false
             }))
           }));
           setNewsData(convertedNewsData);
           setCurrentIndex(0);
           setError(null);
         } else if (!res.ok) {
-          // 뉴스 데이터가 없고, 응답도 실패면 에러
           throw new Error("뉴스 데이터를 가져오지 못했습니다.");
         } else {
-          // 뉴스 데이터가 아예 없는 경우
           setNewsData([]);
           setCurrentIndex(0);
           setError(null);
@@ -49,10 +48,41 @@ const StockNews = ({ ticker }) => {
         setIsLoading(false);
       }
     };
-  
+
     if (ticker) fetchNews();
   }, [ticker]);
-  
+
+  const toggleWishlist = async (e, symbol) => {
+    e.stopPropagation();
+    const token = localStorage.getItem("accessToken");
+    const isFav = wishlist[symbol];
+
+    try {
+      if (!isFav) {
+        const res = await fetch('/api/wishlist', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ symbol })
+        });
+        const result = await res.json();
+        if (result.success) setWishlist(prev => ({ ...prev, [symbol]: true }));
+      } else {
+        const res = await fetch(`/api/wishlist/${symbol}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          }
+        });
+        const result = await res.json();
+        if (result.success) setWishlist(prev => ({ ...prev, [symbol]: false }));
+      }
+    } catch (err) {
+      console.error("찜 처리 오류:", err);
+    }
+  };
 
   const handlePrev = () => {
     setCurrentIndex((prev) => Math.max(prev - 3, 0));
@@ -89,6 +119,23 @@ const StockNews = ({ ticker }) => {
                         ? "긍정"
                         : "알수없음"}
                     </StatusBadge>
+                    <HeartIcon
+                      $active={wishlist[cat.name] || cat.isFavorite}
+                      onClick={(e) => toggleWishlist(e, cat.name)}
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      strokeWidth="1.5"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5
+                          -1.935 0-3.597 1.126-4.312 2.733
+                          -.715-1.607-2.377-2.733-4.313-2.733
+                          C5.1 3.75 3 5.765 3 8.25
+                          c0 7.22 9 12 9 12s9-4.78 9-12Z"
+                      />
+                    </HeartIcon>
                   </CategoryInfo>
                 ))
               ) : (
@@ -254,6 +301,24 @@ const HeaderContainer = styled.div`
   @media (max-width: 600px) {
     padding-left: 12px;
     padding-right: 12px;
+  }
+`;
+
+const HeartIcon = styled.svg`
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  stroke: ${({ $active }) => ($active ? '#e53935' : '#888')};
+  fill: ${({ $active }) => ($active ? '#e53935' : 'none')};
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: scale(1.2);
+    stroke: #e53935;
+  }
+
+  &:active {
+    transform: scale(1);
   }
 `;
 

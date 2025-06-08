@@ -120,6 +120,13 @@ const [selectedSort, setSelectedSort] = useState("");  // ✅ ""로 변경
             credentials: "include"
           }
         );
+        
+        if (response.status === 404) {
+          setNewsData([]);
+          setHasNextNews(false);
+          return;
+        }
+        
         const result = await response.json();
 
         if (result.response?.news) {
@@ -153,6 +160,8 @@ const [selectedSort, setSelectedSort] = useState("");  // ✅ ""로 변경
         }
       } catch (error) {
         console.error("뉴스 데이터 요청 실패:", error);
+        setNewsData([]);
+        setHasNextNews(false);
       } finally {
         setIsLoading(false);
       }
@@ -279,21 +288,24 @@ const [selectedSort, setSelectedSort] = useState("");  // ✅ ""로 변경
       )}
       <AiTab onTabChange={handleTabChange} currentTab={currentTab} />
       {currentTab === "뉴스" && (
-        <div style={{ minHeight: "100vh" }}>
-          {isLoading ? (
-            <div></div>
-          ) : newsData && newsData.length > 0 ? (
-            <ContentList
-              data={newsData}
-              currentPage={newsPage}
-              hasNext={hasNextNews}
-              onPageChange={handleNewsPageChange}
-            />
-          ) : (
-            <div></div>
-          )}
-        </div>
-      )}
+  <div>
+    {isLoading ? (
+      <div style={{ padding: "40px 0", textAlign: "center" }}>로딩 중...</div>
+    ) : newsData && newsData.length > 0 ? (
+      <ContentList
+        data={newsData}
+        currentPage={newsPage}
+        hasNext={hasNextNews}
+        onPageChange={handleNewsPageChange}
+      />
+    ) : (
+      <div style={{ padding: "40px 0", textAlign: "center" }}>
+        {selectedStocks.length > 0 ? "해당 종목 뉴스가 없습니다." : "뉴스가 없습니다."}
+      </div>
+    )}
+  </div>
+)}
+
       {currentTab === "재무제표" && (
         <FinancialStatement
           initialPage={financialPage}

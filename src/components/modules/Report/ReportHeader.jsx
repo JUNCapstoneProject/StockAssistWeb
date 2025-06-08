@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { selectIsLoggedIn } from '../../../redux/features/auth/authSelectors';
 
-const ReportHeader = () => {
+const ReportHeader = ({ currentTab }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const isLoggedIn = useSelector(selectIsLoggedIn);
@@ -22,7 +22,9 @@ const ReportHeader = () => {
       <HeaderWrapper>
         <Row>
           <Title>리포트 센터</Title>
-          <CreateButton onClick={handleCreateClick}>+ 리포트 작성</CreateButton>
+          {currentTab === '사용자 리포트' && (
+            <CreateButton onClick={handleCreateClick}>+ 리포트 작성</CreateButton>
+          )}
         </Row>
         <Description>전문가 분석과 사용자 리포트를 확인하고 공유하세요</Description>
       </HeaderWrapper>

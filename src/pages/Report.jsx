@@ -86,7 +86,7 @@ const Report = () => {
 
   return (
     <div>
-      <ReportHeader />
+      <ReportHeader currentTab={currentTab} />
       <ReportTab onTabChange={handleTabChange} currentTab={currentTab} />
       <div style={{ minHeight: "100vh" }}>
         {isLoading ? (
