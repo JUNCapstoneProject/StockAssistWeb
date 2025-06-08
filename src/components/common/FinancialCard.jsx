@@ -25,15 +25,15 @@ const FinancialCard = ({ stock, activeTab, onTabChange }) => {
 
   const handleWishlistToggle = async (e) => {
     e.stopPropagation(); // 카드 클릭 방지
-    
+  
     if (!isLoggedIn) {
       navigate('/login', { state: { from: window.location.pathname } });
       return;
     }
-
+  
     const token = localStorage.getItem("accessToken");
     const symbol = stock.ticker;
-
+  
     try {
       if (!isWishlisted) {
         const res = await fetch('/api/wishlist', {
@@ -46,7 +46,12 @@ const FinancialCard = ({ stock, activeTab, onTabChange }) => {
           body: JSON.stringify({ symbol }),
         });
         const result = await res.json();
-        if (result.success) setIsWishlisted(true);
+        if (result.success) {
+          setIsWishlisted(true);
+          if (window.location.pathname.startsWith('/stock/')) {
+            window.location.reload(); // ✅ 개별 주식 페이지일 경우 새로고침
+          }
+        }
       } else {
         const res = await fetch(`/api/wishlist/${symbol}`, {
           method: 'DELETE',
@@ -56,12 +61,18 @@ const FinancialCard = ({ stock, activeTab, onTabChange }) => {
           },
         });
         const result = await res.json();
-        if (result.success) setIsWishlisted(false);
+        if (result.success) {
+          setIsWishlisted(false);
+          if (window.location.pathname.startsWith('/stock/')) {
+            window.location.reload(); // ✅ 삭제 후에도 새로고침
+          }
+        }
       }
     } catch (err) {
       console.error("찜 처리 오류:", err);
     }
   };
+  
 
   return (
     <CardContainer onClick={handleCardClick}>
