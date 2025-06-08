@@ -139,10 +139,14 @@ const [selectedSort, setSelectedSort] = useState("");  // ✅ ""로 변경
             let category = '';
             let status = '';
             let aiScore = '';
+            let wished = false; // ✅ 기본값
+
             if (Array.isArray(news.categories) && news.categories.length > 0) {
               category = news.categories.map(c => c.name).join(', ');
               status = news.categories.map(c => c.status).join(', ');
               aiScore = news.categories.map(c => c.aiScore).join(', ');
+              wished = news.categories.some(c => c.wished);
+
             }
             return {
               ...news,
@@ -150,6 +154,7 @@ const [selectedSort, setSelectedSort] = useState("");  // ✅ ""로 변경
               category,
               status,
               aiScore,
+              wished, 
             };
           });
 

@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useLocation } from 'react-router-dom';
 import fetchWithAssist from '../../../fetchWithAssist';
 
-const StockNews = ({ ticker }) => {
+const StockNews = ({ ticker, name, wishlist, setWishlist }) => {
   const { state } = useLocation();
   const stockName = state?.name || ticker;
 
@@ -11,7 +11,6 @@ const StockNews = ({ ticker }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [wishlist, setWishlist] = useState({});
 
   useEffect(() => {
     const fetchNews = async () => {
