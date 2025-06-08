@@ -30,12 +30,12 @@ const LoginPage = () => {
   
     try {
       const urlParams = new URLSearchParams(window.location.search);
-      const redirectUrl = urlParams.get("redirectUrl") || "/";
+      const redirectUrl = urlParams.get("redirectUrl") || from || "/";
   
       const requestBody = { email, password };
   
       const response = await axiosInstance.post(
-        `/api/auth/login?redirectUrl=${encodeURIComponent(redirectUrl)}`, // ✅ 쿼리스트링으로 전달
+        `/api/auth/login?redirectUrl=${encodeURIComponent(redirectUrl)}`,
         requestBody,
         { withCredentials: true }
       );
@@ -45,12 +45,11 @@ const LoginPage = () => {
       if (success && responseData) {
         localStorage.setItem("accessToken", responseData.accessToken);
         dispatch(setLoginStatus(true));
-        const redirectTo = from || responseData.redirectUrl || "/";
   
-        if (redirectTo.startsWith("http://") || redirectTo.startsWith("https://")) {
-          setTimeout(() => (window.location.href = redirectTo), 1500);
+        if (redirectUrl.startsWith("http://") || redirectUrl.startsWith("https://")) {
+          setTimeout(() => (window.location.href = redirectUrl), 1500);
         } else {
-          setTimeout(() => navigate(redirectTo), 1500);
+          setTimeout(() => navigate(redirectUrl), 1500);
         }
       } else {
         setError(apiError?.message || "아이디나 비밀번호가 일치하지 않습니다.");

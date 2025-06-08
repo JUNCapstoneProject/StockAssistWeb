@@ -51,6 +51,13 @@ const ContentList = ({ data, currentPage, hasNext, onPageChange, onItemClick }) 
   const handleWishlistToggle = async (e, item) => {
     e.stopPropagation(); // 카드 클릭 방지
     const token = localStorage.getItem("accessToken");
+    
+    if (!token) {
+      const currentPath = window.location.pathname + window.location.search;
+      window.location.href = `/login?redirectUrl=${encodeURIComponent(currentPath)}`;
+      return;
+    }
+
     const symbol = item.id || (item.categories && item.categories[0]?.name);
     if (!symbol) return;
 
