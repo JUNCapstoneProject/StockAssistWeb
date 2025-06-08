@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import fetchWithAssist from '../../../fetchWithAssist';
 
 const StockNews = ({ ticker, wishlist, setWishlist }) => {
   const { state } = useLocation();
+  const navigate = useNavigate();
   const stockName = state?.name || ticker;
 
   const [newsData, setNewsData] = useState([]);
@@ -54,6 +55,12 @@ const StockNews = ({ ticker, wishlist, setWishlist }) => {
   const toggleWishlist = async (e, symbol) => {
     e.stopPropagation();
     const token = localStorage.getItem("accessToken");
+    
+    if (!token) {
+      navigate('/login', { state: { from: window.location.pathname } });
+      return;
+    }
+
     const isFav = wishlist[symbol];
 
     try {
@@ -68,7 +75,10 @@ const StockNews = ({ ticker, wishlist, setWishlist }) => {
           body: JSON.stringify({ symbol })
         });
         const result = await res.json();
-        if (result.success) setWishlist(prev => ({ ...prev, [symbol]: true }));
+        if (result.success) {
+          setWishlist(prev => ({ ...prev, [symbol]: true }));
+          window.location.reload();
+        }
       } else {
         const res = await fetch(`/api/wishlist/${symbol}`, {
           method: 'DELETE',
@@ -78,7 +88,10 @@ const StockNews = ({ ticker, wishlist, setWishlist }) => {
           }
         });
         const result = await res.json();
-        if (result.success) setWishlist(prev => ({ ...prev, [symbol]: false }));
+        if (result.success) {
+          setWishlist(prev => ({ ...prev, [symbol]: false }));
+          window.location.reload();
+        }
       }
     } catch (err) {
       console.error("찜 처리 오류:", err);

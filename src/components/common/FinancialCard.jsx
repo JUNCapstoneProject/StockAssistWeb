@@ -27,7 +27,7 @@ const FinancialCard = ({ stock, activeTab, onTabChange }) => {
     e.stopPropagation(); // 카드 클릭 방지
     
     if (!isLoggedIn) {
-      navigate('/login');
+      navigate('/login', { state: { from: window.location.pathname } });
       return;
     }
 
