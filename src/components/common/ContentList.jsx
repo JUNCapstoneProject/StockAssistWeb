@@ -17,7 +17,6 @@ const ContentList = ({ data, currentPage, hasNext, onPageChange, onItemClick }) 
   const listRef = useRef(null);
   const width = useWindowWidth();
   const isMobile = width <= 768;
-  const [wishlistItems, setWishlistItems] = useState({});
 
   const reportType = searchParams.get("type");
   const isReportPage = window.location.pathname === '/report';
@@ -51,36 +50,42 @@ const ContentList = ({ data, currentPage, hasNext, onPageChange, onItemClick }) 
   const handleWishlistToggle = async (e, item) => {
     e.stopPropagation(); // 카드 클릭 방지
     const token = localStorage.getItem("accessToken");
-    const symbol = item.id;
+    const symbol = item.id || (item.categories && item.categories[0]?.name);
+    if (!symbol) return;
 
     try {
-      if (!wishlistItems[symbol]) {
+      if (!item.wished) {
         const res = await fetch('/api/wishlist', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `${token}`,
+            "Destination": "assist"
           },
           body: JSON.stringify({ symbol }),
         });
         const result = await res.json();
         if (result.success) {
-          setWishlistItems(prev => ({ ...prev, [symbol]: true }));
+          item.wished = true;
         }
       } else {
         const res = await fetch(`/api/wishlist/${symbol}`, {
           method: 'DELETE',
           headers: {
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `${token}`,
+            "Destination": "assist"
           },
         });
         const result = await res.json();
         if (result.success) {
-          setWishlistItems(prev => ({ ...prev, [symbol]: false }));
+          item.wished = false;
         }
       }
     } catch (err) {
       console.error("찜 처리 오류:", err);
+    }
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('forceUpdate'));
     }
   };
 
@@ -102,7 +107,7 @@ const ContentList = ({ data, currentPage, hasNext, onPageChange, onItemClick }) 
                       {!isReportPage && (
                         <StatusWithHeart>
                           <HeartIconSmall
-                            $active={wishlistItems[item.id]}
+                            $active={item.wished}
                             onClick={(e) => handleWishlistToggle(e, item)}
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24"
@@ -148,7 +153,7 @@ const ContentList = ({ data, currentPage, hasNext, onPageChange, onItemClick }) 
                         {!isReportPage && (
                           <StatusWithHeart>
                             <HeartIconSmall
-                              $active={wishlistItems[item.id]}
+                              $active={item.wished}
                               onClick={(e) => handleWishlistToggle(e, item)}
                               xmlns="http://www.w3.org/2000/svg"
                               viewBox="0 0 24 24"
@@ -187,7 +192,7 @@ const ContentList = ({ data, currentPage, hasNext, onPageChange, onItemClick }) 
                         {!isReportPage && (
                           <StatusWithHeart>
                             <HeartIconSmall
-                              $active={wishlistItems[item.id]}
+                              $active={item.wished}
                               onClick={(e) => handleWishlistToggle(e, item)}
                               xmlns="http://www.w3.org/2000/svg"
                               viewBox="0 0 24 24"
@@ -235,7 +240,7 @@ const ContentList = ({ data, currentPage, hasNext, onPageChange, onItemClick }) 
                   {!isReportPage && (
                     <StatusWithHeart>
                       <HeartIconSmall
-                        $active={wishlistItems[item.id]}
+                        $active={item.wished}
                         onClick={(e) => handleWishlistToggle(e, item)}
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"

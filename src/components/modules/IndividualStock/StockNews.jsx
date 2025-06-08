@@ -28,7 +28,7 @@ const StockNews = ({ ticker }) => {
             categories: news.categories.map(cat => ({
               ...cat,
               status: String(cat.aiScore),
-              isFavorite: cat.isFavorite || false
+              wished: cat.wished || false
             }))
           }));
           setNewsData(convertedNewsData);
@@ -63,7 +63,8 @@ const StockNews = ({ ticker }) => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `${token}`,
+            "Destination": "assist"
           },
           body: JSON.stringify({ symbol })
         });
@@ -73,7 +74,8 @@ const StockNews = ({ ticker }) => {
         const res = await fetch(`/api/wishlist/${symbol}`, {
           method: 'DELETE',
           headers: {
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `${token}`,
+            "Destination": "assist"
           }
         });
         const result = await res.json();
@@ -120,7 +122,7 @@ const StockNews = ({ ticker }) => {
                         : "알수없음"}
                     </StatusBadge>
                     <HeartIcon
-                      $active={wishlist[cat.name] || cat.isFavorite}
+                      $active={wishlist[cat.name] || cat.wished}
                       onClick={(e) => toggleWishlist(e, cat.name)}
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 24 24"
