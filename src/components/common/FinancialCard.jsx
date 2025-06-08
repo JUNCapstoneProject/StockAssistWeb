@@ -13,11 +13,11 @@ const FinancialCard = ({ stock, activeTab, onTabChange }) => {
   const navigate = useNavigate();
   const isLoggedIn = useSelector(selectIsLoggedIn);
   const statusText = stock.status === 1 ? "긍정" : "부정";
-  const [isWishlisted, setIsWishlisted] = useState(stock.isFavorite || false);
+  const [isWishlisted, setIsWishlisted] = useState(stock.wished || false);
 
   useEffect(() => {
-    setIsWishlisted(stock.isFavorite || false);
-  }, [stock.isFavorite]);
+    setIsWishlisted(stock.wished || false);
+  }, [stock.wished]);
 
   const handleCardClick = () => {
     navigate(`/stock/${stock.ticker}`, { state: { name: stock.name } });
@@ -40,7 +40,8 @@ const FinancialCard = ({ stock, activeTab, onTabChange }) => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `${token}`,
+            "Destination": "assist"
           },
           body: JSON.stringify({ symbol }),
         });
@@ -50,7 +51,8 @@ const FinancialCard = ({ stock, activeTab, onTabChange }) => {
         const res = await fetch(`/api/wishlist/${symbol}`, {
           method: 'DELETE',
           headers: {
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `${token}`,
+            "Destination": "assist"
           },
         });
         const result = await res.json();
