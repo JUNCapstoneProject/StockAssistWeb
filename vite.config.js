@@ -12,6 +12,7 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        maximumFileSizeToCacheInBytes: 5000000 // 5MB로 늘림 (기본: 2MB)
       },
       includeAssets: ['images/*.png'], // ✅ public/logo.png → logo.png
       manifest: {
