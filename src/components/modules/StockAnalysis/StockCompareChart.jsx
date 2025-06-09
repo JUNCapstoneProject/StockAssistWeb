@@ -530,7 +530,7 @@ const StockCompareChart = () => {
           <YAxis domain={["auto", "auto"]} />
           <Tooltip 
             contentStyle={{ fontSize: 12, padding: 8 }}
-            formatter={(value, name, props) =>
+            formatter={(value) =>
               typeof value === 'number' ? value.toFixed(2) : value
             }
           />
