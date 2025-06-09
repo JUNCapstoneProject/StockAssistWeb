@@ -9,12 +9,19 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 
 export default [
-  { ignores: ['dist'] }, // dist 디렉토리 린트 제외
+  { ignores: ['dist', 'dev-dist'] }, // dist와 dev-dist 디렉토리 린트 제외
   {
     files: ['**/*.{js,jsx}'], // JavaScript와 JSX 파일에 대한 설정
     languageOptions: {
       ecmaVersion: 2020, // ECMAScript 버전 설정
-      globals: globals.browser, // 브라우저 전역 변수 허용
+      globals: {
+        ...globals.browser, // 브라우저 전역 변수 허용
+        importScripts: 'readonly', // Service Worker 전역 변수
+        define: 'readonly', // AMD 모듈 정의
+        _: 'readonly', // Lodash
+        ExtendableEvent: 'readonly', // Service Worker 이벤트
+        FetchEvent: 'readonly', // Service Worker 이벤트
+      },
       parserOptions: {
         ecmaVersion: 'latest', // 최신 ECMAScript 문법 지원
         ecmaFeatures: { jsx: true }, // JSX 문법 지원
@@ -33,6 +40,10 @@ export default [
         'warn',
         { allowConstantExport: true }, // 상수 내보내기 허용
       ],
+      '@typescript-eslint/ban-types': 'off', // TypeScript 타입 규칙 비활성화
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
     },
   },
 ]

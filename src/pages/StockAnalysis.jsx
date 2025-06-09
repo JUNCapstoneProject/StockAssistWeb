@@ -8,7 +8,9 @@ const StockAnalysis = () => {
     <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px', boxSizing: 'border-box' }}>
       <IndividualHeader />
       <MarketCapTable />
-      <StockCompareChart />
+      <div style={{ marginBottom: '60px' }}>
+        <StockCompareChart />
+      </div>
     </div>
   );
 };

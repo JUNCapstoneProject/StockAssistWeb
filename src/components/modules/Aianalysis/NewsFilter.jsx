@@ -28,7 +28,7 @@ const NewsFilter = ({
         width: rect.width
       });
     }
-  }, [showSuggestions, searchKeyword]);
+  }, [showSuggestions, searchKeyword, inputRef]);
 
   return (
     <>
