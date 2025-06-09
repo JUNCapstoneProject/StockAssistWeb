@@ -210,67 +210,330 @@ const StockCompareChart = () => {
     }
   }
 
+  // ✅ 스타일: 컴포넌트 상단에 CSS-in-JS로 스타일 추가
+  const customStyles = `
+    .stock-compare-root {
+      background: #fff;
+      border-radius: 14px;
+      padding: 32px 24px 16px 24px;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .stock-compare-title {
+      font-weight: 700;
+      font-size: 22px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .stock-compare-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+      justify-content: center;
+    }
+    .stock-compare-search-wrap {
+      margin-bottom: 12px;
+      position: relative;
+      width: 100%;
+      max-width: 400px;
+      align-self: center;
+    }
+    .stock-compare-metric {
+      margin-bottom: 8px;
+      align-self: flex-end;
+    }
+    .period-btn-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: nowrap;
+      justify-content: center;
+      margin-bottom: 8px;
+      overflow-x: auto;
+      white-space: nowrap;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .period-btn-group::-webkit-scrollbar {
+      display: none;
+    }
+    .period-btn {
+      border: none;
+      background: #f2f4f8;
+      color: #222;
+      padding: 7px 18px;
+      border-radius: 20px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      outline: none;
+      white-space: nowrap;
+      min-width: 44px;
+    }
+    .period-btn.selected {
+      background: #3498ff;
+      color: #fff;
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(52,152,255,0.08);
+    }
+    @media (max-width: 700px) {
+      .period-btn-group {
+        gap: 2px;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+      }
+      .period-btn {
+        padding: 4px 8px;
+        font-size: 11px;
+        min-width: 32px;
+      }
+    }
+    @media (max-width: 480px) {
+      .period-btn {
+        padding: 2px 6px;
+        font-size: 9px;
+        min-width: 24px;
+      }
+    }
+    .recharts-cartesian-axis-tick-value {
+      font-size: 14px;
+      transition: font-size 0.2s;
+    }
+    @media (max-width: 900px) {
+      .stock-compare-root {
+        max-width: 100vw;
+      }
+    }
+    @media (max-width: 700px) {
+      .stock-compare-root {
+        padding: 16px 4px 8px 4px;
+        max-width: 100vw;
+      }
+      .stock-compare-title {
+        font-size: 18px;
+      }
+      .stock-compare-search-wrap {
+        max-width: 100vw;
+        width: 100%;
+      }
+      .period-btn-group {
+        gap: 4px;
+      }
+      .period-btn {
+        padding: 6px 10px;
+        font-size: 13px;
+      }
+      .recharts-cartesian-axis-tick-value {
+        font-size: 11px !important;
+      }
+    }
+    @media (max-width: 480px) {
+      .stock-compare-root {
+        padding: 8px 0 4px 0;
+      }
+      .stock-compare-title {
+        font-size: 16px;
+      }
+      .recharts-cartesian-axis-tick-value {
+        font-size: 9px !important;
+      }
+    }
+    .recharts-tooltip-wrapper {
+      font-size: 12px !important;
+    }
+    .recharts-default-tooltip {
+      font-size: 12px !important;
+    }
+    @media (max-width: 700px) {
+      .recharts-cartesian-axis-tick-value {
+        font-size: 11px !important;
+      }
+      .recharts-tooltip-wrapper,
+      .recharts-default-tooltip {
+        font-size: 10px !important;
+      }
+    }
+    @media (max-width: 480px) {
+      .recharts-cartesian-axis-tick-value {
+        font-size: 9px !important;
+      }
+      .recharts-tooltip-wrapper,
+      .recharts-default-tooltip {
+        font-size: 9px !important;
+      }
+    }
+  `;
+
   return (
-    <div
-      style={{
-        background: "#fff",
-        borderRadius: 14,
-        padding: "32px 24px 16px 24px",
-        maxWidth: "1100px",
-        width: "100%",
-        margin: "0 auto",
-        boxSizing: "border-box",
-      }}
-    >
-      <h2 style={{ fontWeight: 700, fontSize: 22, marginBottom: 20, textAlign: 'center' }}>주식 비교</h2>
-      <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+    <div className="stock-compare-root">
+      <style>{customStyles}</style>
+      <h2 className="stock-compare-title">주식 비교</h2>
+      <div className="stock-compare-tags">
         {selectedStocks.map((stock) => (
           <Tag key={stock} closable onClose={() => handleClose(stock)}>{stock}</Tag>
         ))}
       </div>
-      <div style={{ marginBottom: 12, position: 'relative', width: 400 }}>
-        <div className="search-container">
-          <input
-            type="text"
-            placeholder="종목 검색"
-            value={searchQuery}
-            onChange={handleSearchChange}
-            onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-            style={{ width: 400, background: "#f6f8fa", borderRadius: 8, border: "none" }}
-            autoComplete="off"
-          />
-          {searchQuery && (
-            <button onClick={clearSearch} style={{ position: "absolute", right: 40 }}>✕</button>
-          )}
-          {showSuggestions && (
-            <ul className="suggestions-dropdown">
-              {suggestions.filter(item => !selectedStocks.includes(item.ticker)).map((item) => (
-                <li key={item.ticker} onMouseDown={() => handleSuggestionClick(item.ticker)}>
-                  {item.nameKr} ({item.ticker}) {item.nameEn && ` - ${item.nameEn}`}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </div>
-      <div style={{ marginBottom: 16 }}>
-        <Select value={metric} onChange={setMetric} style={{ width: 140 }}>
-          <Option value="주가">주가</Option>
-          <Option value="주가변화율">주가 변화율</Option>
-        </Select>
-      </div>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-        {PERIODS.map((p) => (
-          <button key={p.key} onClick={() => setPeriod(p.key)}>{p.label}</button>
+      <div className="stock-compare-search-wrap" style={{ width: '240px' }}>
+  <form
+    className="search-container"
+    onSubmit={e => e.preventDefault()}
+    style={{ width: '100%', position: 'relative' }}
+  >
+    <input
+      type="text"
+      placeholder="종목 검색"
+      value={searchQuery}
+      onChange={handleSearchChange}
+      onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+      onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+      className="search-input"
+      autoComplete="off"
+      style={{
+        width: '100%',
+        padding: '8px 36px 8px 12px',
+        border: '1px solid #ccc',
+        borderRadius: '6px',
+        fontSize: '14px',
+        boxSizing: 'border-box',
+      }}
+    />
+    {searchQuery && (
+      <button
+        type="button"
+        className="clear-button"
+        onClick={clearSearch}
+        style={{
+          position: 'absolute',
+          right: 36,
+          top: '50%',
+          transform: 'translateY(-50%)',
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          padding: '5px',
+        }}
+      >
+        ✕
+      </button>
+    )}
+    <button
+      type="submit"
+      className="search-button"
+      style={{
+        position: 'absolute',
+        right: 8,
+        top: '50%',
+        transform: 'translateY(-50%)',
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        padding: 0,
+      }}
+      tabIndex={-1}
+      aria-label="검색"
+    >
+      <svg className="search-icon" viewBox="0 0 24 24" width="20" height="20" style={{ display: 'block' }}>
+        <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke="currentColor" strokeWidth="2" fill="none" />
+      </svg>
+    </button>
+
+    {showSuggestions && (
+      <ul
+        className="suggestions-dropdown"
+        style={{
+          position: 'absolute',
+          top: '100%',
+          left: 0,
+          width: '100%',
+          zIndex: 1000,
+          background: '#fff',
+          border: '1px solid #ccc',
+          borderTop: 'none',
+          maxHeight: '240px',
+          overflowY: 'auto',
+          listStyle: 'none',
+          padding: 0,
+          margin: 0,
+          boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+          borderBottomLeftRadius: '6px',
+          borderBottomRightRadius: '6px',
+        }}
+      >
+        {suggestions
+          .filter(item => !selectedStocks.includes(item.ticker))
+          .map(item => (
+            <li
+              key={item.ticker}
+              className="suggestion-item"
+              onMouseDown={() => handleSuggestionClick(item.ticker)}
+              style={{
+                padding: '8px 12px',
+                cursor: 'pointer',
+                borderBottom: '1px solid #eee',
+              }}
+            >
+              {item.nameKr} ({item.ticker}){item.nameEn && ` - ${item.nameEn}`}
+            </li>
         ))}
-      </div>
-      <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={chartData}>
+      </ul>
+    )}
+  </form>
+</div>
+
+<div className="period-metric-wrap" style={{
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: '8px',
+  marginBottom: '16px',
+}}>
+  <Select value={metric} onChange={setMetric} style={{ width: 140 }}>
+    <Option value="주가">주가</Option>
+    <Option value="주가변화율">주가 변화율</Option>
+  </Select>
+
+  <div className="period-btn-group" style={{ display: 'flex', gap: 4, flexWrap: 'nowrap', overflowX: 'auto', whiteSpace: 'nowrap' }}>
+    {PERIODS.map((p) => (
+      <button
+        key={p.key}
+        className={`period-btn${period === p.key ? ' selected' : ''}`}
+        onClick={() => setPeriod(p.key)}
+        type="button"
+        style={{
+          flex: '0 0 auto',
+          padding: '4px 8px',
+          fontSize: '12px',
+          minWidth: '40px',
+        }}
+      >
+        {p.label}
+      </button>
+    ))}
+  </div>
+</div>
+
+
+      <ResponsiveContainer width="100%" height={340} minWidth={350} minHeight={250}>
+        <LineChart data={chartData} margin={{ left: 8, right: 32 }}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="date" />
+          <XAxis 
+            dataKey="date" 
+            tick={{ fontSize: 14 }}
+            tickFormatter={(date) => date}
+          />
           <YAxis domain={["auto", "auto"]} />
-          <Tooltip />
+          <Tooltip 
+            contentStyle={{ fontSize: 12, padding: 8 }}
+            formatter={(value) =>
+              typeof value === 'number' ? value.toFixed(2) : value
+            }
+          />
           <Legend />
           {selectedStocks.map((stock, idx) => (
             <Line
