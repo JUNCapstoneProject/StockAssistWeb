@@ -7,20 +7,21 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
-import { selectIsLoggedIn } from '../redux/features/auth/authSelectors';
+import { selectIsLoggedIn, selectIsLoginChecked } from '../redux/features/auth/authSelectors';
 import { useNavigate } from 'react-router-dom';
 
 const MyPortfolioUnlink = () => {
   const isLoggedIn = useSelector(selectIsLoggedIn);
+  const isLoginChecked = useSelector(selectIsLoginChecked);
   const navigate = useNavigate();
   const [portfolio, setPortfolio] = useState([]);
 
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (isLoginChecked && !isLoggedIn) {
       navigate('/login', { state: { from: window.location.pathname } });
       return;
     }
-  }, [isLoggedIn, navigate]);
+  }, [isLoggedIn, isLoginChecked, navigate]);
 
   useEffect(() => {
     const fetchFavorites = async () => {
@@ -28,7 +29,7 @@ const MyPortfolioUnlink = () => {
       
       const token = localStorage.getItem("accessToken");
       try {
-        const response = await fetch('/api/favorites', {
+        const response = await fetch('/api/wishlist', {
           headers: {
             'Authorization': `${token}`,
             "Destination": "assist"
