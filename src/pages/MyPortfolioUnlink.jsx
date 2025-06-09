@@ -16,6 +16,13 @@ const MyPortfolioUnlink = () => {
   const [portfolio, setPortfolio] = useState([]);
 
   useEffect(() => {
+    if (!isLoggedIn) {
+      navigate('/login', { state: { from: window.location.pathname } });
+      return;
+    }
+  }, [isLoggedIn, navigate]);
+
+  useEffect(() => {
     const fetchFavorites = async () => {
       if (!isLoggedIn) return;
       
@@ -23,7 +30,7 @@ const MyPortfolioUnlink = () => {
       try {
         const response = await fetch('/api/favorites', {
           headers: {
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `${token}`,
             "Destination": "assist"
           }
         });
