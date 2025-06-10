@@ -126,7 +126,7 @@ const FinancialCard = ({ stock, activeTab, onTabChange }) => {
             <Col align="left">{item.name}</Col>
             <Col align="right">
               <RightGroup>
-                <span>{item.value}</span>
+                <span>{item.value?.replace(/\s*\(전분기\)/g, '')}</span>
                 <Change $change={item.change}>
                   {item.change >= 0 ? '+' : ''}{Number(item.change).toFixed(2)}%
                 </Change>
@@ -230,13 +230,19 @@ const Price = styled.div`
 const Change = styled.span.withConfig({
   shouldForwardProp: (prop) => prop !== '$change',
 })`
-  color: ${({ $change }) => ($change >= 0 ? '#1db954' : '#e53935')};
+  color: ${({ $change }) =>
+    $change === null || $change === undefined
+      ? '#888'
+      : $change >= 0
+      ? '#1db954'
+      : '#e53935'};
   font-weight: 600;
   font-size: 15px;
   margin-left: 2px;
   display: inline-flex;
   align-items: center;
 `;
+
 
 const Tabs = styled.div`
   display: flex;
@@ -286,7 +292,6 @@ const Row = styled.div`
 const Col = styled.div.withConfig({
   shouldForwardProp: (prop) => prop !== '$change' && prop !== 'align',
 })`
-  flex: 1;
   text-align: ${({ align }) => align || 'right'};
   font-size: 16px;
   font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
@@ -296,6 +301,10 @@ const Col = styled.div.withConfig({
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  ${({ align }) => align === 'left'
+    ? `flex: 0 0 auto; max-width: 40%;`  // 왼쪽 컬럼은 글자만큼만 차지
+    : `flex: 1;`}                        // 오른쪽 컬럼은 나머지 차지
 `;
 
 const RightGroup = styled.div`

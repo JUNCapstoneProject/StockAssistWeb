@@ -49,16 +49,16 @@ const StockCompareChart = () => {
   const baseURL = import.meta.env.VITE_API_BASE_URL;
 
   // 테이블 컬럼 정의 (컴포넌트 내부에 위치해야 함)
-  const columns = [
-    { title: "종목", dataIndex: "name", key: "name", ellipsis: true },
-    { title: "현재가", dataIndex: "price", key: "price", ellipsis: true },
-    { title: "변화율", dataIndex: "change", key: "change", ellipsis: true },
-    { title: "시가총액", dataIndex: "marketCap", key: "marketCap", ellipsis: true },
-    { title: "거래량", dataIndex: "volume", key: "volume", ellipsis: true },
-    { title: "P/E", dataIndex: "pe", key: "pe", ellipsis: true },
-    { title: "EPS", dataIndex: "eps", key: "eps", ellipsis: true },
-    { title: "배당수익", dataIndex: "dividend", key: "dividend", ellipsis: true },
-  ];
+const columns = [
+  { title: "종목", dataIndex: "name", key: "name" },
+  { title: "현재가", dataIndex: "price", key: "price" },
+  { title: "변화율", dataIndex: "change", key: "change" },
+  { title: "시가총액", dataIndex: "marketCap", key: "marketCap" },
+  { title: "거래량", dataIndex: "volume", key: "volume" },
+  { title: "P/E", dataIndex: "pe", key: "pe" },
+  { title: "EPS", dataIndex: "eps", key: "eps" },
+  { title: "배당수익", dataIndex: "dividend", key: "dividend" },
+];
 
   const handleClose = (removedStock) => {
     setSelectedStocks(selectedStocks.filter((stock) => stock !== removedStock));
