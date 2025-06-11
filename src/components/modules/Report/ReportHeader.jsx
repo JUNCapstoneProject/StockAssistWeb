@@ -6,7 +6,6 @@ import { selectIsLoggedIn } from '../../../redux/features/auth/authSelectors';
 
 const ReportHeader = ({ currentTab }) => {
   const navigate = useNavigate();
-  const location = useLocation();
   const isLoggedIn = useSelector(selectIsLoggedIn);
 
   const handleCreateClick = () => {
