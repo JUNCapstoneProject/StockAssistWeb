@@ -65,7 +65,7 @@ const ReportEdit = () => {
         };
         localStorage.setItem(`report_${reportId}`, JSON.stringify(updatedReport));
         alert('리포트가 수정되었습니다!');
-        navigate(`/report/${reportId}`);
+        navigate('/report?type=사용자 리포트&page=1');
       } else {
         throw new Error(response.data.error || '리포트 수정에 실패했습니다.');
       }

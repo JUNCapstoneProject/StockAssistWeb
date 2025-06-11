@@ -1,17 +1,16 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { selectIsLoggedIn } from '../../../redux/features/auth/authSelectors';
 
 const ReportHeader = ({ currentTab }) => {
   const navigate = useNavigate();
-  const location = useLocation();
   const isLoggedIn = useSelector(selectIsLoggedIn);
 
   const handleCreateClick = () => {
     if (!isLoggedIn) {
-      navigate('/login', { state: { from: location.pathname } });
+    navigate('/login', { state: { from: '/report?type=사용자 리포트&page=1' } });
       return;
     }
     navigate('/report/create');

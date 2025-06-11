@@ -97,7 +97,7 @@ const ReportDetail = () => {
       const response = await axiosInstance.delete(`/api/reports/${reportId}`);
       if (response.data.success) {
         localStorage.removeItem(`report_${reportId}`);
-        navigate("/report");
+        navigate('/report?type=사용자 리포트&page=1'); // ✅ 사용자 탭으로 이동
       } else {
         alert("리포트 삭제에 실패했습니다.");
       }
