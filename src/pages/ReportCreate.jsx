@@ -44,7 +44,7 @@ const ReportCreate = () => {
 
       if (response.data.success) {
         alert('리포트가 저장되었습니다!');
-        navigate('/report');
+        navigate('/report?type=사용자 리포트&page=1');
       } else {
         throw new Error(response.data.error || '리포트 저장에 실패했습니다.');
       }

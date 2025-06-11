@@ -11,7 +11,7 @@ const ReportHeader = ({ currentTab }) => {
 
   const handleCreateClick = () => {
     if (!isLoggedIn) {
-      navigate('/login', { state: { from: location.pathname } });
+    navigate('/login', { state: { from: '/report?type=사용자 리포트&page=1' } });
       return;
     }
     navigate('/report/create');
